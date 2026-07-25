@@ -408,6 +408,17 @@
      not a blank loading screen. backdrop-filter blurs the live page content
      rather than a screenshot, so it always matches whatever's actually
      rendered underneath. */
+  .gate {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 24px; background: var(--gray-50);
+  }
+  .gate-card { text-align: center; max-width: 380px; }
+  .gate-card img { width: 40px; height: 50px; object-fit: contain; margin-bottom: 22px; }
+  .gate-title { font-family: 'Poppins', sans-serif; font-size: 1.3rem; font-weight: 800; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 10px; }
+  .gate-sub { font-size: 14px; color: var(--gray-500); line-height: 1.6; }
+  .gate-sub a { color: var(--teal-600); font-weight: 600; text-decoration: none; }
+  .gate-sub a:hover { text-decoration: underline; }
+
   .welcome-overlay {
     position: fixed; inset: 0; z-index: 400;
     display: flex; align-items: center; justify-content: center; padding: 24px;
@@ -649,6 +660,14 @@
 
 </div>
 
+<div class="gate" id="noIdentityGate" style="display:none;">
+  <div class="gate-card">
+    <img src="assets/logo.png" alt="">
+    <div class="gate-title">This is a private workspace</div>
+    <div class="gate-sub">You'll need the personal link your team lead sent you to open this page. Reach out to them if you can't find it.</div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <div class="welcome-overlay" id="welcomeOverlay" style="display:none;">
@@ -763,6 +782,15 @@ let WORKSPACE_KEY = null;
 // (doGet never checked the key) while every write silently 403'd with
 // "Invalid workspace key" - a confusing split failure. Now Code.gs is the
 // only place the map is defined; every page fetches it here instead.
+// Swaps the whole dashboard shell for a plain "you need a link" gate. Used
+// for both "no ?w= at all" and "?w= present but not a real workspace key" -
+// from a visitor's perspective those are the same outcome, so they get the
+// same page rather than a half-rendered dashboard with a buried error.
+function showGate() {
+  document.querySelector('.shell').style.display = 'none';
+  document.getElementById('noIdentityGate').style.display = 'flex';
+}
+
 async function initSidebarIdentity() {
   const params = new URLSearchParams(window.location.search);
   const key = params.get('w');
@@ -771,18 +799,12 @@ async function initSidebarIdentity() {
   try {
     name = await WISDOMLAYERS_API.getWorkspaceName(key);
   } catch (err) {
-    document.getElementById('myLeadsList').innerHTML = `<div class="empty-state">Could not verify your workspace link right now. ${err.message} Reload to try again.</div>`;
-    SpotlightTour.abandon();
+    showGate();
     return false;
   }
 
   if (!name) {
-    document.getElementById('claimBtn').disabled = true;
-    document.getElementById('claimBtn').title = 'No workspace link - contact the owner for yours';
-    document.getElementById('addLeadToggleBtn').disabled = true;
-    document.getElementById('addLeadToggleBtn').title = 'No workspace link - contact the owner for yours';
-    document.getElementById('myLeadsList').innerHTML = '<div class="empty-state">This link is missing your workspace ID. Use the personal link the owner sent you.</div>';
-    SpotlightTour.abandon();
+    showGate();
     return false;
   }
 

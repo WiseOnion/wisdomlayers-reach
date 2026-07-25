@@ -253,6 +253,15 @@
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+  .gate {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 24px; background: var(--gray-50);
+  }
+  .gate-card { text-align: center; max-width: 380px; }
+  .gate-card img { width: 40px; height: 50px; object-fit: contain; margin-bottom: 22px; }
+  .gate-title { font-family: 'Poppins', sans-serif; font-size: 1.3rem; font-weight: 800; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 10px; }
+  .gate-sub { font-size: 14px; color: var(--gray-500); line-height: 1.6; }
+
   @media (max-width: 860px) {
     .sidebar { display: none; }
     .content { padding: 20px 16px 50px; }
@@ -384,6 +393,14 @@
 
 </div>
 
+<div class="gate" id="noIdentityGate" style="display:none;">
+  <div class="gate-card">
+    <img src="assets/logo.png" alt="">
+    <div class="gate-title">This is a private workspace</div>
+    <div class="gate-sub">You'll need the personal link your team lead sent you to open this page. Reach out to them if you can't find it.</div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="_shared/api.js"></script>
@@ -408,6 +425,11 @@ let openResourceIds = new Set();
 // The key->name map is defined once, in sheets/Code.gs's WORKSPACE_KEYS,
 // and fetched here instead of being hardcoded per page - see the longer
 // comment on this same function in index.html for why.
+function showGate() {
+  document.querySelector('.shell').style.display = 'none';
+  document.getElementById('noIdentityGate').style.display = 'flex';
+}
+
 async function initSidebarIdentity() {
   const params = new URLSearchParams(window.location.search);
   const key = params.get('w');
@@ -421,15 +443,12 @@ async function initSidebarIdentity() {
   try {
     name = await WISDOMLAYERS_API.getWorkspaceName(key);
   } catch (err) {
-    toast('Could not verify your workspace link. ' + err.message);
-    SpotlightTour.abandon();
+    showGate();
     return;
   }
 
   if (!name) {
-    dashLink.href = 'index.html';
-    historyLink.href = 'history.html';
-    SpotlightTour.abandon();
+    showGate();
     return;
   }
 
