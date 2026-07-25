@@ -263,6 +263,9 @@
   .sk-row .sk-line1 { width: 180px; height: 14px; flex-shrink: 0; }
   .sk-row .sk-line2 { flex: 1; height: 12px; max-width: 260px; }
   .sk-row .sk-pill { width: 72px; height: 18px; border-radius: 20px; flex-shrink: 0; }
+  @media (prefers-reduced-motion: reduce) {
+    .sk { animation: none; background: var(--gray-100); }
+  }
 </style>
 </head>
 <body>

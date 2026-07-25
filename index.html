@@ -530,26 +530,49 @@
     background: linear-gradient(100deg, rgba(255,255,255,0.22) 40%, rgba(255,255,255,0.34) 50%, rgba(255,255,255,0.22) 60%);
     background-size: 250% 100%;
   }
+  /* Matches .lead-row-compact > .lrc-head: single line of title + meta + pill. */
   .sk-row {
-    padding: 13px 18px; display: flex; align-items: center; gap: 14px;
+    padding: 16px 22px; display: flex; align-items: center; gap: 12px;
     border-bottom: 1px solid var(--gray-100);
   }
   .sk-row:last-child { border-bottom: none; }
-  .sk-row .sk-avatar { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; }
-  .sk-row .sk-lines { flex: 1; min-width: 0; }
-  .sk-row .sk-line1 { width: 55%; height: 13px; margin-bottom: 8px; }
-  .sk-row .sk-line2 { width: 35%; height: 11px; }
-  .sk-row .sk-pill { width: 64px; height: 18px; border-radius: 20px; flex-shrink: 0; }
+  .sk-row .sk-line1 { width: 150px; height: 17px; flex-shrink: 0; }
+  .sk-row:nth-child(2) .sk-line1 { width: 110px; }
+  .sk-row:nth-child(3) .sk-line1 { width: 185px; }
+  .sk-row .sk-line2 { flex: 1; min-width: 24px; max-width: 90px; height: 15px; }
+  .sk-row .sk-pill { width: 71px; height: 21px; border-radius: 20px; flex-shrink: 0; }
   /* Stagger: each row's shimmer starts a beat after the last, top to bottom */
   .sk-row:nth-child(1) .sk { animation-delay: 0s; }
   .sk-row:nth-child(2) .sk { animation-delay: 0.12s; }
   .sk-row:nth-child(3) .sk { animation-delay: 0.24s; }
   .sk-row:nth-child(4) .sk { animation-delay: 0.36s; }
   .sk-row:nth-child(5) .sk { animation-delay: 0.48s; }
-  .sk-detail .sk-title { width: 45%; height: 22px; margin-bottom: 10px; }
-  .sk-detail .sk-meta { width: 30%; height: 13px; margin-bottom: 22px; animation-delay: 0.08s; }
-  .sk-detail .sk-block { width: 100%; height: 120px; border-radius: 10px; margin-bottom: 18px; animation-delay: 0.16s; }
-  .sk-detail .sk-block.sk-block-sm { height: 70px; animation-delay: 0.08s; }
+  /* Matches the detail pane's real render pixel-for-pixel (measured against
+     a live renderLeadDetail() output): detail-head (72px: title + meta,
+     border below), a "Log your outreach" section label, the hint line, step
+     1 (label + 74px textarea = 108px), step 2 (label + 42px file-drop bar =
+     69px), the action-button row (57px), a "Status" section label, then the
+     status bar (82px: dropdown + icon button). Generic blocks made this read
+     shorter than the real form, so content jumped down on load - this holds
+     the same total height. */
+  .sk-detail .sk-title, .sk-detail .sk-meta, .sk-detail .sk-section-label,
+  .sk-detail .sk-hint, .sk-detail .sk-step-label { display: block; }
+  .sk-detail .sk-title { width: 45%; height: 34px; margin-bottom: 4px; }
+  .sk-detail .sk-meta { width: 30%; height: 15px; animation-delay: 0.08s; }
+  .sk-detail .detail-head { margin-bottom: 4px; padding-bottom: 18px; border-bottom: 1px solid var(--gray-100); }
+  .sk-detail .sk-section-label { width: 130px; height: 11px; margin: 24px 0 10px; animation-delay: 0.1s; }
+  .sk-detail .sk-section-label:first-of-type { margin-top: 0; }
+  .sk-detail .sk-hint { width: 100%; height: 19px; margin-bottom: 18px; animation-delay: 0.12s; }
+  .sk-detail .sk-step-label { width: 140px; height: 18px; margin-bottom: 9px; animation-delay: 0.14s; }
+  .sk-detail .sk-textarea { width: 100%; height: 78px; border-radius: 8px; margin-bottom: 18px; animation-delay: 0.16s; }
+  .sk-detail .sk-filedrop { width: 100%; height: 42px; border-radius: 8px; margin-bottom: 18px; animation-delay: 0.2s; }
+  .sk-detail .sk-btn-row { display: flex; gap: 10px; margin-top: 18px; }
+  .sk-detail .sk-btn-row .sk { height: 40px; border-radius: 8px; animation-delay: 0.24s; }
+  .sk-detail .sk-btn-row .sk:first-child { width: 145px; }
+  .sk-detail .sk-btn-row .sk:last-child { width: 180px; animation-delay: 0.28s; }
+  .sk-detail .sk-status-row { display: flex; align-items: center; gap: 10px; height: 40px; }
+  .sk-detail .sk-status-row .sk-select { width: 198px; height: 38px; border-radius: 8px; animation-delay: 0.32s; }
+  .sk-detail .sk-status-row .sk-iconbtn { width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0; animation-delay: 0.36s; }
 </style>
 </head>
 <body>
@@ -639,16 +662,25 @@
             </div>
           </div>
           <div id="myLeadsList">
-            <div class="sk-row"><div class="sk sk-avatar"></div><div class="sk-lines"><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div></div><div class="sk sk-pill"></div></div>
-            <div class="sk-row"><div class="sk sk-avatar"></div><div class="sk-lines"><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div></div><div class="sk sk-pill"></div></div>
-            <div class="sk-row"><div class="sk sk-avatar"></div><div class="sk-lines"><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div></div><div class="sk sk-pill"></div></div>
+            <div class="sk-row"><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div><div class="sk sk-pill"></div></div>
+            <div class="sk-row"><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div><div class="sk sk-pill"></div></div>
+            <div class="sk-row"><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div><div class="sk sk-pill"></div></div>
           </div>
         </div>
         <div class="panel leads-detail-pane sk-detail" id="leadsDetailPane">
-          <div class="sk sk-text sk-title"></div>
-          <div class="sk sk-text sk-meta"></div>
-          <div class="sk sk-block sk-block-sm"></div>
-          <div class="sk sk-block"></div>
+          <div class="detail-head">
+            <div class="sk sk-text sk-title"></div>
+            <div class="sk sk-text sk-meta"></div>
+          </div>
+          <div class="sk sk-text sk-section-label"></div>
+          <div class="sk sk-text sk-hint"></div>
+          <div class="sk sk-text sk-step-label"></div>
+          <div class="sk sk-textarea"></div>
+          <div class="sk sk-text sk-step-label"></div>
+          <div class="sk sk-filedrop"></div>
+          <div class="sk-btn-row"><div class="sk"></div><div class="sk"></div></div>
+          <div class="sk sk-text sk-section-label"></div>
+          <div class="sk-status-row"><div class="sk sk-select"></div><div class="sk sk-iconbtn"></div></div>
         </div>
       </div>
 

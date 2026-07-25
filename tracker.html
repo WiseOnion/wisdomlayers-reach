@@ -279,12 +279,27 @@
   }
   .sk-text { height: 1em; vertical-align: middle; }
   .sk-row-meta { width: 90px; }
-  .sk-table-row { display: flex; align-items: center; gap: 18px; padding: 13px 18px; border-bottom: 1px solid var(--gray-100); }
-  .sk-table-row:last-child { border-bottom: none; }
-  .sk-table-row .sk-biz { width: 190px; height: 14px; flex-shrink: 0; }
-  .sk-table-row .sk-col { width: 110px; height: 12px; flex-shrink: 0; }
-  .sk-table-row .sk-col.sk-col-wide { width: 150px; }
-  .sk-table-row .sk-pill { width: 78px; height: 18px; border-radius: 20px; margin-left: auto; flex-shrink: 0; }
+  /* Matches the default "Grouped" board view: a group header (chevron +
+     name + two count badges) above a real board-table so column widths,
+     the header row, and cell padding all line up with actual data. */
+  .sk-group-header .sk-chevron { width: 13px; height: 13px; border-radius: 4px; }
+  .sk-group-header .sk-group-title { width: 130px; height: 13.5px; }
+  .sk-group-header .sk-badge { width: 64px; height: 17px; border-radius: 10px; }
+  .sk-group-header .sk-badge:last-child { width: 52px; }
+  table.board-table .sk-biz, table.board-table .sk-city { display: block; }
+  table.board-table .sk-biz { width: 190px; height: 15px; margin-bottom: 6px; }
+  table.board-table .sk-city { width: 110px; height: 12px; }
+  table.board-table .sk-pill { width: 71px; height: 21px; border-radius: 20px; }
+  table.board-table .sk-resbtn { width: 68px; height: 29px; border-radius: 8px; }
+  table.board-table .sk-claimbtn { width: 63px; height: 31px; border-radius: 8px; }
+  table.board-table tbody tr:nth-child(1) .sk { animation-delay: 0s; }
+  table.board-table tbody tr:nth-child(2) .sk { animation-delay: 0.12s; }
+  table.board-table tbody tr:nth-child(3) .sk { animation-delay: 0.24s; }
+  table.board-table tbody tr:nth-child(4) .sk { animation-delay: 0.36s; }
+  table.board-table tbody tr:nth-child(5) .sk { animation-delay: 0.48s; }
+  @media (prefers-reduced-motion: reduce) {
+    .sk { animation: none; background: var(--gray-100); }
+  }
 </style>
 </head>
 <body>
@@ -379,12 +394,27 @@
           <span class="row-meta sk sk-text sk-row-meta" id="boardCountMeta">&nbsp;</span>
         </div>
         <div id="boardList">
-          <div class="sk-table-row"><div class="sk sk-biz"></div><div class="sk sk-col"></div><div class="sk sk-col"></div><div class="sk sk-col sk-col-wide"></div><div class="sk sk-pill"></div></div>
-          <div class="sk-table-row"><div class="sk sk-biz"></div><div class="sk sk-col"></div><div class="sk sk-col"></div><div class="sk sk-col sk-col-wide"></div><div class="sk sk-pill"></div></div>
-          <div class="sk-table-row"><div class="sk sk-biz"></div><div class="sk sk-col"></div><div class="sk sk-col"></div><div class="sk sk-col sk-col-wide"></div><div class="sk sk-pill"></div></div>
-          <div class="sk-table-row"><div class="sk sk-biz"></div><div class="sk sk-col"></div><div class="sk sk-col"></div><div class="sk sk-col sk-col-wide"></div><div class="sk sk-pill"></div></div>
-          <div class="sk-table-row"><div class="sk sk-biz"></div><div class="sk sk-col"></div><div class="sk sk-col"></div><div class="sk sk-col sk-col-wide"></div><div class="sk sk-pill"></div></div>
-          <div class="sk-table-row"><div class="sk sk-biz"></div><div class="sk sk-col"></div><div class="sk sk-col"></div><div class="sk sk-col sk-col-wide"></div><div class="sk sk-pill"></div></div>
+          <div class="lead-group">
+            <div class="group-header sk-group-header">
+              <div class="group-header-left">
+                <div class="sk sk-chevron"></div>
+                <div class="sk sk-group-title"></div>
+              </div>
+              <div class="group-counts">
+                <div class="sk sk-badge"></div>
+                <div class="sk sk-badge"></div>
+              </div>
+            </div>
+            <table class="board-table">
+              <tbody>
+                <tr><td class="biz-cell"><div class="sk sk-biz"></div><div class="sk sk-city"></div></td><td><div class="sk sk-pill"></div></td><td><div class="sk sk-resbtn"></div></td><td><div class="sk sk-claimbtn"></div></td></tr>
+                <tr><td class="biz-cell"><div class="sk sk-biz"></div><div class="sk sk-city"></div></td><td><div class="sk sk-pill"></div></td><td><div class="sk sk-resbtn"></div></td><td><div class="sk sk-claimbtn"></div></td></tr>
+                <tr><td class="biz-cell"><div class="sk sk-biz"></div><div class="sk sk-city"></div></td><td><div class="sk sk-pill"></div></td><td><div class="sk sk-resbtn"></div></td><td><div class="sk sk-claimbtn"></div></td></tr>
+                <tr><td class="biz-cell"><div class="sk sk-biz"></div><div class="sk sk-city"></div></td><td><div class="sk sk-pill"></div></td><td><div class="sk sk-resbtn"></div></td><td><div class="sk sk-claimbtn"></div></td></tr>
+                <tr><td class="biz-cell"><div class="sk sk-biz"></div><div class="sk sk-city"></div></td><td><div class="sk sk-pill"></div></td><td><div class="sk sk-resbtn"></div></td><td><div class="sk sk-claimbtn"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
