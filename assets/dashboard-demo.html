@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard workflow demo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Inter:wght@400;500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; }
+  .stage { position: relative; width: 600px; height: 380px; background: #fff; overflow: hidden; }
+  .mock-top { height: 38px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; border-bottom: 1px solid #e5e7eb; }
+  .mock-top-label { font-family: 'Poppins', sans-serif; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #6b7280; }
+  .mock-getlead-btn { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; color: #fff; background: #0d9488; border: none; border-radius: 7px; padding: 6px 13px; transition: background .15s; }
+  .stage.clicking-get .mock-getlead-btn { background: #0f766e; }
+  .mock-body { display: flex; height: calc(100% - 38px); }
+  .mock-list { width: 205px; border-right: 1px solid #e5e7eb; position: relative; overflow: hidden; }
+  .mock-detail { flex: 1; position: relative; overflow: hidden; }
+  .empty-state { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 18px; font-size: 10.5px; color: #9ca3af; line-height: 1.5; transition: opacity .4s ease-out, visibility 0s 0s; }
+  .stage.has-lead .empty-state { opacity: 0; visibility: hidden; transition: opacity .4s ease-out, visibility 0s .4s; }
+  .lead-row { position: absolute; top: 0; left: 0; right: 0; padding: 12px 13px; opacity: 0; transform: translateY(-8px); transition: opacity .5s cubic-bezier(.34,1.56,.64,1), transform .5s cubic-bezier(.34,1.56,.64,1); }
+  .stage.has-lead .lead-row { opacity: 1; transform: translateY(0); background: #f0fdfa; box-shadow: inset 3px 0 0 #0d9488; }
+  .lead-row-title { font-size: 12px; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
+  .lead-row-meta { font-size: 10.5px; color: #6b7280; margin-bottom: 6px; }
+  .status-pill { display: inline-block; font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; padding: 3px 7px; border-radius: 20px; background: #dbeafe; color: #1d4ed8; transition: background .3s, color .3s; }
+  .stage.contacted .status-pill { background: #e0e7ff; color: #4338ca; }
+  .status-pill::after { content: 'Claimed'; }
+  .stage.contacted .status-pill::after { content: 'Contacted'; }
+  .detail-content { position: absolute; inset: 0; padding: 16px 20px; opacity: 0; transform: translateY(6px); transition: opacity .5s ease-out, transform .5s ease-out, visibility 0s .5s; visibility: hidden; }
+  .stage.has-lead .detail-content { opacity: 1; transform: translateY(0); visibility: visible; transition: opacity .5s ease-out .15s, transform .5s ease-out .15s, visibility 0s 0s; }
+  .detail-title { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 2px; }
+  .detail-meta { font-size: 11px; color: #6b7280; margin-bottom: 14px; }
+  .detail-label { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #9ca3af; margin-bottom: 7px; }
+  .mock-textarea { width: 100%; min-height: 50px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 10px; font-size: 11.5px; color: #0f172a; line-height: 1.5; margin-bottom: 11px; transition: border-color .2s, box-shadow .2s; }
+  .stage.typing .mock-textarea, .stage.typed .mock-textarea { border-color: #14b8a6; box-shadow: 0 0 0 2px #ccfbf1; }
+  .mock-textarea-text::after { content: ''; display: inline-block; width: 1.5px; height: 12px; background: #0f172a; vertical-align: -2px; margin-left: 1px; animation: blink .9s step-end infinite; }
+  .stage.typed .mock-textarea-text::after { display: none; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .mock-submit-btn { font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 700; color: #fff; background: #0d9488; border: none; border-radius: 8px; padding: 7px 15px; transition: background .15s; }
+  .stage.clicking-submit .mock-submit-btn { background: #0f766e; }
+  .cursor { position: absolute; width: 17px; height: 17px; z-index: 50; left: 562px; top: 55px; transition: left .5s cubic-bezier(.34,1.56,.64,1), top .5s cubic-bezier(.34,1.56,.64,1); filter: drop-shadow(0 1px 2px rgba(0,0,0,.25)); animation: idle-bob 2s ease-in-out infinite; }
+  @keyframes idle-bob { 0%,100% { margin-top: 0; } 50% { margin-top: 3px; } }
+  .stage.clicking-get .cursor, .stage.clicking-submit .cursor { animation: none; margin-top: 0; }
+  .stage.get-hover .cursor, .stage.get-clicked .cursor, .stage.has-lead .cursor { left: 555px; top: 14px; }
+  .stage.typing .cursor { left: 253px; top: 148px; }
+  .stage.submit-hover .cursor, .stage.clicking-submit .cursor, .stage.contacted .cursor { left: 245px; top: 200px; }
+  .click-ring { position: absolute; width: 8px; height: 8px; border-radius: 50%; border: 2px solid #0d9488; left: 0; top: 0; pointer-events: none; opacity: 0; transform: scale(.4); }
+  .stage.get-clicked .click-ring.ring-get, .stage.clicking-submit .click-ring.ring-submit { animation: ring-pulse .5s ease-out; }
+  .ring-get { left: 563px; top: 22px; }
+  .ring-submit { left: 253px; top: 208px; }
+  @keyframes ring-pulse { 0% { opacity: .9; transform: scale(.4); } 100% { opacity: 0; transform: scale(2.6); } }
+  .toast { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%) translateY(14px); background: #0f172a; color: #fff; font-size: 11px; font-weight: 500; padding: 7px 15px; border-radius: 8px; opacity: 0; transition: opacity .3s ease-out, transform .3s ease-out; white-space: nowrap; }
+  .stage.toast-show .toast { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <div class="mock-top">
+    <span class="mock-top-label">My Leads</span>
+    <button class="mock-getlead-btn">+ Get a Lead</button>
+  </div>
+  <div class="mock-body">
+    <div class="mock-list">
+      <div class="empty-state">No active leads.<br>Click "Get a Lead" above.</div>
+      <div class="lead-row">
+        <div class="lead-row-title">2Klean Kuts Barbershop</div>
+        <div class="lead-row-meta">Raleigh &middot; Barber</div>
+        <span class="status-pill"></span>
+      </div>
+    </div>
+    <div class="mock-detail">
+      <div class="empty-state">Select a lead to see its details.</div>
+      <div class="detail-content">
+        <div class="detail-title">2Klean Kuts Barbershop</div>
+        <div class="detail-meta">Raleigh &middot; Barber</div>
+        <div class="detail-label">Log your outreach</div>
+        <div class="mock-textarea"><span class="mock-textarea-text" id="typedText"></span></div>
+        <button class="mock-submit-btn">Submit Outreach</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="click-ring ring-get"></div>
+  <div class="click-ring ring-submit"></div>
+  <svg class="cursor" viewBox="0 0 24 24" fill="none">
+    <path d="M5 3l14 8-6 2-2 6-6-16z" fill="#ffffff" stroke="#0f172a" stroke-width="1.4" stroke-linejoin="round"/>
+  </svg>
+
+  <div class="toast">Outreach logged.</div>
+</div>
+
+<script>
+const stage = document.getElementById('stage');
+const typedTextEl = document.getElementById('typedText');
+const FULL_TEXT = 'Hi there, noticed 2Klean Kuts doesn\'t have a website linked on Google...';
+
+function clearAll() {
+  stage.className = 'stage';
+  typedTextEl.textContent = '';
+}
+
+function typeText(text, duration, done) {
+  const chars = text.split('');
+  const perChar = duration / chars.length;
+  let i = 0;
+  const iv = setInterval(() => {
+    i++;
+    typedTextEl.textContent = chars.slice(0, i).join('');
+    if (i >= chars.length) {
+      clearInterval(iv);
+      if (done) done();
+    }
+  }, perChar);
+}
+
+function runCycle() {
+  clearAll();
+  const at = (ms, fn) => setTimeout(fn, ms);
+
+  at(300, () => stage.classList.add('get-hover'));
+  at(800, () => stage.classList.add('get-clicked', 'clicking-get'));
+  at(950, () => stage.classList.remove('clicking-get'));
+  at(1100, () => stage.classList.add('has-lead'));
+  at(2000, () => stage.classList.add('typing'));
+  at(2500, () => typeText(FULL_TEXT, 1800, () => stage.classList.add('typed')));
+  at(4500, () => stage.classList.add('submit-hover'));
+  at(5000, () => stage.classList.add('clicking-submit'));
+  at(5150, () => stage.classList.remove('clicking-submit'));
+  at(5300, () => stage.classList.add('contacted'));
+  at(5500, () => stage.classList.add('toast-show'));
+  at(6700, () => stage.classList.remove('toast-show'));
+  at(8200, () => { stage.style.transition = 'opacity .4s ease-out'; stage.style.opacity = '0'; });
+  at(8600, () => { clearAll(); stage.style.opacity = '1'; });
+  at(9000, runCycle);
+}
+
+setTimeout(runCycle, 300);
+</script>
+</body>
+</html>

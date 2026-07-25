@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workspace - WisdomLayers</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --teal-50:  #f0fdfa;
+    --teal-100: #ccfbf1;
+    --teal-500: #14b8a6;
+    --teal-600: #0d9488;
+    --teal-700: #0f766e;
+    --ink:      #0f172a;
+    --gray-900: #111827;
+    --gray-700: #374151;
+    --gray-600: #4b5563;
+    --gray-500: #6b7280;
+    --gray-400: #9ca3af;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50:  #f9fafb;
+    --sidebar-w: 236px;
+    --amber-50: #fffbeb;
+    --amber-200: #fde68a;
+    --amber-700: #b45309;
+  }
+
+  body {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--gray-50);
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+  }
+  h1, h2, h3 { font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif; }
+
+  .shell { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: #ffffff;
+    border-right: 1px solid var(--gray-200);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+  .sb-brand {
+    display: flex; align-items: center; gap: 9px;
+    padding: 20px 22px;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .sb-brand img { width: 24px; height: 30px; object-fit: contain; }
+  .sb-brand span { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+
+  .sb-identity {
+    padding: 18px 22px 20px;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex; align-items: center; gap: 11px;
+  }
+  .sb-avatar {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--teal-600);
+    color: white; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .sb-idname { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.3; }
+  .sb-idrole { font-size: 11.5px; color: var(--gray-500); line-height: 1.3; }
+
+  .sb-identity-picker {
+    padding: 16px 22px 18px;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .sb-idpicker-label {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--gray-400); margin-bottom: 9px;
+  }
+  .sb-idpicker-link {
+    display: block; font-size: 13.5px; font-weight: 600; color: var(--teal-700);
+    text-decoration: none; padding: 7px 0;
+  }
+  .sb-idpicker-link:hover { text-decoration: underline; }
+
+  .sb-nav { flex: 1; padding: 14px 14px; overflow-y: auto; }
+  .sb-section-label {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--gray-400);
+    padding: 16px 10px 7px;
+  }
+  .sb-section-label:first-child { padding-top: 4px; }
+  .sb-link {
+    display: flex; align-items: center; gap: 11px;
+    padding: 11px 12px; border-radius: 9px;
+    font-size: 13.5px; font-weight: 500; color: var(--gray-700);
+    text-decoration: none;
+    margin-bottom: 2px;
+    transition: background 0.12s, color 0.12s;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+  }
+  .sb-link svg { flex-shrink: 0; color: var(--gray-400); transition: color 0.12s; }
+  .sb-link:hover { background: var(--gray-100); color: var(--ink); }
+  .sb-link:hover svg { color: var(--gray-600); }
+  .sb-link.primary { background: var(--teal-50); color: var(--teal-700); font-weight: 600; }
+  .sb-link.primary svg { color: var(--teal-600); }
+  .sb-link.primary:hover { background: var(--teal-100); }
+  .sb-link .ext { margin-left: auto; color: var(--gray-300); font-size: 10px; }
+
+  .sb-footer { padding: 14px 20px 18px; border-top: 1px solid var(--gray-100); }
+  .sb-footer p { font-size: 10.5px; color: var(--gray-400); line-height: 1.5; }
+  .sb-footer strong { color: var(--gray-600); }
+
+  .main-col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+  .topbar {
+    height: 56px; flex-shrink: 0;
+    background: #ffffff;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px;
+  }
+  .tb-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .tb-right { display: flex; align-items: center; gap: 10px; }
+  .tb-badge {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 20px;
+    background: var(--teal-50); color: var(--teal-700); border: 1px solid var(--teal-100);
+  }
+
+  /* Fluid, not fixed-narrow: the sidebar already constrains the layout, so
+     letting the main column use whatever width remains (rather than capping
+     it to 900px) is what real dashboards do - Carbon and Atlassian's grid
+     systems both treat KPI rows/card grids as fluid content, reserving a
+     hard max-width only for prose-dense reading. Individual pieces below
+     (stat tiles, textareas) still cap themselves so nothing turns into an
+     uncomfortably wide single element just because the column grew. */
+  .content { flex: 1; padding: 36px 44px 64px; max-width: 1440px; }
+
+  .page-head { margin-bottom: 28px; }
+  .page-head h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 5px; }
+  .page-head p { font-size: 14.5px; color: var(--gray-500); }
+
+  .stat-row {
+    display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr));
+    gap: 14px; margin-bottom: 28px; max-width: 1180px;
+  }
+  .stat-cell {
+    background: #ffffff; border: 1px solid var(--gray-200); border-radius: 12px;
+    padding: 18px 20px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  }
+  .stat-cell.highlight { background: var(--teal-600); border-color: var(--teal-600); }
+  .stat-num { font-family: 'Poppins', sans-serif; font-size: 2rem; font-weight: 800; color: var(--ink); line-height: 1; margin-bottom: 7px; }
+  .stat-cell.highlight .stat-num { color: #ffffff; }
+  .stat-label { font-size: 11.5px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat-cell.highlight .stat-label { color: var(--teal-50); }
+
+  .action-bar-slim { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    background: var(--teal-600); color: white; border: 1px solid var(--teal-600);
+    border-radius: 10px; padding: 14px 24px;
+    font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; white-space: nowrap; text-decoration: none;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    transition: background 0.12s, border-color 0.12s, transform 0.08s, box-shadow 0.12s;
+  }
+  .btn:hover { background: var(--teal-700); border-color: var(--teal-700); box-shadow: 0 4px 10px rgba(13, 148, 136, 0.22); }
+  .btn:active { transform: scale(0.97); }
+  .btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--teal-500);
+  }
+  .btn:disabled {
+    background: var(--gray-300, #cbd5e1); border-color: var(--gray-300, #cbd5e1);
+    cursor: default; transform: none; box-shadow: none;
+  }
+
+  .btn.sec {
+    background: #ffffff; color: var(--teal-700); border: 1px solid var(--gray-200);
+    box-shadow: none;
+  }
+  .btn.sec:hover { background: var(--teal-50); border-color: var(--teal-500); box-shadow: none; }
+  .btn.sec:focus-visible { box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--teal-500); }
+  .btn.sec:disabled { background: var(--gray-50); color: var(--gray-400); border-color: var(--gray-200); }
+
+  .btn.sm { padding: 11px 18px; font-size: 13.5px; border-radius: 8px; }
+
+  .panel { background: #ffffff; border: 1px solid var(--gray-200); border-radius: 14px; overflow: hidden; margin-bottom: 22px; max-width: 900px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03); }
+
+  /* My Leads: a list-of-items-with-actions is the same shape as an email
+     inbox or CRM contact list. At wide viewports that pattern is
+     master-detail (list + persistent detail pane), not a stretched single
+     column or an accordion that pushes the page down every time something
+     opens. Below the breakpoint there's no room for two panes side by side,
+     so it falls back to the list alone with the detail pane appearing
+     beneath the selected row - the standard narrow-screen fallback for
+     this pattern. */
+  .leads-master-detail { display: flex; flex-direction: column; gap: 20px; margin-bottom: 22px; max-width: none; }
+  .leads-list-pane, .leads-detail-pane { max-width: none; margin-bottom: 0; }
+  .leads-list-pane { max-height: 700px; overflow-y: auto; }
+  .leads-detail-pane { padding: 26px 28px; }
+  .leads-detail-pane .empty-state { padding: 70px 18px; }
+  @media (min-width: 1100px) {
+    .leads-master-detail { flex-direction: row; align-items: flex-start; }
+    .leads-list-pane { width: 440px; flex-shrink: 0; }
+    .leads-detail-pane { flex: 1; min-width: 0; }
+  }
+
+  .panel-head {
+    padding: 16px 22px; border-bottom: 1px solid var(--gray-100);
+    font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray-500);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .panel-head-stacked {
+    flex-direction: column; align-items: stretch; gap: 14px;
+    padding: 20px 22px;
+  }
+  .panel-head-actions { display: flex; gap: 10px; }
+  .get-lead-btn { flex: 1; justify-content: center; }
+  .row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--gray-100);
+    text-decoration: none; color: inherit;
+    transition: background 0.1s;
+  }
+  .row:last-child { border-bottom: none; }
+  .row:hover { background: var(--gray-50); }
+  .row-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--teal-50); border: 1px solid var(--teal-100);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .row-body { flex: 1; min-width: 0; }
+  .row-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 1px; }
+  .row-desc { font-size: 12px; color: var(--gray-500); }
+  .empty-state { padding: 28px 18px; text-align: center; color: var(--gray-400); font-size: 13px; }
+  .empty-state a { color: var(--teal-700); font-weight: 600; }
+
+  .lead-row-compact { border-bottom: 1px solid var(--gray-100); cursor: pointer; }
+  .lead-row-compact:last-child { border-bottom: none; }
+  .lead-row-compact.selected { background: var(--teal-50); box-shadow: inset 3px 0 0 var(--teal-600); }
+  .lead-row-compact.selected .lrc-title { color: var(--teal-700); }
+  .lrc-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 22px; transition: background 0.1s;
+  }
+  .lead-row-compact:not(.selected) .lrc-head:hover { background: var(--gray-50); }
+  .lrc-title { font-size: 14.5px; font-weight: 700; color: var(--ink); flex-shrink: 0; }
+  .lrc-meta { font-size: 12.5px; color: var(--gray-500); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lrc-section-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--gray-400); margin: 24px 0 10px;
+  }
+  .lrc-section-label:first-child { margin-top: 0; }
+  .detail-head { margin-bottom: 4px; padding-bottom: 18px; border-bottom: 1px solid var(--gray-100); }
+  .detail-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 4px; }
+
+  .status-pill {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 4px 10px; border-radius: 20px; flex-shrink: 0;
+  }
+  .status-pending { background: var(--gray-100); color: var(--gray-500); }
+  .status-claimed { background: #dbeafe; color: #1d4ed8; }
+  .status-contacted { background: #e0e7ff; color: #4338ca; }
+  .status-replied { background: #f5f3ff; color: #7c3aed; }
+  .status-warm-lead { background: var(--teal-100); color: var(--teal-700); font-weight: 800; }
+  .status-not-interested { background: var(--gray-100); color: var(--gray-400); }
+  .status-unsubscribed { background: #fee2e2; color: #b91c1c; }
+  .status-flagged-good-website { background: #fef3c7; color: #92400e; }
+
+  select.status-select {
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+    border: 1px solid var(--gray-200); border-radius: 8px; padding: 9px 12px;
+    background: #ffffff; color: var(--gray-700); cursor: pointer;
+  }
+
+  .note-log { font-size: 12.5px; color: var(--gray-500); white-space: pre-wrap; line-height: 1.6; }
+  .note-log:empty { display: none; }
+  .status-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .status-bar .note-log { flex: 1; }
+
+  .outreach-form {
+    background: #ffffff; border: 1px solid var(--gray-200); border-radius: 12px;
+    padding: 20px 22px; margin-top: 10px;
+  }
+  .outreach-step { margin-bottom: 18px; }
+  .outreach-step:last-of-type { margin-bottom: 0; }
+  .outreach-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--gray-500); margin-bottom: 9px;
+  }
+  .outreach-label .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--teal-100); color: var(--teal-700);
+    font-size: 10.5px; font-weight: 800; flex-shrink: 0;
+  }
+  .outreach-email {
+    width: 100%; max-width: 70ch; font-family: 'Inter', sans-serif; font-size: 14px;
+    border: 1px solid var(--gray-200); border-radius: 9px; padding: 12px 14px;
+    resize: vertical; min-height: 78px; color: var(--ink); background: #fff;
+  }
+  .outreach-email:focus { outline: 2px solid var(--teal-100); border-color: var(--teal-500); }
+
+  .add-lead-field {
+    font-family: 'Inter', sans-serif; font-size: 13.5px;
+    border: 1px solid var(--gray-200); border-radius: 8px; padding: 10px 12px;
+    color: var(--ink); background: #fff; resize: vertical; width: 100%;
+  }
+  .add-lead-field:focus { outline: 2px solid var(--teal-100); border-color: var(--teal-500); }
+
+  .al-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin-bottom: 6px; }
+  .al-field { display: flex; flex-direction: column; gap: 5px; }
+  .al-field-full { grid-column: 1 / -1; }
+  .al-field-label {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--gray-400);
+  }
+  .al-field-label em { text-transform: none; font-style: normal; font-weight: 500; color: var(--gray-400); }
+  .lrc-section-label em { text-transform: none; font-style: normal; }
+
+  .file-drop {
+    display: flex; align-items: center; gap: 10px;
+    border: 1.5px dashed var(--gray-200); border-radius: 9px;
+    padding: 12px 14px; cursor: pointer; position: relative;
+    background: var(--gray-50); transition: border-color 0.12s, background 0.12s;
+  }
+  .file-drop:hover { border-color: var(--teal-500); background: var(--teal-50); }
+  .file-drop svg { flex-shrink: 0; color: var(--gray-400); }
+  .file-drop-text { font-size: 13px; color: var(--gray-500); }
+  .file-drop-text strong { color: var(--gray-700); font-weight: 600; }
+  .outreach-screenshot {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    opacity: 0; cursor: pointer;
+  }
+
+  .outreach-actions { display: flex; align-items: center; gap: 10px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--gray-100); flex-wrap: wrap; }
+  .flag-btn {
+    background: #ffffff; color: var(--gray-600); border: 1px solid var(--gray-200);
+    margin-left: auto;
+  }
+  .flag-btn:hover { background: var(--gray-50); border-color: var(--gray-300, #d1d5db); }
+
+  .icon-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; flex-shrink: 0;
+    background: #ffffff; color: var(--gray-500); border: 1px solid var(--gray-200);
+    border-radius: 8px; cursor: pointer; transition: background 0.12s, color 0.12s, border-color 0.12s;
+  }
+  .icon-btn:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+  .icon-btn:disabled { opacity: 0.5; cursor: default; }
+  .outreach-hint { font-size: 12px; color: var(--gray-500); margin-bottom: 14px; line-height: 1.55; }
+
+  .resource-panel { padding: 0 0 8px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 26px; }
+  .resource-item { font-size: 13px; color: var(--gray-700); line-height: 1.6; }
+  .resource-item .rk { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-400); display: block; margin-bottom: 3px; }
+  .resource-item a { color: var(--teal-700); text-decoration: none; word-break: break-all; font-weight: 500; }
+  .resource-item a:hover { text-decoration: underline; }
+  .resource-item.full { grid-column: 1 / -1; }
+  .stars { color: #f59e0b; font-weight: 700; }
+
+  .alert {
+    background: var(--amber-50); border: 1px solid var(--amber-200);
+    border-radius: 12px; padding: 16px 20px; margin-bottom: 16px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .alert-icon { flex-shrink: 0; margin-top: 1px; color: var(--amber-700); }
+  .alert p { font-size: 13px; color: var(--amber-700); line-height: 1.6; }
+  .alert strong { font-weight: 700; }
+
+  .note-box {
+    background: var(--gray-100); border: 1px solid var(--gray-200);
+    border-radius: 10px; padding: 14px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .note-box svg { flex-shrink: 0; margin-top: 2px; color: var(--gray-500); }
+  .note-box p { font-size: 12.5px; color: var(--gray-700); line-height: 1.6; }
+  .note-box strong { color: var(--ink); }
+
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: white; font-size: 12.5px; font-weight: 500;
+    padding: 10px 18px; border-radius: 8px; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s; z-index: 200; max-width: 90vw; text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* First-visit welcome: the real dashboard stays visible but heavily
+     blurred behind this, so it's clear there's a real app under the tour,
+     not a blank loading screen. backdrop-filter blurs the live page content
+     rather than a screenshot, so it always matches whatever's actually
+     rendered underneath. */
+  .welcome-overlay {
+    position: fixed; inset: 0; z-index: 400;
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+    background: rgba(249, 250, 251, 0.55);
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    opacity: 0; transition: opacity 0.3s ease-out;
+  }
+  .welcome-overlay.open { opacity: 1; }
+  .welcome-card {
+    background: #ffffff; border-radius: 18px; width: 100%; max-width: 660px;
+    padding: 32px 36px; box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+    text-align: center;
+    opacity: 0; transform: scale(0.95) translateY(10px);
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .welcome-overlay.open .welcome-card { opacity: 1; transform: scale(1) translateY(0); }
+  .welcome-title { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 8px; }
+  .welcome-sub { font-size: 14px; color: var(--gray-500); line-height: 1.6; margin-bottom: 22px; max-width: 480px; margin-left: auto; margin-right: auto; }
+  .demo-frame-wrap {
+    border: 1px solid var(--gray-200); border-radius: 14px; overflow: hidden;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); margin-bottom: 22px;
+  }
+  .demo-frame { display: block; width: 100%; height: 380px; border: none; }
+  .welcome-actions { display: flex; align-items: center; justify-content: center; gap: 10px; }
+
+  .preview-overlay {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, 0);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; z-index: 300;
+    transition: background 0.22s ease-out;
+  }
+  .preview-overlay.open { background: rgba(15, 23, 42, 0.5); }
+  .preview-modal {
+    background: #ffffff; border-radius: 14px; width: 100%; max-width: 680px;
+    max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+    opacity: 0; transform: scale(0.94) translateY(8px);
+    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .preview-overlay.open .preview-modal { opacity: 1; transform: scale(1) translateY(0); }
+  .preview-modal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; border-bottom: 1px solid var(--gray-100);
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray-500);
+  }
+  .preview-close {
+    background: none; border: none; font-size: 20px; line-height: 1; color: var(--gray-400);
+    cursor: pointer; padding: 0 2px;
+  }
+  .preview-close:hover { color: var(--gray-700); }
+  .preview-modal-body { padding: 18px 20px; overflow-y: auto; }
+  .preview-modal-actions {
+    display: flex; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--gray-100);
+  }
+  .preview-modal-actions .btn { flex: 1; justify-content: center; }
+  .preview-business { font-size: 1.15rem; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+  .preview-meta { font-size: 12.5px; color: var(--gray-500); margin-bottom: 14px; }
+
+  /* Slot-reel shuffle: a vertical strip of names sits inside a clipped
+     window and slides upward, one name-height per step, easing from a fast
+     linear spin into a soft deceleration on the final step - the transform
+     is what makes it read as one continuous motion instead of jump-cut text
+     swaps. Duration per step is set inline per step so the reel can speed
+     up then slow down like a wheel actually settling. */
+  .reel-window {
+    height: 34px; overflow: hidden; position: relative; margin-bottom: 14px;
+  }
+  .reel-strip {
+    display: flex; flex-direction: column;
+    transform: translateY(0);
+  }
+  .reel-strip .reel-item {
+    height: 34px; display: flex; align-items: center;
+    font-size: 1.15rem; font-weight: 700; color: var(--teal-700);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .reel-item.is-final { color: var(--ink); }
+
+  @media (max-width: 860px) {
+    .sidebar { display: none; }
+    .content { padding: 20px 16px 50px; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .topbar { padding: 0 16px; }
+  }
+
+  /* Skeletons hold the exact footprint of the content they stand in for
+     (same heights/widths as the real rows, stat numbers, detail pane) so
+     nothing jumps or collapses when data arrives - just a shimmering fill
+     swapped for real text. Each skeleton gets a slightly different animation
+     delay (nth-child stagger below) so a list of them ripples instead of
+     pulsing in unison, which is the tell that makes skeletons read as fake
+     rather than as content settling in. Respects reduced-motion by holding
+     a static fill instead of animating. */
+  @keyframes sk-shimmer { 0% { background-position: 150% 0; } 100% { background-position: -50% 0; } }
+  .sk {
+    display: inline-block; border-radius: 6px;
+    background: linear-gradient(100deg, var(--gray-200) 35%, #f8fafc 50%, var(--gray-200) 65%);
+    background-size: 250% 100%;
+    animation: sk-shimmer 1.6s ease-in-out infinite;
+    color: transparent !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sk { animation: none; background: var(--gray-100); }
+  }
+  .sk-text { height: 1em; vertical-align: middle; }
+  .stat-num.sk { width: 2.2em; height: 1.9rem; border-radius: 7px; }
+  .stat-cell.highlight .stat-num.sk {
+    background: linear-gradient(100deg, rgba(255,255,255,0.22) 40%, rgba(255,255,255,0.34) 50%, rgba(255,255,255,0.22) 60%);
+    background-size: 250% 100%;
+  }
+  .sk-row {
+    padding: 13px 18px; display: flex; align-items: center; gap: 14px;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .sk-row:last-child { border-bottom: none; }
+  .sk-row .sk-avatar { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; }
+  .sk-row .sk-lines { flex: 1; min-width: 0; }
+  .sk-row .sk-line1 { width: 55%; height: 13px; margin-bottom: 8px; }
+  .sk-row .sk-line2 { width: 35%; height: 11px; }
+  .sk-row .sk-pill { width: 64px; height: 18px; border-radius: 20px; flex-shrink: 0; }
+  /* Stagger: each row's shimmer starts a beat after the last, top to bottom */
+  .sk-row:nth-child(1) .sk { animation-delay: 0s; }
+  .sk-row:nth-child(2) .sk { animation-delay: 0.12s; }
+  .sk-row:nth-child(3) .sk { animation-delay: 0.24s; }
+  .sk-row:nth-child(4) .sk { animation-delay: 0.36s; }
+  .sk-row:nth-child(5) .sk { animation-delay: 0.48s; }
+  .sk-detail .sk-title { width: 45%; height: 22px; margin-bottom: 10px; }
+  .sk-detail .sk-meta { width: 30%; height: 13px; margin-bottom: 22px; animation-delay: 0.08s; }
+  .sk-detail .sk-block { width: 100%; height: 120px; border-radius: 10px; margin-bottom: 18px; animation-delay: 0.16s; }
+  .sk-detail .sk-block.sk-block-sm { height: 70px; animation-delay: 0.08s; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <img src="assets/logo.png" alt="">
+      <span>WisdomLayers</span>
+    </div>
+
+    <div class="sb-identity" id="sbIdentity" style="display:none;">
+      <div class="sb-avatar" id="sbAvatar">?</div>
+      <div>
+        <div class="sb-idname" id="sbIdName">-</div>
+        <div class="sb-idrole">Outreach Specialist</div>
+      </div>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="sb-section-label">Workspace</div>
+      <a href="index.html" id="navDashboard" class="sb-link primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
+      </a>
+      <a href="history.html" id="navHistory" class="sb-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        History
+      </a>
+      <a href="tracker.html" id="navTracker" class="sb-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Lead Tracker
+      </a>
+
+      <div class="sb-section-label">Reference</div>
+      <a href="playbook.html" id="navPlaybook" class="sb-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Email Scripts
+      </a>
+      <a href="onboarding.html" id="navOnboarding" class="sb-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Onboarding Guide
+      </a>
+      <a href="https://wiseonion.github.io/WisdomLayersContract/" target="_blank" class="sb-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Your Contract
+      </a>
+    </nav>
+
+  </aside>
+
+  <div class="main-col">
+
+    <div class="topbar">
+      <div class="tb-title">Workspace Overview</div>
+      <div class="tb-right">
+        <span class="tb-badge">Active</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="page-head">
+        <h1 id="welcomeHeading">Welcome back.</h1>
+        <p>Everything here is scoped to your outreach only.</p>
+      </div>
+
+      <div class="stat-row" id="statRow">
+        <div class="stat-cell"><div class="stat-num sk sk-text" id="statMine">&nbsp;</div><div class="stat-label">Claimed by You</div></div>
+        <div class="stat-cell"><div class="stat-num sk sk-text" id="statContacted">&nbsp;</div><div class="stat-label">Contacted</div></div>
+        <div class="stat-cell"><div class="stat-num sk sk-text" id="statReplied">&nbsp;</div><div class="stat-label">Replied</div></div>
+        <div class="stat-cell"><div class="stat-num sk sk-text" id="statWarm">&nbsp;</div><div class="stat-label">Warm Leads</div></div>
+        <div class="stat-cell highlight"><div class="stat-num sk sk-text" id="statReplyRate">&nbsp;</div><div class="stat-label">Reply Rate</div></div>
+      </div>
+
+      <div class="leads-master-detail" id="leadsMasterDetail">
+        <div class="panel leads-list-pane">
+          <div class="panel-head panel-head-stacked">
+            <span>My Leads</span>
+            <div class="panel-head-actions">
+              <button class="btn get-lead-btn" id="claimBtn" title="Pulls one at random from the shared pool - claimed to you instantly.">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                Get a Lead
+              </button>
+              <button class="btn sec sm" id="addLeadToggleBtn" title="Add a business you researched yourself - claimed to you instantly.">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                Add a Lead
+              </button>
+            </div>
+          </div>
+          <div id="myLeadsList">
+            <div class="sk-row"><div class="sk sk-avatar"></div><div class="sk-lines"><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div></div><div class="sk sk-pill"></div></div>
+            <div class="sk-row"><div class="sk sk-avatar"></div><div class="sk-lines"><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div></div><div class="sk sk-pill"></div></div>
+            <div class="sk-row"><div class="sk sk-avatar"></div><div class="sk-lines"><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div></div><div class="sk sk-pill"></div></div>
+          </div>
+        </div>
+        <div class="panel leads-detail-pane sk-detail" id="leadsDetailPane">
+          <div class="sk sk-text sk-title"></div>
+          <div class="sk sk-text sk-meta"></div>
+          <div class="sk sk-block sk-block-sm"></div>
+          <div class="sk sk-block"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="welcome-overlay" id="welcomeOverlay" style="display:none;">
+  <div class="welcome-card">
+    <h2 class="welcome-title">Welcome to WisdomLayers</h2>
+    <p class="welcome-sub">Here's the whole job in one loop: claim a lead, research it, send a personal email, log it, move on. Watch it once.</p>
+    <div class="demo-frame-wrap">
+      <iframe class="demo-frame" title="Dashboard workflow demo" scrolling="no" src="assets/dashboard-demo.html"></iframe>
+    </div>
+    <div class="welcome-actions">
+      <button class="btn" id="welcomeGotItBtn">Got it, let's go</button>
+    </div>
+  </div>
+</div>
+
+<div class="preview-overlay" id="previewOverlay" style="display:none;">
+  <div class="preview-modal">
+    <div class="preview-modal-head">
+      <span>New Lead</span>
+      <button class="preview-close" id="previewCloseBtn" aria-label="Close">&times;</button>
+    </div>
+    <div class="preview-modal-body" id="previewModalBody"></div>
+    <div class="preview-modal-actions">
+      <button class="btn sec" id="previewSkipBtn">Skip, Give Me Another</button>
+      <button class="btn" id="previewAcceptBtn">Claim This Lead</button>
+    </div>
+  </div>
+</div>
+
+<div class="preview-overlay" id="addLeadOverlay" style="display:none;">
+  <div class="preview-modal">
+    <div class="preview-modal-head">
+      <span id="addLeadModalTitle">Add a Lead You Found</span>
+      <button class="preview-close" id="addLeadCloseBtn" aria-label="Close">&times;</button>
+    </div>
+    <div class="preview-modal-body">
+      <div id="addLeadFormStep">
+        <div class="lrc-section-label" style="margin-top:0;">Business</div>
+        <div class="al-field-grid">
+          <label class="al-field al-field-full">
+            <span class="al-field-label">Business name *</span>
+            <input type="text" class="add-lead-field" id="alBusiness" placeholder="e.g. Fit4Life Fayetteville">
+          </label>
+          <label class="al-field">
+            <span class="al-field-label">City</span>
+            <input type="text" class="add-lead-field" id="alCity" placeholder="e.g. Fayetteville">
+          </label>
+          <label class="al-field">
+            <span class="al-field-label">Category</span>
+            <input type="text" class="add-lead-field" id="alCategory" placeholder="e.g. Barber, Cleaning">
+          </label>
+        </div>
+
+        <div class="lrc-section-label">Contact info</div>
+        <div class="al-field-grid">
+          <label class="al-field">
+            <span class="al-field-label">Phone</span>
+            <input type="text" class="add-lead-field" id="alPhone" placeholder="(555) 555-5555">
+          </label>
+          <label class="al-field">
+            <span class="al-field-label">Facebook</span>
+            <input type="text" class="add-lead-field" id="alFacebook" placeholder="facebook.com/...">
+          </label>
+          <label class="al-field al-field-full">
+            <span class="al-field-label">Address</span>
+            <input type="text" class="add-lead-field" id="alAddress" placeholder="Street, City, State ZIP">
+          </label>
+        </div>
+
+        <div class="lrc-section-label">Website</div>
+        <div class="al-field-grid">
+          <label class="al-field">
+            <span class="al-field-label">Status</span>
+            <select class="add-lead-field" id="alWebsite">
+              <option value="">Not sure yet</option>
+              <option>None</option><option>Outdated</option><option>Has Website</option>
+            </select>
+          </label>
+          <label class="al-field">
+            <span class="al-field-label">Website / booking URL <em>(if any)</em></span>
+            <input type="text" class="add-lead-field" id="alWebsiteUrl" placeholder="Leave blank if they don't have one">
+          </label>
+        </div>
+
+        <div class="lrc-section-label">Services <em>(optional)</em></div>
+        <textarea class="add-lead-field" id="alServices" placeholder="What they do, hours, anything worth noting..." style="width:100%; min-height:50px;"></textarea>
+      </div>
+      <div id="addLeadReviewStep" style="display:none;"></div>
+    </div>
+    <div class="preview-modal-actions" id="addLeadFormActions">
+      <button class="btn sec" id="addLeadCancelBtn">Cancel</button>
+      <button class="btn" id="addLeadReviewBtn">Review</button>
+    </div>
+    <div class="preview-modal-actions" id="addLeadReviewActions" style="display:none;">
+      <button class="btn sec" id="addLeadBackBtn">Back, Edit</button>
+      <button class="btn" id="addLeadConfirmBtn">Confirm, Add Lead</button>
+    </div>
+  </div>
+</div>
+
+<script src="_shared/api.js"></script>
+<script src="_shared/spotlight-tour.js"></script>
+<script src="_shared/admin-switcher.js"></script>
+<script src="_shared/workspace-frame.js"></script>
+<script>
+let WORKSPACE_KEY = null;
+
+// The key->name map used to be a hardcoded const copy-pasted into this file
+// and four others (history.html, tracker.html, playbook.html,
+// onboarding.html), kept in sync by hand with sheets/Code.gs's real
+// WORKSPACE_KEYS. Any drift between copies meant this page could load fine
+// (doGet never checked the key) while every write silently 403'd with
+// "Invalid workspace key" - a confusing split failure. Now Code.gs is the
+// only place the map is defined; every page fetches it here instead.
+async function initSidebarIdentity() {
+  const params = new URLSearchParams(window.location.search);
+  const key = params.get('w');
+
+  let name;
+  try {
+    name = await WISDOMLAYERS_API.getWorkspaceName(key);
+  } catch (err) {
+    document.getElementById('myLeadsList').innerHTML = `<div class="empty-state">Could not verify your workspace link right now. ${err.message} Reload to try again.</div>`;
+    SpotlightTour.abandon();
+    return false;
+  }
+
+  if (!name) {
+    document.getElementById('claimBtn').disabled = true;
+    document.getElementById('claimBtn').title = 'No workspace link - contact the owner for yours';
+    document.getElementById('addLeadToggleBtn').disabled = true;
+    document.getElementById('addLeadToggleBtn').title = 'No workspace link - contact the owner for yours';
+    document.getElementById('myLeadsList').innerHTML = '<div class="empty-state">This link is missing your workspace ID. Use the personal link the owner sent you.</div>';
+    SpotlightTour.abandon();
+    return false;
+  }
+
+  WORKSPACE_KEY = key;
+  document.getElementById('sbIdentity').style.display = 'flex';
+  applyWorkspaceFrame(name);
+  document.getElementById('sbAvatar').textContent = name[0];
+  document.getElementById('sbIdName').textContent = name;
+  document.getElementById('welcomeHeading').textContent = `Welcome back, ${name}.`;
+  document.getElementById('navDashboard').href = `index.html?w=${key}`;
+  document.getElementById('navHistory').href = `history.html?w=${key}`;
+  document.getElementById('navTracker').href = `tracker.html?w=${key}`;
+  document.getElementById('navPlaybook').href = `playbook.html?w=${key}`;
+  document.getElementById('navOnboarding').href = `onboarding.html?w=${key}`;
+  return true;
+}
+
+const STATUS_OPTIONS = ['Claimed','Contacted','Replied','Warm Lead','Not Interested','Unsubscribed','Flagged - Good Website'];
+
+let allLeads = [];
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+function hasResources(l) {
+  return !!(l.phone || l.address || l.facebook || l.websiteUrl || l.googleReviews || l.services);
+}
+
+function resourcePanel(l) {
+  const parts = [];
+  if (l.phone) parts.push(`<div class="resource-item"><span class="rk">Phone</span><a href="tel:${_escAttr(l.phone.replace(/[^\d+]/g,''))}">${_esc(l.phone)}</a></div>`);
+  if (l.address) parts.push(`<div class="resource-item"><span class="rk">Address</span>${_esc(l.address)}</div>`);
+  if (l.facebook) parts.push(`<div class="resource-item"><span class="rk">Facebook</span><a href="${_escAttr(l.facebook)}" target="_blank" rel="noopener">${_esc(l.facebook)}</a></div>`);
+  if (l.websiteUrl) parts.push(`<div class="resource-item"><span class="rk">Website / Booking</span><a href="${_escAttr(l.websiteUrl)}" target="_blank" rel="noopener">${_esc(l.websiteUrl)}</a></div>`);
+  if (l.googleReviews || l.googleStars) {
+    const stars = l.googleStars ? `<span class="stars">${_esc(String(l.googleStars))}&#9733;</span> ` : '';
+    const reviews = l.googleReviews ? `${_esc(String(l.googleReviews))} reviews` : '';
+    parts.push(`<div class="resource-item"><span class="rk">Google</span>${stars}${reviews}</div>`);
+  }
+  if (l.services) parts.push(`<div class="resource-item full"><span class="rk">Services</span>${_esc(l.services)}</div>`);
+  if (!parts.length) return '';
+  return `<div class="resource-panel">${parts.join('')}</div>`;
+}
+
+// Cache-first: listLeads against the Apps Script backend consistently takes
+// 1.5-2s (Apps Script Web Apps are just slow, no way around that server-side).
+// Rather than show a skeleton on every single visit, the last successful
+// fetch is kept in localStorage per workspace and rendered immediately -
+// stale by at most one visit's worth of changes, which is a fine trade for
+// an instant paint. The real fetch still always runs in the background and
+// silently reconciles the render when it lands, so data is never more than
+// one page load behind. Skeletons now only appear on a workspace's first
+// ever visit, when there's nothing cached yet to show.
+function _leadsCacheKey() { return 'wl_leads_cache_' + WORKSPACE_KEY; }
+
+function _readLeadsCache() {
+  try {
+    const raw = localStorage.getItem(_leadsCacheKey());
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+
+function _writeLeadsCache(leads) {
+  try { localStorage.setItem(_leadsCacheKey(), JSON.stringify(leads)); }
+  catch (e) { /* storage full or unavailable - background refresh still works, just uncached */ }
+}
+
+async function loadMyLeads() {
+  const cached = _readLeadsCache();
+  if (cached) {
+    allLeads = cached;
+    renderMyLeads();
+    renderStats();
+  }
+
+  try {
+    allLeads = await WISDOMLAYERS_API.listLeads(WORKSPACE_KEY);
+  } catch (err) {
+    if (!cached) {
+      document.getElementById('myLeadsList').innerHTML = `<div class="empty-state">Could not load your leads. ${err.message}</div>`;
+    }
+    return;
+  }
+  _writeLeadsCache(allLeads);
+  renderMyLeads();
+  renderStats();
+}
+
+// "Mine" tracking lives in this browser's localStorage, scoped by workspace
+// key, since the server never tells one workspace which rows belong to it -
+// only that a row is claimed. The claim response is the only moment a lead
+// ID is learned as "mine."
+function myLeadIds() {
+  try { return JSON.parse(localStorage.getItem('wl_mine_' + WORKSPACE_KEY) || '[]'); }
+  catch (e) { return []; }
+}
+function addMyLeadId(id) {
+  const ids = myLeadIds();
+  if (!ids.includes(id)) ids.push(id);
+  localStorage.setItem('wl_mine_' + WORKSPACE_KEY, JSON.stringify(ids));
+}
+function removeMyLeadId(id) {
+  localStorage.setItem('wl_mine_' + WORKSPACE_KEY, JSON.stringify(myLeadIds().filter(x => x !== id)));
+}
+
+// "My Leads" on the dashboard is the active work queue only - leads that
+// haven't been acted on yet (Pending/Claimed). The moment a lead is
+// contacted, flagged, or otherwise resolved, it belongs in History instead
+// so this list can't grow without bound while someone is doing their job well.
+const ACTIVE_STATUSES = ['Pending', 'Claimed'];
+let openLeadId = null;
+
+function renderMyLeads() {
+  const el = document.getElementById('myLeadsList');
+  const mine = allLeads.filter(l => myLeadIds().includes(String(l.id)) && ACTIVE_STATUSES.includes(l.status || 'Pending'));
+  if (!mine.length) {
+    el.innerHTML = '<div class="empty-state">No active leads. Click "Get a Lead" above, or go research a business yourself and click "Add a Lead" to bring it in. Already worked some? Check <a href="history.html?w=' + WORKSPACE_KEY + '">History</a>.</div>';
+    document.getElementById('leadsDetailPane').innerHTML = '<div class="empty-state">Select a lead from the list to see its details, log outreach, or update its status.</div>';
+    openLeadId = null;
+    return;
+  }
+
+  // Keep whatever was selected if it's still in the active list; otherwise
+  // default to the first lead so the detail pane is never empty when there
+  // are leads to work.
+  if (!openLeadId || !mine.some(l => l.id === openLeadId)) openLeadId = mine[0].id;
+
+  el.innerHTML = mine.map(l => `
+    <div class="lead-row-compact${openLeadId === l.id ? ' selected' : ''}" data-lead="${l.id}">
+      <div class="lrc-head">
+        <div class="lrc-title">${_esc(l.business)}</div>
+        <div class="lrc-meta">${_esc(l.city || '')}${l.city && l.category ? ' - ' : ''}${_esc(l.category || '')}</div>
+        <span class="status-pill status-${_statusClass(l.status)}">${_esc(l.status || 'Pending')}</span>
+      </div>
+    </div>
+  `).join('');
+
+  el.querySelectorAll('.lead-row-compact').forEach(row => {
+    row.addEventListener('click', () => {
+      openLeadId = row.dataset.lead;
+      renderMyLeads();
+    });
+  });
+
+  renderLeadDetail(mine.find(l => l.id === openLeadId));
+}
+
+function renderLeadDetail(l) {
+  const el = document.getElementById('leadsDetailPane');
+  if (!l) { el.innerHTML = '<div class="empty-state">Select a lead from the list to see its details, log outreach, or update its status.</div>'; return; }
+
+  el.innerHTML = `
+    <div class="detail-head">
+      <h2 class="detail-title">${_esc(l.business)}</h2>
+      <div class="lrc-meta">${_esc(l.city || '')}${l.city && l.category ? ' - ' : ''}${_esc(l.category || '')}</div>
+    </div>
+
+    ${hasResources(l) ? `<div class="lrc-section-label">Contact info</div>${resourcePanel(l)}` : ''}
+
+    <div class="lrc-section-label">Log your outreach</div>
+    <div class="outreach-form">
+      <div class="outreach-hint">Once you email this business, paste the message (or attach a screenshot) and submit. That moves the lead to <strong>Contacted</strong> automatically.</div>
+
+      <div class="outreach-step">
+        <div class="outreach-label"><span class="num">1</span>Email you sent</div>
+        <textarea class="outreach-email" placeholder="Paste the email text here..." data-lead="${l.id}"></textarea>
+      </div>
+
+      <div class="outreach-step">
+        <div class="outreach-label"><span class="num">2</span>Screenshot (optional)</div>
+        <label class="file-drop">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span class="file-drop-text" data-filename-for="${l.id}"><strong>Choose a file</strong> or drop it here</span>
+          <input type="file" accept="image/*" class="outreach-screenshot" data-lead="${l.id}">
+        </label>
+      </div>
+
+      <div class="outreach-actions">
+        <button class="btn sm submit-outreach-btn" data-lead="${l.id}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Submit Outreach
+        </button>
+        <button class="btn sm flag-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}" title="Use this if the business already has a solid website and doesn't need one">
+          Flag: Has Good Website
+        </button>
+      </div>
+    </div>
+
+    <div class="lrc-section-label">Status</div>
+    ${INTERESTED_STATUSES.includes(l.status) ? `
+    <div class="alert" style="margin:0 0 10px;">
+      <svg class="alert-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <p><strong>This lead is interested - notify the owner now.</strong> No price talk, no timelines. Reply warmly, say the owner will be in touch, then hand off the business name and contact info right away.</p>
+    </div>` : ''}
+    <div class="outreach-form status-bar">
+      <div class="note-log" id="notelog-${l.id}"></div>
+      <select class="status-select" data-lead="${l.id}">
+        ${STATUS_OPTIONS.map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
+      </select>
+      ${l.canDelete
+        ? `<button class="btn sm sec remove-lead-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}">Remove</button>`
+        : `<button class="icon-btn unclaim-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}" title="Unclaim - release this lead back to the shared pool">
+             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+           </button>`}
+    </div>
+  `;
+
+  el.querySelectorAll('select.status-select').forEach(sel => {
+    sel.addEventListener('change', async () => {
+      const leadId = sel.dataset.lead;
+      sel.disabled = true;
+      try {
+        await WISDOMLAYERS_API.setStatus(WORKSPACE_KEY, leadId, sel.value);
+        toast('Status updated.');
+        await loadMyLeads();
+      } catch (err) {
+        toast('Could not update status: ' + err.message);
+        sel.disabled = false;
+      }
+    });
+  });
+
+  el.querySelectorAll('.submit-outreach-btn').forEach(btn => {
+    btn.addEventListener('click', () => submitOutreach(btn));
+  });
+  el.querySelectorAll('.flag-btn').forEach(btn => {
+    btn.addEventListener('click', () => flagGoodWebsite(btn));
+  });
+  el.querySelectorAll('.remove-lead-btn').forEach(btn => {
+    btn.addEventListener('click', () => removeLead(btn));
+  });
+  el.querySelectorAll('.unclaim-btn').forEach(btn => {
+    btn.addEventListener('click', () => unclaimLead(btn));
+  });
+  el.querySelectorAll('.outreach-screenshot').forEach(field => {
+    field.addEventListener('change', () => {
+      const label = document.querySelector(`[data-filename-for="${field.dataset.lead}"]`);
+      if (!label) return;
+      label.innerHTML = field.files[0] ? `<strong>${_esc(field.files[0].name)}</strong> selected` : '<strong>Choose a file</strong> or drop it here';
+    });
+  });
+
+  if (openLeadId) loadNotes(openLeadId);
+}
+
+function _fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function submitOutreach(btn) {
+  const leadId = btn.dataset.lead;
+  const emailField = document.querySelector(`.outreach-email[data-lead="${leadId}"]`);
+  const fileField = document.querySelector(`.outreach-screenshot[data-lead="${leadId}"]`);
+  const emailText = (emailField.value || '').trim();
+  const file = fileField.files[0];
+
+  if (!emailText && !file) {
+    toast('Paste the email or attach a screenshot first.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  try {
+    let screenshotBase64 = '';
+    let screenshotMimeType = '';
+    if (file) {
+      screenshotBase64 = await _fileToBase64(file);
+      screenshotMimeType = file.type || 'image/png';
+    }
+    await WISDOMLAYERS_API.submitOutreach(WORKSPACE_KEY, leadId, emailText, screenshotBase64, screenshotMimeType);
+    toast('Outreach logged.');
+    await loadMyLeads();
+  } catch (err) {
+    toast('Could not submit outreach: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = 'Submit Outreach';
+  }
+}
+
+async function flagGoodWebsite(btn) {
+  const leadId = btn.dataset.lead;
+  const businessName = btn.dataset.business;
+  if (!confirm(`Flag "${businessName}" as already having a good website? This removes it from your active leads.`)) return;
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Flagging...';
+  try {
+    await WISDOMLAYERS_API.flagGoodWebsite(WORKSPACE_KEY, leadId);
+    toast('Flagged for review.');
+    await loadMyLeads();
+  } catch (err) {
+    toast('Could not flag: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+}
+
+async function removeLead(btn) {
+  const leadId = btn.dataset.lead;
+  const businessName = btn.dataset.business;
+  if (!confirm(`Remove "${businessName}"? This only works for leads you added yourself, and can't be undone.`)) return;
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Removing...';
+  try {
+    await WISDOMLAYERS_API.removeLead(WORKSPACE_KEY, leadId);
+    toast('Removed.');
+    await loadMyLeads();
+  } catch (err) {
+    toast('Could not remove: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+}
+
+// Unclaim is for shared-pool leads: it can't delete the business (other reps
+// may want it later), so it releases the claim by setting status back to
+// Pending and forgetting it locally - the opposite of claimNextLead.
+async function unclaimLead(btn) {
+  const leadId = btn.dataset.lead;
+  const businessName = btn.dataset.business;
+  if (!confirm(`Unclaim "${businessName}"? It goes back into the shared pool for anyone to pick up.`)) return;
+  btn.disabled = true;
+  try {
+    await WISDOMLAYERS_API.setStatus(WORKSPACE_KEY, leadId, 'Pending');
+    removeMyLeadId(leadId);
+    toast('Unclaimed. Back in the shared pool.');
+    await loadMyLeads();
+  } catch (err) {
+    toast('Could not unclaim: ' + err.message);
+    btn.disabled = false;
+  }
+}
+
+async function loadNotes(leadId) {
+  const el = document.getElementById('notelog-' + leadId);
+  if (!el) return;
+  try {
+    const res = await WISDOMLAYERS_API.getNotes(WORKSPACE_KEY, leadId);
+    el.textContent = res.notes || '';
+  } catch (e) { /* silent - notes are non-critical to display */ }
+}
+
+// Contacted means an email actually went out - anything at Contacted or
+// past it in the pipeline. Replied means they heard back, whether or not
+// it turned into a warm lead. Reply rate is the one number research on
+// commission-only outbound reps flags as the biggest missing feedback loop:
+// raw counts don't tell you if your emails are working, a rate does.
+const OUTREACH_SENT_STATUSES = ['Contacted', 'Replied', 'Warm Lead', 'Not Interested', 'Unsubscribed'];
+const REPLIED_STATUSES = ['Replied', 'Warm Lead'];
+const INTERESTED_STATUSES = ['Replied', 'Warm Lead'];
+
+function _setStat(id, text) {
+  const el = document.getElementById(id);
+  el.classList.remove('sk', 'sk-text');
+  el.textContent = text;
+}
+
+function renderStats() {
+  const mine = allLeads.filter(l => myLeadIds().includes(String(l.id)));
+  _setStat('statMine', mine.length);
+  _setStat('statContacted', mine.filter(l => l.status === 'Contacted').length);
+  _setStat('statReplied', mine.filter(l => l.status === 'Replied').length);
+  _setStat('statWarm', mine.filter(l => l.status === 'Warm Lead').length);
+
+  const sent = mine.filter(l => OUTREACH_SENT_STATUSES.includes(l.status)).length;
+  const replied = mine.filter(l => REPLIED_STATUSES.includes(l.status)).length;
+  _setStat('statReplyRate', sent > 0 ? `${Math.round((replied / sent) * 100)}%` : '-');
+}
+
+// Preview-before-claim: nothing is written server-side until "Claim This
+// Lead" is pressed. If someone else claims the previewed lead in the
+// meantime, claimSpecific will say so and this just re-rolls - simpler than
+// reserving the row up front and having to release it on Skip/abandon.
+let previewLead = null;
+
+function pickRandomOpenLead() {
+  const open = allLeads.filter(l => (l.status || 'Pending') === 'Pending');
+  if (!open.length) return null;
+  return open[Math.floor(Math.random() * open.length)];
+}
+
+// A lead with only 1-2 resource fields (e.g. just an address) still needs a
+// way to reach the business before it's worth claiming - phone or Facebook
+// is the bar, since those are the only two ways outreach actually gets sent.
+function hasContactPath(l) {
+  return !!(l.phone || l.facebook);
+}
+
+function renderPreviewBody(lead) {
+  const thin = hasResources(lead) && !hasContactPath(lead);
+  return `
+    <div class="preview-business">${_esc(lead.business)}</div>
+    <div class="preview-meta">${_esc(lead.city || '')}${lead.city && lead.category ? ' - ' : ''}${_esc(lead.category || '')}</div>
+    ${thin ? `<div class="alert" style="margin:0 0 14px;"><svg class="alert-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><p><strong>No phone or Facebook on file.</strong> You'll need to look this business up yourself before you can contact them.</p></div>` : ''}
+    ${hasResources(lead) ? resourcePanel(lead) : '<div class="empty-state" style="padding:20px 0;">No research on file for this lead yet - you\'ll need to look it up yourself.</div>'}
+  `;
+}
+
+function showPreview(lead) {
+  previewLead = lead;
+  document.getElementById('previewModalBody').innerHTML = renderPreviewBody(lead);
+  document.getElementById('previewOverlay').style.display = 'flex';
+  requestAnimationFrame(() => document.getElementById('previewOverlay').classList.add('open'));
+  document.getElementById('previewSkipBtn').disabled = false;
+  document.getElementById('previewAcceptBtn').disabled = false;
+}
+
+function hidePreview() {
+  const overlay = document.getElementById('previewOverlay');
+  overlay.classList.remove('open');
+  setTimeout(() => { overlay.style.display = 'none'; }, 220);
+  previewLead = null;
+}
+
+// Slot-reel shuffle inside the modal itself - the card opens right away (no
+// waiting on a button), a strip of names slides continuously through a
+// clipped window while the real refresh happens in the background, then
+// eases to a stop on the actual picked lead and reveals its full resource
+// panel. One continuous CSS transition per step (not a jump-cut text swap)
+// is what sells the "wheel settling" feel; step delays grow toward the end
+// so it visibly decelerates like real momentum running out. Kept short
+// since this gets triggered dozens of times a day - frequent interactions
+// should stay quick and subtle, not a spectacle each time.
+const REEL_ITEM_H = 34;
+const REEL_STEPS_MS = [90, 95, 105, 120, 145, 180]; // ~735ms, accelerating pause between spins
+
+function _buildReelHTML(names, finalIndex) {
+  return names.map((n, i) =>
+    `<div class="reel-item${i === finalIndex ? ' is-final' : ''}">${_esc(n)}</div>`
+  ).join('');
+}
+
+async function _runReel(pickNext, finalLead) {
+  previewLead = null;
+  document.getElementById('previewModalBody').innerHTML = `
+    <div class="reel-window"><div class="reel-strip" id="reelStrip"></div></div>
+    <div class="preview-meta">Picking one from the pool...</div>
+  `;
+  document.getElementById('previewOverlay').style.display = 'flex';
+  requestAnimationFrame(() => document.getElementById('previewOverlay').classList.add('open'));
+  document.getElementById('previewSkipBtn').disabled = true;
+  document.getElementById('previewAcceptBtn').disabled = true;
+
+  const strip = document.getElementById('reelStrip');
+  const names = REEL_STEPS_MS.map(() => pickNext());
+  names.push((await finalLead) || { business: 'No leads left' });
+  strip.innerHTML = _buildReelHTML(names.map(n => n.business), names.length - 1);
+  strip.style.transition = 'none';
+  strip.style.transform = 'translateY(0)';
+  void strip.offsetWidth; // reflow, so the first transition below actually animates
+
+  for (let i = 0; i < REEL_STEPS_MS.length; i++) {
+    await new Promise(r => requestAnimationFrame(r));
+    const dur = REEL_STEPS_MS[i];
+    const ease = i === REEL_STEPS_MS.length - 1 ? 'cubic-bezier(0.16, 1, 0.3, 1)' : 'cubic-bezier(0.45, 0, 0.55, 1)';
+    strip.style.transition = `transform ${dur}ms ${ease}`;
+    strip.style.transform = `translateY(-${REEL_ITEM_H * (i + 1)}px)`;
+    await new Promise(r => setTimeout(r, dur));
+  }
+
+  const lead = names[names.length - 1];
+  if (!lead || !lead.id) {
+    hidePreview();
+    toast('No unclaimed leads left in the pool right now.');
+    return;
+  }
+  showPreview(lead);
+}
+
+document.getElementById('claimBtn').addEventListener('click', () => {
+  const leadPromise = (async () => {
+    await loadMyLeads(); // real refresh, runs in parallel with the reel
+    return pickRandomOpenLead();
+  })();
+  _runReel(() => {
+    const pool = allLeads.length ? allLeads : null;
+    return pool && pool.length ? pool[Math.floor(Math.random() * pool.length)] : { business: 'Finding a lead...' };
+  }, leadPromise);
+});
+
+document.getElementById('previewCloseBtn').addEventListener('click', hidePreview);
+document.getElementById('previewSkipBtn').addEventListener('click', () => {
+  const open = allLeads.filter(l => (l.status || 'Pending') === 'Pending');
+  if (!open.length) {
+    toast('No more unclaimed leads left in the pool right now.');
+    hidePreview();
+    return;
+  }
+  _runReel(
+    () => open[Math.floor(Math.random() * open.length)],
+    Promise.resolve(open[Math.floor(Math.random() * open.length)])
+  );
+});
+
+document.getElementById('previewAcceptBtn').addEventListener('click', async (e) => {
+  if (!previewLead) return;
+  const btn = e.currentTarget;
+  const leadId = previewLead.id;
+  btn.disabled = true;
+  btn.textContent = 'Claiming...';
+  try {
+    const res = await WISDOMLAYERS_API.claimSpecificLead(WORKSPACE_KEY, leadId);
+    if (!res.lead) {
+      toast(res.error === 'Already claimed' ? 'Someone else just claimed that one - here\'s another.' : (res.error || 'Could not claim that lead.'));
+      const next = pickRandomOpenLead();
+      if (next) { showPreview(next); } else { hidePreview(); }
+    } else {
+      addMyLeadId(String(res.lead.id));
+      toast(`Claimed: ${res.lead.business}`);
+      hidePreview();
+      await loadMyLeads();
+    }
+  } catch (err) {
+    toast('Could not claim a lead: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Claim This Lead';
+  }
+});
+
+// Add a Lead is a two-step modal, same shape as the Get a Lead preview:
+// fill in the form, review exactly what will be saved, then confirm. Nothing
+// is written until "Confirm, Add Lead" is pressed.
+const ADD_LEAD_FIELD_IDS = ['alBusiness', 'alCity', 'alCategory', 'alWebsite', 'alPhone', 'alAddress', 'alFacebook', 'alWebsiteUrl', 'alServices'];
+
+function readAddLeadForm() {
+  return {
+    business: document.getElementById('alBusiness').value.trim(),
+    city: document.getElementById('alCity').value.trim(),
+    category: document.getElementById('alCategory').value.trim(),
+    website: document.getElementById('alWebsite').value,
+    phone: document.getElementById('alPhone').value.trim(),
+    address: document.getElementById('alAddress').value.trim(),
+    facebook: document.getElementById('alFacebook').value.trim(),
+    websiteUrl: document.getElementById('alWebsiteUrl').value.trim(),
+    services: document.getElementById('alServices').value.trim(),
+  };
+}
+
+function resetAddLeadForm() {
+  ADD_LEAD_FIELD_IDS.forEach(id => { document.getElementById(id).value = ''; });
+}
+
+function openAddLeadModal() {
+  document.getElementById('addLeadOverlay').style.display = 'flex';
+  showAddLeadStep('form');
+}
+function closeAddLeadModal() {
+  document.getElementById('addLeadOverlay').style.display = 'none';
+  resetAddLeadForm();
+}
+function showAddLeadStep(step) {
+  const isForm = step === 'form';
+  document.getElementById('addLeadFormStep').style.display = isForm ? 'block' : 'none';
+  document.getElementById('addLeadReviewStep').style.display = isForm ? 'none' : 'block';
+  document.getElementById('addLeadFormActions').style.display = isForm ? 'flex' : 'none';
+  document.getElementById('addLeadReviewActions').style.display = isForm ? 'none' : 'flex';
+  document.getElementById('addLeadModalTitle').textContent = isForm ? 'Add a Lead You Found' : 'Review Before Adding';
+}
+
+document.getElementById('addLeadToggleBtn').addEventListener('click', openAddLeadModal);
+document.getElementById('addLeadCloseBtn').addEventListener('click', closeAddLeadModal);
+document.getElementById('addLeadCancelBtn').addEventListener('click', closeAddLeadModal);
+document.getElementById('addLeadBackBtn').addEventListener('click', () => showAddLeadStep('form'));
+
+document.getElementById('addLeadReviewBtn').addEventListener('click', () => {
+  const lead = readAddLeadForm();
+  if (!lead.business) { toast('Business name is required.'); return; }
+
+  document.getElementById('addLeadReviewStep').innerHTML = `
+    <div class="preview-business">${_esc(lead.business)}</div>
+    <div class="preview-meta">${_esc(lead.city || '')}${lead.city && lead.category ? ' - ' : ''}${_esc(lead.category || '')}</div>
+    ${hasResources(lead) ? resourcePanel(lead) : '<div class="empty-state" style="padding:20px 0;">No extra details entered - just the basics above.</div>'}
+  `;
+  showAddLeadStep('review');
+});
+
+document.getElementById('addLeadConfirmBtn').addEventListener('click', async (e) => {
+  const btn = e.currentTarget;
+  const lead = readAddLeadForm();
+  if (!lead.business) { toast('Business name is required.'); showAddLeadStep('form'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Adding...';
+  try {
+    const res = await WISDOMLAYERS_API.addLead(WORKSPACE_KEY, lead);
+    if (res.ok) {
+      addMyLeadId(String(res.lead.id));
+      toast(`Added: ${lead.business}`);
+      closeAddLeadModal();
+      await loadMyLeads();
+    } else {
+      toast(res.error || 'Could not add lead.');
+    }
+  } catch (err) {
+    toast('Could not add lead: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Confirm, Add Lead';
+  }
+});
+
+function _esc(v) {
+  return String(v || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function _escAttr(v) {
+  return _esc(v).replace(/"/g, '&quot;');
+}
+function _statusClass(status) {
+  return (status || 'Pending').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+// initSidebarIdentity() must run before anything below - it's what turns
+// the ?w= param into WORKSPACE_KEY, which everything else here depends on.
+// It's now async (fetches the workspace map from the backend instead of
+// reading a hardcoded const), so everything gated on identity moves inside
+// this IIFE and awaits it first.
+(async () => {
+  const hasIdentity = await initSidebarIdentity();
+
+  // Without a valid ?w=, there's no "my leads" to show - the identity picker
+  // in the sidebar is already visible (initSidebarIdentity turned it on), so
+  // just leave the panes in their empty/loading state rather than fetching.
+  if (hasIdentity) {
+    loadMyLeads();
+
+    // Same "have they seen onboarding" flag the spotlight tour writes on
+    // completion/skip (SpotlightTour.end()) - not written here, since the
+    // welcome card's only button always starts the tour right after. Writing
+    // it on dismiss too would just race the tour's own write for no reason.
+    const ONBOARDING_DONE_KEY = 'wl_onboarding_done_' + WORKSPACE_KEY;
+    const showWelcomeOverlay = () => {
+      const el = document.getElementById('welcomeOverlay');
+      el.style.display = 'flex';
+      requestAnimationFrame(() => el.classList.add('open'));
+    };
+    const dismissWelcomeOverlay = () => {
+      const el = document.getElementById('welcomeOverlay');
+      el.classList.remove('open');
+      setTimeout(() => { el.style.display = 'none'; }, 300);
+    };
+    document.getElementById('welcomeGotItBtn').addEventListener('click', () => {
+      dismissWelcomeOverlay();
+      // Let the welcome card finish closing before the tour's scrim fades in -
+      // starting fresh writes the active flag and step 0, so the Dashboard is
+      // always where a brand-new tour begins.
+      setTimeout(() => SpotlightTour.startHere(DASHBOARD_TOUR_STEPS, 0, TOUR_TOTAL_STEPS, WORKSPACE_KEY), 320);
+    });
+
+    let onboardingAlreadyDone = false;
+    try { onboardingAlreadyDone = !!localStorage.getItem(ONBOARDING_DONE_KEY); } catch (e) {}
+    if (!onboardingAlreadyDone) showWelcomeOverlay();
+
+    // Tour steps that live on this page. Total step count and this page's
+    // offset (0 - the tour always starts here) must match the offsets used on
+    // history.html and tracker.html for "Step X of N" to read correctly across
+    // the whole cross-page tour.
+    var TOUR_TOTAL_STEPS = 8;
+    var DASHBOARD_TOUR_STEPS = [
+      { selector: '#claimBtn', title: 'Get a Lead', body: 'Pulls a business at random from the shared pool. It\'s claimed to you the instant you get it, so nobody else can be given the same one.' },
+      { selector: '#addLeadToggleBtn', title: 'Add a Lead', body: 'Found a business yourself while researching? Add it here, it\'s claimed to you the moment you save it.' },
+      { selector: '#leadsMasterDetail', title: 'My Leads', body: 'Everything you\'ve claimed shows up here. Click a lead on the left to see its details, log outreach, or update its status on the right.' },
+      { selector: '#statRow', title: 'Your Stats', body: 'Live numbers for what you\'ve claimed, contacted, and heard back from. Reply Rate is the one that actually tells you if your emails are working.' },
+      { selector: '#navHistory', title: 'History', body: 'Once a lead is contacted, flagged, or resolved, it moves out of My Leads and into History, so your active queue never gets cluttered.', href: `history.html?w=${WORKSPACE_KEY}` },
+    ];
+    // If a tour is already in progress (started here, or someone navigated
+    // back), resume at whatever step is saved rather than restarting.
+    SpotlightTour.registerPage(DASHBOARD_TOUR_STEPS, 0, TOUR_TOTAL_STEPS, WORKSPACE_KEY);
+  }
+})();
+</script>
+</body>
+</html>

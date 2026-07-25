@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Tracker - WisdomLayers</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --teal-50:  #f0fdfa;
+    --teal-100: #ccfbf1;
+    --teal-500: #14b8a6;
+    --teal-600: #0d9488;
+    --teal-700: #0f766e;
+    --ink:      #0f172a;
+    --gray-900: #111827;
+    --gray-700: #374151;
+    --gray-600: #4b5563;
+    --gray-500: #6b7280;
+    --gray-400: #9ca3af;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50:  #f9fafb;
+    --sidebar-w: 236px;
+    --amber-50: #fffbeb;
+    --amber-200: #fde68a;
+    --amber-700: #b45309;
+  }
+
+  body {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--gray-50);
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+  }
+  h1, h2, h3 { font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif; }
+
+  .shell { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: #ffffff;
+    border-right: 1px solid var(--gray-200);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+  .sb-brand {
+    display: flex; align-items: center; gap: 9px;
+    padding: 20px 22px;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .sb-brand img { width: 24px; height: 30px; object-fit: contain; }
+  .sb-brand span { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+
+  .sb-identity {
+    padding: 18px 22px 20px;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex; align-items: center; gap: 11px;
+  }
+  .sb-avatar {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--teal-600);
+    color: white; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .sb-idname { font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.3; }
+  .sb-idrole { font-size: 11.5px; color: var(--gray-500); line-height: 1.3; }
+
+  .sb-identity-picker {
+    padding: 16px 22px 18px;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .sb-idpicker-label {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--gray-400); margin-bottom: 9px;
+  }
+  .sb-idpicker-link {
+    display: block; font-size: 13.5px; font-weight: 600; color: var(--teal-700);
+    text-decoration: none; padding: 7px 0;
+  }
+  .sb-idpicker-link:hover { text-decoration: underline; }
+
+  .sb-nav { flex: 1; padding: 14px 14px; overflow-y: auto; }
+  .sb-section-label {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--gray-400);
+    padding: 16px 10px 7px;
+  }
+  .sb-section-label:first-child { padding-top: 4px; }
+  .sb-link {
+    display: flex; align-items: center; gap: 11px;
+    padding: 11px 12px; border-radius: 9px;
+    font-size: 13.5px; font-weight: 500; color: var(--gray-700);
+    text-decoration: none;
+    margin-bottom: 2px;
+    transition: background 0.12s, color 0.12s;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+  }
+  .sb-link svg { flex-shrink: 0; color: var(--gray-400); transition: color 0.12s; }
+  .sb-link:hover { background: var(--gray-100); color: var(--ink); }
+  .sb-link:hover svg { color: var(--gray-600); }
+  .sb-link.primary { background: var(--teal-50); color: var(--teal-700); font-weight: 600; }
+  .sb-link.primary svg { color: var(--teal-600); }
+  .sb-link.primary:hover { background: var(--teal-100); }
+
+  .sb-footer { padding: 14px 22px 20px; border-top: 1px solid var(--gray-100); }
+  .sb-footer p { font-size: 11px; color: var(--gray-400); line-height: 1.5; }
+
+  .main-col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+  .topbar {
+    height: 56px; flex-shrink: 0;
+    background: #ffffff;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px;
+  }
+  .tb-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+
+  .content { flex: 1; padding: 36px 44px 64px; max-width: 1400px; }
+
+  .page-head { margin-bottom: 28px; }
+  .page-head h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 5px; }
+  .page-head p { font-size: 14.5px; color: var(--gray-500); }
+
+  .board-controls {
+    background: #ffffff; border: 1px solid var(--gray-200); border-radius: 12px;
+    padding: 16px 18px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  }
+  .board-controls input[type="text"] {
+    background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 9px;
+    font-size: 14px; padding: 10px 14px; flex: 1; min-width: 200px;
+    font-family: 'Inter', sans-serif; outline: none; color: var(--ink);
+  }
+  .board-controls input[type="text"]:focus { border-color: var(--teal-500); background: #fff; }
+  .board-controls select {
+    background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 9px;
+    color: var(--gray-700); font-size: 13.5px; padding: 10px 12px;
+    font-family: 'Inter', sans-serif; outline: none; cursor: pointer;
+  }
+  .board-controls select:focus { border-color: var(--teal-500); }
+  .board-view-toggle { display: flex; border: 1px solid var(--gray-200); border-radius: 9px; overflow: hidden; }
+  .board-view-toggle button {
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--gray-500);
+    background: #fff; border: none; padding: 10px 16px; cursor: pointer;
+  }
+  .board-view-toggle button.active { background: var(--teal-600); color: #fff; }
+
+  .panel { background: #ffffff; border: 1px solid var(--gray-200); border-radius: 14px; overflow: hidden; margin-bottom: 22px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03); }
+  .panel-head {
+    padding: 16px 22px; border-bottom: 1px solid var(--gray-100);
+    font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray-500);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .row-meta { font-size: 11.5px; color: var(--gray-400); flex-shrink: 0; white-space: nowrap; }
+  .empty-state { padding: 32px 18px; text-align: center; color: var(--gray-400); font-size: 13px; }
+
+  .status-pill {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 4px 10px; border-radius: 20px; flex-shrink: 0;
+  }
+  .status-pending { background: var(--gray-100); color: var(--gray-500); }
+  .status-claimed { background: #dbeafe; color: #1d4ed8; }
+  .status-contacted { background: #e0e7ff; color: #4338ca; }
+  .status-replied { background: #f5f3ff; color: #7c3aed; }
+  .status-warmlead { background: var(--teal-100); color: var(--teal-700); font-weight: 800; }
+  .status-notinterested { background: var(--gray-100); color: var(--gray-400); }
+  .status-unsubscribed { background: #fee2e2; color: #b91c1c; }
+
+  .group-header {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 14px 22px; background: var(--gray-50); border-bottom: 1px solid var(--gray-100);
+    cursor: pointer; user-select: none;
+  }
+  .group-header:hover { background: var(--gray-100); }
+  .group-header-left { display: flex; align-items: center; gap: 9px; }
+  .group-chevron { color: var(--gray-400); transition: transform 0.15s; flex-shrink: 0; }
+  .group-chevron.collapsed { transform: rotate(-90deg); }
+  .group-title { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  .group-counts { display: flex; gap: 7px; align-items: center; }
+  .group-badge {
+    font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 10px;
+    background: var(--gray-100); color: var(--gray-500);
+  }
+  .group-badge.pending { background: var(--gray-100); color: var(--gray-500); }
+  .group-rows.collapsed { display: none; }
+
+  table.board-table { width: 100%; border-collapse: collapse; }
+  table.board-table th {
+    text-align: left; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--gray-400); padding: 11px 18px;
+    border-bottom: 1px solid var(--gray-100); cursor: pointer; white-space: nowrap;
+    background: var(--gray-50);
+  }
+  table.board-table th:hover { color: var(--teal-600); }
+  table.board-table th .sort-arrow { font-size: 9.5px; margin-left: 4px; }
+  table.board-table td { padding: 13px 18px; font-size: 13.5px; color: var(--gray-700); border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+  table.board-table tbody tr:hover { background: var(--gray-50); }
+  table.board-table tbody tr:last-child td { border-bottom: none; }
+  td.biz-cell { font-weight: 700; color: var(--ink); }
+  td.biz-cell .biz-city { font-weight: 400; color: var(--gray-500); font-size: 12px; }
+
+  .resource-toggle {
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: var(--teal-700);
+    background: var(--teal-50); border: 1px solid var(--teal-100); border-radius: 8px;
+    padding: 6px 12px; cursor: pointer; white-space: nowrap;
+  }
+  .resource-toggle:hover { background: var(--teal-100); }
+  .resource-toggle[data-empty="1"] {
+    color: var(--gray-400); background: var(--gray-100); border-color: var(--gray-200); cursor: default;
+  }
+  .resource-row td { background: var(--gray-50); padding: 0; }
+  .resource-panel { padding: 16px 22px 20px 52px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 26px; }
+  .resource-item { font-size: 13px; color: var(--gray-700); line-height: 1.6; }
+  .resource-item .rk { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-400); display: block; margin-bottom: 3px; }
+  .resource-item a { color: var(--teal-700); text-decoration: none; word-break: break-all; font-weight: 500; }
+  .resource-item a:hover { text-decoration: underline; }
+  .resource-item.full { grid-column: 1 / -1; }
+  .stars { color: #f59e0b; font-weight: 700; }
+
+  .claim-row-btn {
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: var(--teal-700);
+    background: #ffffff; border: 1px solid var(--teal-100); border-radius: 8px;
+    padding: 7px 14px; cursor: pointer; white-space: nowrap;
+  }
+  .claim-row-btn:hover { background: var(--teal-50); }
+  .claim-row-btn:disabled { color: var(--gray-300); border-color: var(--gray-200); cursor: default; background: var(--gray-50); }
+
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: white; font-size: 12.5px; font-weight: 500;
+    padding: 10px 18px; border-radius: 8px; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s; z-index: 200; max-width: 90vw; text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 860px) {
+    .sidebar { display: none; }
+    .content { padding: 20px 16px 50px; }
+    .topbar { padding: 0 16px; }
+    table.board-table { display: block; overflow-x: auto; }
+  }
+
+  @keyframes sk-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .sk {
+    display: inline-block; border-radius: 6px;
+    background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 37%, var(--gray-100) 63%);
+    background-size: 200% 100%;
+    animation: sk-shimmer 1.4s ease-in-out infinite;
+    color: transparent !important;
+  }
+  .sk-text { height: 1em; vertical-align: middle; }
+  .sk-row-meta { width: 90px; }
+  .sk-table-row { display: flex; align-items: center; gap: 18px; padding: 13px 18px; border-bottom: 1px solid var(--gray-100); }
+  .sk-table-row:last-child { border-bottom: none; }
+  .sk-table-row .sk-biz { width: 190px; height: 14px; flex-shrink: 0; }
+  .sk-table-row .sk-col { width: 110px; height: 12px; flex-shrink: 0; }
+  .sk-table-row .sk-col.sk-col-wide { width: 150px; }
+  .sk-table-row .sk-pill { width: 78px; height: 18px; border-radius: 20px; margin-left: auto; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <img src="assets/logo.png" alt="">
+      <span>WisdomLayers</span>
+    </div>
+
+    <div class="sb-identity" id="sbIdentity" style="display:none;">
+      <div class="sb-avatar" id="sbAvatar">?</div>
+      <div>
+        <div class="sb-idname" id="sbIdName">-</div>
+        <div class="sb-idrole">Outreach Specialist</div>
+      </div>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="sb-section-label">Workspace</div>
+      <a href="index.html" id="navDashboard" class="sb-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
+      </a>
+      <a href="history.html" id="navHistory" class="sb-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        History
+      </a>
+      <a href="tracker.html" id="navTracker" class="sb-link primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Lead Tracker
+      </a>
+
+      <div class="sb-section-label">Reference</div>
+      <a href="playbook.html" id="navPlaybook" class="sb-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Email Scripts
+      </a>
+      <a href="onboarding.html" id="navOnboarding" class="sb-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Onboarding Guide
+      </a>
+      <a href="https://wiseonion.github.io/WisdomLayersContract/" target="_blank" class="sb-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Your Contract
+      </a>
+    </nav>
+
+    <div class="sb-footer">
+      <p><strong>Shared board.</strong> Anyone may have claimed any row. Claiming here works the same as Get a Lead.</p>
+    </div>
+  </aside>
+
+  <div class="main-col">
+
+    <div class="topbar">
+      <div class="tb-title">Lead Tracker</div>
+    </div>
+
+    <div class="content">
+
+      <div class="page-head">
+        <h1>Lead Tracker</h1>
+        <p>The full shared pool of NC businesses with a starting point of info on each. Verify it yourself before you write anything, it's not always accurate or complete. Search, filter, and claim directly from here.</p>
+      </div>
+
+      <div class="board-controls">
+        <input type="text" id="boardSearch" placeholder="Search business, city, category, services..." oninput="renderBoard()">
+        <select id="boardStatusFilter" onchange="renderBoard()">
+          <option value="">All Statuses</option>
+          <option>Pending</option><option>Claimed</option><option>Contacted</option>
+          <option>Replied</option><option>Warm Lead</option>
+          <option>Not Interested</option><option>Unsubscribed</option><option>Flagged - Good Website</option>
+        </select>
+        <select id="boardCategoryFilter" onchange="renderBoard()">
+          <option value="">All Categories</option>
+        </select>
+        <select id="boardCityFilter" onchange="renderBoard()">
+          <option value="">All Cities</option>
+        </select>
+        <div class="board-view-toggle">
+          <button id="viewGroupedBtn" class="active" onclick="setBoardView('grouped')">Grouped</button>
+          <button id="viewFlatBtn" onclick="setBoardView('flat')">Table</button>
+        </div>
+      </div>
+
+      <div class="panel" id="sharedPoolPanel">
+        <div class="panel-head">
+          <span>Shared Pool</span>
+          <span class="row-meta sk sk-text sk-row-meta" id="boardCountMeta">&nbsp;</span>
+        </div>
+        <div id="boardList">
+          <div class="sk-table-row"><div class="sk sk-biz"></div><div class="sk sk-col"></div><div class="sk sk-col"></div><div class="sk sk-col sk-col-wide"></div><div class="sk sk-pill"></div></div>
+          <div class="sk-table-row"><div class="sk sk-biz"></div><div class="sk sk-col"></div><div class="sk sk-col"></div><div class="sk sk-col sk-col-wide"></div><div class="sk sk-pill"></div></div>
+          <div class="sk-table-row"><div class="sk sk-biz"></div><div class="sk sk-col"></div><div class="sk sk-col"></div><div class="sk sk-col sk-col-wide"></div><div class="sk sk-pill"></div></div>
+          <div class="sk-table-row"><div class="sk sk-biz"></div><div class="sk sk-col"></div><div class="sk sk-col"></div><div class="sk sk-col sk-col-wide"></div><div class="sk sk-pill"></div></div>
+          <div class="sk-table-row"><div class="sk sk-biz"></div><div class="sk sk-col"></div><div class="sk sk-col"></div><div class="sk sk-col sk-col-wide"></div><div class="sk sk-pill"></div></div>
+          <div class="sk-table-row"><div class="sk sk-biz"></div><div class="sk sk-col"></div><div class="sk sk-col"></div><div class="sk sk-col sk-col-wide"></div><div class="sk sk-pill"></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="_shared/api.js"></script>
+<script src="_shared/spotlight-tour.js"></script>
+<script src="_shared/admin-switcher.js"></script>
+<script src="_shared/workspace-frame.js"></script>
+<script>
+let WORKSPACE_KEY = null;
+
+const STATUS_CLASS = {
+  'Pending': 'status-pending', 'Claimed': 'status-claimed', 'Contacted': 'status-contacted',
+  'Replied': 'status-replied', 'Warm Lead': 'status-warmlead',
+  'Not Interested': 'status-notinterested', 'Unsubscribed': 'status-unsubscribed',
+};
+
+let allLeads = [];
+let boardView = 'grouped';
+let boardSort = { key: 'business', asc: true };
+let collapsedGroups = new Set();
+let openResourceIds = new Set();
+
+// The key->name map is defined once, in sheets/Code.gs's WORKSPACE_KEYS,
+// and fetched here instead of being hardcoded per page - see the longer
+// comment on this same function in index.html for why.
+async function initSidebarIdentity() {
+  const params = new URLSearchParams(window.location.search);
+  const key = params.get('w');
+  const dashLink = document.getElementById('navDashboard');
+  const historyLink = document.getElementById('navHistory');
+  const trackerLink = document.getElementById('navTracker');
+  const playbookLink = document.getElementById('navPlaybook');
+  const onboardingLink = document.getElementById('navOnboarding');
+
+  let name;
+  try {
+    name = await WISDOMLAYERS_API.getWorkspaceName(key);
+  } catch (err) {
+    toast('Could not verify your workspace link. ' + err.message);
+    SpotlightTour.abandon();
+    return;
+  }
+
+  if (!name) {
+    dashLink.href = 'index.html';
+    historyLink.href = 'history.html';
+    SpotlightTour.abandon();
+    return;
+  }
+
+  WORKSPACE_KEY = key;
+  document.getElementById('sbIdentity').style.display = 'flex';
+  applyWorkspaceFrame(name);
+  document.getElementById('sbAvatar').textContent = name[0];
+  document.getElementById('sbIdName').textContent = name;
+  dashLink.href = `index.html?w=${key}`;
+  historyLink.href = `history.html?w=${key}`;
+  trackerLink.href = `tracker.html?w=${key}`;
+  playbookLink.href = `playbook.html?w=${key}`;
+  onboardingLink.href = `onboarding.html?w=${key}`;
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+function pill(status) {
+  const cls = STATUS_CLASS[status] || 'status-pending';
+  return `<span class="status-pill ${cls}">${status}</span>`;
+}
+
+function setBoardView(v) {
+  boardView = v;
+  document.getElementById('viewGroupedBtn').classList.toggle('active', v === 'grouped');
+  document.getElementById('viewFlatBtn').classList.toggle('active', v === 'flat');
+  renderBoard();
+}
+
+async function loadBoard() {
+  try {
+    allLeads = await WISDOMLAYERS_API.listLeads(WORKSPACE_KEY);
+  } catch (err) {
+    document.getElementById('boardList').innerHTML = `<div class="empty-state">Could not load the claim board. ${err.message}</div>`;
+    return;
+  }
+  buildFilterOptions();
+  renderBoard();
+}
+
+function buildFilterOptions() {
+  const catSel = document.getElementById('boardCategoryFilter');
+  const citySel = document.getElementById('boardCityFilter');
+  const curCat = catSel.value, curCity = citySel.value;
+  const cats = [...new Set(allLeads.map(l => l.category).filter(Boolean))].sort();
+  const cities = [...new Set(allLeads.map(l => l.city).filter(Boolean))].sort();
+  catSel.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option${c === curCat ? ' selected' : ''}>${_esc(c)}</option>`).join('');
+  citySel.innerHTML = '<option value="">All Cities</option>' + cities.map(c => `<option${c === curCity ? ' selected' : ''}>${_esc(c)}</option>`).join('');
+}
+
+function filteredLeads() {
+  const q = (document.getElementById('boardSearch').value || '').toLowerCase();
+  const fs = document.getElementById('boardStatusFilter').value;
+  const fc = document.getElementById('boardCategoryFilter').value;
+  const fcity = document.getElementById('boardCityFilter').value;
+  return allLeads.filter(l => {
+    const t = [l.business, l.city, l.category, l.services, l.address].join(' ').toLowerCase();
+    return (!q || t.includes(q)) && (!fs || l.status === fs) && (!fc || l.category === fc) && (!fcity || l.city === fcity);
+  });
+}
+
+function hasResources(l) {
+  return !!(l.phone || l.address || l.facebook || l.websiteUrl || l.googleReviews || l.services);
+}
+
+function resourcePanel(l) {
+  const parts = [];
+  if (l.phone) parts.push(`<div class="resource-item"><span class="rk">Phone</span><a href="tel:${_escAttr(l.phone.replace(/[^\d+]/g,''))}">${_esc(l.phone)}</a></div>`);
+  if (l.address) parts.push(`<div class="resource-item"><span class="rk">Address</span>${_esc(l.address)}</div>`);
+  if (l.facebook) parts.push(`<div class="resource-item"><span class="rk">Facebook</span><a href="${_escAttr(l.facebook)}" target="_blank" rel="noopener">${_esc(l.facebook)}</a></div>`);
+  if (l.websiteUrl) parts.push(`<div class="resource-item"><span class="rk">Website / Booking</span><a href="${_escAttr(l.websiteUrl)}" target="_blank" rel="noopener">${_esc(l.websiteUrl)}</a></div>`);
+  if (l.googleReviews || l.googleStars) {
+    const stars = l.googleStars ? `<span class="stars">${_esc(String(l.googleStars))}&#9733;</span> ` : '';
+    const reviews = l.googleReviews ? `${_esc(String(l.googleReviews))} reviews` : '';
+    parts.push(`<div class="resource-item"><span class="rk">Google</span>${stars}${reviews}</div>`);
+  }
+  if (l.services) parts.push(`<div class="resource-item full"><span class="rk">Services</span>${_esc(l.services)}</div>`);
+  if (!parts.length) parts.push('<div class="resource-item full" style="color:var(--gray-400);">No extra research on file for this lead yet.</div>');
+  return `<div class="resource-panel">${parts.join('')}</div>`;
+}
+
+function toggleResource(id) {
+  if (openResourceIds.has(id)) openResourceIds.delete(id); else openResourceIds.add(id);
+  renderBoard();
+}
+
+function myLeadIds() {
+  if (!WORKSPACE_KEY) return [];
+  try { return JSON.parse(localStorage.getItem('wl_mine_' + WORKSPACE_KEY) || '[]'); }
+  catch (e) { return []; }
+}
+function addMyLeadId(id) {
+  if (!WORKSPACE_KEY) return;
+  const ids = myLeadIds();
+  if (!ids.includes(id)) ids.push(id);
+  localStorage.setItem('wl_mine_' + WORKSPACE_KEY, JSON.stringify(ids));
+}
+
+async function claimSpecificLead(id, btn) {
+  if (!WORKSPACE_KEY) {
+    toast('Pick who you are from the sidebar first.');
+    return;
+  }
+  if (btn) { btn.disabled = true; btn.textContent = 'Claiming...'; }
+  try {
+    const res = await WISDOMLAYERS_API.claimSpecificLead(WORKSPACE_KEY, id);
+    if (!res.lead) {
+      toast(res.error || 'Could not claim that lead. It may already be taken.');
+      await loadBoard();
+    } else {
+      addMyLeadId(String(res.lead.id));
+      toast(`Claimed: ${res.lead.business}`);
+      await loadBoard();
+    }
+  } catch (err) {
+    toast('Could not claim: ' + err.message);
+  }
+}
+
+function boardRowHtml(l, showCity) {
+  const id = l.id;
+  const isPending = l.status === 'Pending' || !l.status;
+  const claimBtn = isPending
+    ? `<button class="claim-row-btn" onclick="claimSpecificLead('${_escJs(id)}', this)"${WORKSPACE_KEY ? '' : ' disabled title="Pick who you are first"'}>Claim</button>`
+    : `<button class="claim-row-btn" disabled>Claimed</button>`;
+  const resBtn = hasResources(l)
+    ? `<button class="resource-toggle" onclick="toggleResource('${_escJs(id)}')">${openResourceIds.has(id) ? 'Hide' : 'Info'}</button>`
+    : `<button class="resource-toggle" data-empty="1" disabled>No info</button>`;
+  const cityBit = `<div class="biz-city">${_esc(l.city || '')}${l.city && l.category ? ' &middot; ' : ''}${_esc(l.category || '')}</div>`;
+  let html = `
+    <tr>
+      <td class="biz-cell">${_esc(l.business)}${cityBit}</td>
+      <td>${pill(l.status || 'Pending')}</td>
+      <td>${resBtn}</td>
+      <td>${claimBtn}</td>
+    </tr>`;
+  if (openResourceIds.has(id)) {
+    html += `<tr class="resource-row"><td colspan="4">${resourcePanel(l)}</td></tr>`;
+  }
+  return html;
+}
+
+function renderBoard() {
+  const el = document.getElementById('boardList');
+  const fil = filteredLeads();
+  const countMetaEl = document.getElementById('boardCountMeta');
+  countMetaEl.classList.remove('sk', 'sk-text', 'sk-row-meta');
+  countMetaEl.textContent = `${fil.length} of ${allLeads.length} leads`;
+
+  if (!fil.length) {
+    el.innerHTML = '<div class="empty-state">No leads match your filters.</div>';
+    return;
+  }
+
+  if (boardView === 'flat') {
+    const sorted = [...fil].sort((a, b) => {
+      const av = String(a[boardSort.key] || '').toLowerCase();
+      const bv = String(b[boardSort.key] || '').toLowerCase();
+      return boardSort.asc ? av.localeCompare(bv) : bv.localeCompare(av);
+    });
+    const arrow = (key) => boardSort.key === key ? `<span class="sort-arrow">${boardSort.asc ? '&#9650;' : '&#9660;'}</span>` : '';
+    el.innerHTML = `
+      <table class="board-table">
+        <thead><tr>
+          <th onclick="sortBoard('business')">Business${arrow('business')}</th>
+          <th onclick="sortBoard('status')">Status${arrow('status')}</th>
+          <th>Resources</th>
+          <th>Claim</th>
+        </tr></thead>
+        <tbody>${sorted.map(l => boardRowHtml(l, true)).join('')}</tbody>
+      </table>`;
+    return;
+  }
+
+  const groups = {};
+  fil.forEach(l => {
+    const key = l.category || 'Uncategorized';
+    (groups[key] = groups[key] || []).push(l);
+  });
+  const groupNames = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
+
+  el.innerHTML = groupNames.map(name => {
+    const rows = groups[name].sort((a, b) => (a.business || '').localeCompare(b.business || ''));
+    const pending = rows.filter(r => r.status === 'Pending' || !r.status).length;
+    const collapsed = collapsedGroups.has(name);
+    return `
+      <div class="lead-group">
+        <div class="group-header" onclick="toggleGroup('${_escJs(name)}')">
+          <div class="group-header-left">
+            <svg class="group-chevron${collapsed ? ' collapsed' : ''}" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="group-title">${_esc(name)}</span>
+          </div>
+          <div class="group-counts">
+            <span class="group-badge pending">${pending} pending</span>
+            <span class="group-badge">${rows.length} total</span>
+          </div>
+        </div>
+        <table class="board-table group-rows${collapsed ? ' collapsed' : ''}">
+          <tbody>${rows.map(l => boardRowHtml(l, true)).join('')}</tbody>
+        </table>
+      </div>`;
+  }).join('');
+}
+
+function toggleGroup(name) {
+  if (collapsedGroups.has(name)) collapsedGroups.delete(name); else collapsedGroups.add(name);
+  renderBoard();
+}
+
+function sortBoard(key) {
+  if (boardSort.key === key) boardSort.asc = !boardSort.asc;
+  else boardSort = { key, asc: true };
+  renderBoard();
+}
+
+function _esc(v) {
+  return String(v || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function _escAttr(v) {
+  return _esc(v).replace(/"/g, '&quot;');
+}
+function _escJs(v) {
+  return String(v || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+(async () => {
+  await initSidebarIdentity();
+  loadBoard();
+
+  // Final page of the cross-page tour: offset 7 of 8 total. Only wired up
+  // once WORKSPACE_KEY is known (initSidebarIdentity ran above and found a
+  // valid ?w= param) - without a workspace there's no one to write the
+  // completion flag for, and this page would only be reached this way if
+  // someone bookmarked/shared a bare tracker.html link mid-tour, which
+  // shouldn't resume a tour that isn't theirs.
+  if (WORKSPACE_KEY) {
+    const TOUR_TOTAL_STEPS = 8;
+    const TRACKER_TOUR_STEPS = [
+      { selector: '#sharedPoolPanel', title: 'Shared Pool', body: 'Every business in the pool, claimed or not, with whatever info we\'ve got so far. Double-check it yourself, it\'s a starting point, not verified research. This is the same pool "Get a Lead" pulls from at random - claim directly from here if you\'d rather pick than gamble.' },
+    ];
+    SpotlightTour.registerPage(TRACKER_TOUR_STEPS, 7, TOUR_TOTAL_STEPS, WORKSPACE_KEY);
+  }
+})();
+</script>
+</body>
+</html>
