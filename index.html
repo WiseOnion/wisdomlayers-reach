@@ -270,7 +270,8 @@
   }
   .lrc-section-label:first-child { margin-top: 0; }
   .detail-head { margin-bottom: 4px; padding-bottom: 18px; border-bottom: 1px solid var(--gray-100); }
-  .detail-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 4px; }
+  .detail-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .detail-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 0; }
 
   .status-pill {
     font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
@@ -368,6 +369,10 @@
   .icon-btn:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
   .icon-btn:disabled { opacity: 0.5; cursor: default; }
   .outreach-hint { font-size: 12px; color: var(--gray-500); margin-bottom: 14px; line-height: 1.55; }
+
+  .outreach-override { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-100); }
+  .outreach-override-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--gray-400); margin-bottom: 6px; }
+  .outreach-override-hint { font-size: 12px; color: var(--gray-500); margin-bottom: 10px; line-height: 1.5; }
 
   .resource-panel { padding: 0 0 8px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 26px; }
   .resource-item { font-size: 13px; color: var(--gray-700); line-height: 1.6; }
@@ -852,6 +857,10 @@ async function initSidebarIdentity() {
 }
 
 const STATUS_OPTIONS = ['Claimed','Contacted','Replied','Warm Lead','Not Interested','Unsubscribed','Flagged - Good Website'];
+// Contacted is set automatically by the outreach form (submitOutreach) and Flagged - Good
+// Website by the flag button, so the manual override dropdown excludes both to avoid a
+// second, disconnected path to the same state.
+const MANUAL_STATUS_OPTIONS = STATUS_OPTIONS.filter(s => s !== 'Contacted' && s !== 'Flagged - Good Website');
 
 let allLeads = [];
 
@@ -991,7 +1000,10 @@ function renderLeadDetail(l) {
 
   el.innerHTML = `
     <div class="detail-head">
-      <h2 class="detail-title">${_esc(l.business)}</h2>
+      <div class="detail-title-row">
+        <h2 class="detail-title">${_esc(l.business)}</h2>
+        <span class="status-pill status-${_statusClass(l.status)}">${_esc(l.status || 'Pending')}</span>
+      </div>
       <div class="lrc-meta">${_esc(l.city || '')}${l.city && l.category ? ' - ' : ''}${_esc(l.category || '')}</div>
     </div>
 
@@ -1024,25 +1036,30 @@ function renderLeadDetail(l) {
           Flag: Has Good Website
         </button>
       </div>
+
+      <div class="outreach-override">
+        <div class="outreach-override-label">Manual status override</div>
+        <div class="outreach-override-hint">Only for what happens after outreach: they reply, go warm, say no, or unsubscribe. Submitting outreach above already moves this to Contacted.</div>
+        <div class="status-bar">
+          <div class="note-log" id="notelog-${l.id}"></div>
+          <select class="status-select" data-lead="${l.id}">
+            ${!MANUAL_STATUS_OPTIONS.includes(l.status) && l.status ? `<option value="${l.status}" selected disabled>${_esc(l.status)} (auto-set)</option>` : ''}
+            ${MANUAL_STATUS_OPTIONS.map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
+          </select>
+          ${l.canDelete
+            ? `<button class="btn sm sec remove-lead-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}">Remove</button>`
+            : `<button class="icon-btn unclaim-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}" title="Unclaim - release this lead back to the shared pool">
+                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+               </button>`}
+        </div>
+      </div>
     </div>
 
-    <div class="lrc-section-label">Status</div>
     ${INTERESTED_STATUSES.includes(l.status) ? `
-    <div class="alert" style="margin:0 0 10px;">
+    <div class="alert" style="margin:14px 0 0;">
       <svg class="alert-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       <p><strong>This lead is interested - notify the owner now.</strong> No price talk, no timelines. Reply warmly, say the owner will be in touch, then hand off the business name and contact info right away.</p>
     </div>` : ''}
-    <div class="outreach-form status-bar">
-      <div class="note-log" id="notelog-${l.id}"></div>
-      <select class="status-select" data-lead="${l.id}">
-        ${STATUS_OPTIONS.map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
-      </select>
-      ${l.canDelete
-        ? `<button class="btn sm sec remove-lead-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}">Remove</button>`
-        : `<button class="icon-btn unclaim-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}" title="Unclaim - release this lead back to the shared pool">
-             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-           </button>`}
-    </div>
   `;
 
   el.querySelectorAll('select.status-select').forEach(sel => {
