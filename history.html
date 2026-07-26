@@ -450,12 +450,18 @@ function resourcePanel(l) {
   return `<div class="resource-panel">${parts.join('')}</div>`;
 }
 
-async function loadHistory() {
+// respectFreshness=true (page load only) skips the network call entirely
+// when the cache is still within LEADS_CACHE_FRESH_MS - every other caller
+// is a post-mutation refresh (just changed status or removed a lead) and
+// needs the real fetch regardless of how young the cache is.
+async function loadHistory(respectFreshness) {
   const cached = _readLeadsCache();
   if (cached) {
     allLeads = cached;
     renderHistory();
   }
+
+  if (respectFreshness && cached && _isLeadsCacheFresh()) return;
 
   try {
     allLeads = await WISDOMLAYERS_API.listLeads(WORKSPACE_KEY);
@@ -574,7 +580,7 @@ function _statusClass(status) {
   const hasIdentity = await initSidebarIdentity();
 
   if (hasIdentity) {
-    loadHistory();
+    loadHistory(true);
 
     // This page's slice of the cross-page tour: offset 5 (after Dashboard's
     // 5 steps, indices 0-4), total 8 steps overall. Resumes automatically if

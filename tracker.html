@@ -517,13 +517,19 @@ function setBoardView(v) {
   renderBoard();
 }
 
-async function loadBoard() {
+// respectFreshness=true (page load only) skips the network call entirely
+// when the cache is still within LEADS_CACHE_FRESH_MS - every other caller
+// is a post-mutation refresh (just claimed a lead) and needs the real fetch
+// regardless of how young the cache is.
+async function loadBoard(respectFreshness) {
   const cached = _readLeadsCache();
   if (cached) {
     allLeads = cached;
     buildFilterOptions();
     renderBoard();
   }
+
+  if (respectFreshness && cached && _isLeadsCacheFresh()) return;
 
   try {
     allLeads = await WISDOMLAYERS_API.listLeads(WORKSPACE_KEY);
@@ -725,7 +731,7 @@ function _escJs(v) {
 
 (async () => {
   await initSidebarIdentity();
-  loadBoard();
+  loadBoard(true);
 
   // Final page of the cross-page tour: offset 7 of 8 total. Only wired up
   // once WORKSPACE_KEY is known (initSidebarIdentity ran above and found a

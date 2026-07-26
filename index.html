@@ -1154,13 +1154,19 @@ function statusTimeline(l) {
   return `<ul class="timeline">${claimedStep}${contactedStep}${outcomeStep}</ul>`;
 }
 
-async function loadMyLeads() {
+// respectFreshness=true (page load only) skips the network call entirely
+// when the cache is still within LEADS_CACHE_FRESH_MS - every other caller
+// is a post-mutation refresh (just claimed/submitted/changed status) and
+// needs the real fetch regardless of how young the cache is.
+async function loadMyLeads(respectFreshness) {
   const cached = _readLeadsCache();
   if (cached) {
     allLeads = cached;
     renderMyLeads();
     renderStats();
   }
+
+  if (respectFreshness && cached && _isLeadsCacheFresh()) return;
 
   try {
     allLeads = await WISDOMLAYERS_API.listLeads(WORKSPACE_KEY);
@@ -1795,7 +1801,7 @@ function _statusClass(status) {
   // in the sidebar is already visible (initSidebarIdentity turned it on), so
   // just leave the panes in their empty/loading state rather than fetching.
   if (hasIdentity) {
-    loadMyLeads();
+    loadMyLeads(true);
 
     // Same "have they seen onboarding" flag the spotlight tour writes on
     // completion/skip (SpotlightTour.end()) - not written here, since the
