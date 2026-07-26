@@ -286,16 +286,37 @@
   .status-unsubscribed { background: #fee2e2; color: #b91c1c; }
   .status-flagged-good-website { background: #fef3c7; color: #92400e; }
 
-  select.status-select {
-    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
-    border: 1px solid var(--gray-200); border-radius: 8px; padding: 9px 12px;
-    background: #ffffff; color: var(--gray-700); cursor: pointer;
-  }
+  .note-log { font-size: 12.5px; color: var(--gray-500); white-space: pre-wrap; line-height: 1.6; margin-top: 16px; }
+  .note-log:empty { display: none; margin-top: 0; }
 
-  .note-log { font-size: 12.5px; color: var(--gray-500); white-space: pre-wrap; line-height: 1.6; }
-  .note-log:empty { display: none; }
-  .status-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .status-bar .note-log { flex: 1; }
+  .detail-footer { display: flex; justify-content: flex-end; margin-top: 16px; }
+
+  .timeline { list-style: none; margin-top: 4px; }
+  .tl-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; position: relative; }
+  .tl-item:not(:last-child)::before {
+    content: ''; position: absolute; left: 8px; top: 26px; width: 1px;
+    height: calc(100% - 6px); background: var(--gray-200);
+  }
+  .tl-dot {
+    width: 17px; height: 17px; border-radius: 50%; border: 2px solid var(--gray-200);
+    background: #ffffff; flex-shrink: 0; margin-top: 2px; display: flex;
+    align-items: center; justify-content: center; z-index: 1;
+  }
+  .tl-item.done .tl-dot { border-color: var(--teal-500); background: var(--teal-500); }
+  .tl-item.done .tl-dot::after { content: '\2713'; color: #fff; font-size: 9px; font-weight: 800; }
+  .tl-item.current .tl-dot { border-color: var(--ink); }
+  .tl-item.current .tl-dot::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--ink); }
+  .tl-body { flex: 1; }
+  .tl-label { font-size: 13px; font-weight: 700; color: var(--gray-400); }
+  .tl-item.done .tl-label, .tl-item.current .tl-label { color: var(--ink); }
+  .tl-sub { font-size: 12px; color: var(--gray-500); margin-top: 2px; line-height: 1.5; }
+  .tl-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .tl-actions .btn { padding: 7px 11px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
+  .tl-dot-mini { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .tl-dot-mini.replied { background: #7c3aed; }
+  .tl-dot-mini.warm { background: var(--teal-500); }
+  .tl-dot-mini.no { background: var(--gray-400); }
+  .tl-dot-mini.unsub { background: #dc2626; }
 
   .outreach-form {
     background: #ffffff; border: 1px solid var(--gray-200); border-radius: 12px;
@@ -369,10 +390,6 @@
   .icon-btn:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
   .icon-btn:disabled { opacity: 0.5; cursor: default; }
   .outreach-hint { font-size: 12px; color: var(--gray-500); margin-bottom: 14px; line-height: 1.55; }
-
-  .outreach-override { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--gray-100); }
-  .outreach-override-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--gray-400); margin-bottom: 6px; }
-  .outreach-override-hint { font-size: 12px; color: var(--gray-500); margin-bottom: 10px; line-height: 1.5; }
 
   .resource-panel { padding: 0 0 8px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 26px; }
   .resource-item { font-size: 13px; color: var(--gray-700); line-height: 1.6; }
@@ -856,12 +873,6 @@ async function initSidebarIdentity() {
   return true;
 }
 
-const STATUS_OPTIONS = ['Claimed','Contacted','Replied','Warm Lead','Not Interested','Unsubscribed','Flagged - Good Website'];
-// Contacted is set automatically by the outreach form (submitOutreach) and Flagged - Good
-// Website by the flag button, so the manual override dropdown excludes both to avoid a
-// second, disconnected path to the same state.
-const MANUAL_STATUS_OPTIONS = STATUS_OPTIONS.filter(s => s !== 'Contacted' && s !== 'Flagged - Good Website');
-
 let allLeads = [];
 
 function toast(msg) {
@@ -889,6 +900,66 @@ function resourcePanel(l) {
   if (l.services) parts.push(`<div class="resource-item full"><span class="rk">Services</span>${_esc(l.services)}</div>`);
   if (!parts.length) return '';
   return `<div class="resource-panel">${parts.join('')}</div>`;
+}
+
+// Renders the Claimed -> Contacted -> outcome timeline that replaced the
+// separate status dropdown. Contacted is never a click target here - it can
+// only be reached by submitting outreach above, so the timeline reflects
+// that transition instead of offering a second way to trigger it. The
+// outcome step shows Replied/Warm Lead/Not Interested/Unsubscribed as
+// buttons once Contacted, and stays open (with the current pick highlighted)
+// so an outcome can be corrected without hunting for a dropdown.
+const OUTCOME_STEPS = [
+  { status: 'Replied',          dot: 'replied', label: 'They replied' },
+  { status: 'Warm Lead',        dot: 'warm',    label: 'Warm lead' },
+  { status: 'Not Interested',   dot: 'no',      label: 'Not interested' },
+  { status: 'Unsubscribed',     dot: 'unsub',   label: 'Unsubscribed' },
+];
+
+function statusTimeline(l) {
+  const status = l.status || 'Pending';
+  const contacted = OUTREACH_SENT_STATUSES.includes(status);
+  const outcomeSet = OUTCOME_STEPS.some(s => s.status === status);
+
+  const claimedStep = `
+    <li class="tl-item done">
+      <div class="tl-dot"></div>
+      <div class="tl-body"><div class="tl-label">Claimed</div></div>
+    </li>`;
+
+  const contactedStep = contacted ? `
+    <li class="tl-item done">
+      <div class="tl-dot"></div>
+      <div class="tl-body"><div class="tl-label">Contacted</div></div>
+    </li>` : `
+    <li class="tl-item current">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <div class="tl-label">Contacted</div>
+        <div class="tl-sub">Set automatically when you submit outreach above</div>
+      </div>
+    </li>`;
+
+  const outcomeStep = !contacted ? `
+    <li class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body"><div class="tl-label">Replied / Warm / Not interested / Unsubscribed</div></div>
+    </li>` : `
+    <li class="tl-item ${outcomeSet ? 'done' : 'current'}">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <div class="tl-label">${outcomeSet ? _esc(status) : 'What happened?'}</div>
+        ${outcomeSet ? '<div class="tl-sub">Click another outcome to change it</div>' : ''}
+        <div class="tl-actions">
+          ${OUTCOME_STEPS.filter(s => s.status !== status).map(s => `
+            <button class="btn sec tl-outcome-btn" data-lead="${l.id}" data-status="${s.status}">
+              <span class="tl-dot-mini ${s.dot}"></span>${s.label}
+            </button>`).join('')}
+        </div>
+      </div>
+    </li>`;
+
+  return `<ul class="timeline">${claimedStep}${contactedStep}${outcomeStep}</ul>`;
 }
 
 // Cache-first: listLeads against the Apps Script backend consistently takes
@@ -1011,7 +1082,7 @@ function renderLeadDetail(l) {
 
     <div class="lrc-section-label">Log your outreach</div>
     <div class="outreach-form">
-      <div class="outreach-hint">Once you email this business, paste the message (or attach a screenshot) and submit. That moves the lead to <strong>Contacted</strong> automatically.</div>
+      <div class="outreach-hint">Paste the email you sent (or attach a screenshot). Submitting moves this lead to <strong>Contacted</strong> on the timeline below.</div>
 
       <div class="outreach-step">
         <div class="outreach-label"><span class="num">1</span>Email you sent</div>
@@ -1036,43 +1107,38 @@ function renderLeadDetail(l) {
           Flag: Has Good Website
         </button>
       </div>
-
-      <div class="outreach-override">
-        <div class="outreach-override-label">Manual status override</div>
-        <div class="outreach-override-hint">Only for what happens after outreach: they reply, go warm, say no, or unsubscribe. Submitting outreach above already moves this to Contacted.</div>
-        <div class="status-bar">
-          <div class="note-log" id="notelog-${l.id}"></div>
-          <select class="status-select" data-lead="${l.id}">
-            ${!MANUAL_STATUS_OPTIONS.includes(l.status) && l.status ? `<option value="${l.status}" selected disabled>${_esc(l.status)} (auto-set)</option>` : ''}
-            ${MANUAL_STATUS_OPTIONS.map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
-          </select>
-          ${l.canDelete
-            ? `<button class="btn sm sec remove-lead-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}">Remove</button>`
-            : `<button class="icon-btn unclaim-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}" title="Unclaim - release this lead back to the shared pool">
-                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-               </button>`}
-        </div>
-      </div>
     </div>
 
+    <div class="lrc-section-label">Status</div>
     ${INTERESTED_STATUSES.includes(l.status) ? `
-    <div class="alert" style="margin:14px 0 0;">
+    <div class="alert" style="margin:0 0 14px;">
       <svg class="alert-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       <p><strong>This lead is interested - notify the owner now.</strong> No price talk, no timelines. Reply warmly, say the owner will be in touch, then hand off the business name and contact info right away.</p>
     </div>` : ''}
+    ${statusTimeline(l)}
+
+    <div class="note-log" id="notelog-${l.id}"></div>
+    <div class="detail-footer">
+      ${l.canDelete
+        ? `<button class="btn sm sec remove-lead-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}">Remove</button>`
+        : `<button class="icon-btn unclaim-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}" title="Unclaim - release this lead back to the shared pool">
+             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+           </button>`}
+    </div>
   `;
 
-  el.querySelectorAll('select.status-select').forEach(sel => {
-    sel.addEventListener('change', async () => {
-      const leadId = sel.dataset.lead;
-      sel.disabled = true;
+  el.querySelectorAll('.tl-outcome-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const leadId = btn.dataset.lead;
+      const status = btn.dataset.status;
+      el.querySelectorAll('.tl-outcome-btn').forEach(b => b.disabled = true);
       try {
-        await WISDOMLAYERS_API.setStatus(WORKSPACE_KEY, leadId, sel.value);
+        await WISDOMLAYERS_API.setStatus(WORKSPACE_KEY, leadId, status);
         toast('Status updated.');
         await loadMyLeads();
       } catch (err) {
         toast('Could not update status: ' + err.message);
-        sel.disabled = false;
+        el.querySelectorAll('.tl-outcome-btn').forEach(b => b.disabled = false);
       }
     });
   });
