@@ -955,19 +955,10 @@ const OUTCOME_STEPS = [
   { status: 'Warm Lead',      dot: 'warm',    label: 'Warm lead',      followUp: 'script',
     icon: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
     // This copy isn't for the prospect - it's the handoff message the rep
-    // sends up to their team lead/owner, so the owner has everything needed
-    // to take the conversation over without asking the rep to look it up
-    // again. Built per-lead instead of a static string like the other
-    // outcomes' scripts, since it has to carry the actual contact details.
-    scriptFor: (l) => {
-      const contactLines = [];
-      if (l.phone) contactLines.push(`Phone: ${l.phone}`);
-      if (l.address) contactLines.push(`Address: ${l.address}`);
-      if (l.facebook) contactLines.push(`Facebook: ${l.facebook}`);
-      if (l.websiteUrl) contactLines.push(`Website/Booking: ${l.websiteUrl}`);
-      const contactBlock = contactLines.length ? '\n' + contactLines.join('\n') : '';
-      return `Warm lead - ${l.business}${l.city ? ` (${l.city})` : ''} is interested and ready for you to take over. No price talk or timelines from me, just a warm handoff.${contactBlock}`;
-    } },
+    // sends up to their team lead/owner. A generic template like the other
+    // outcomes' scripts, not auto-filled with the lead's details - the rep
+    // fills in the brackets themselves before sending.
+    script: 'Warm lead - [business name] is interested and ready for you to take over. No price talk or timelines from me, just a warm handoff. Contact info: [phone / address / socials]' },
   { status: 'Not Interested', dot: 'no',      label: 'Not interested', followUp: 'form',
     icon: '<circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/>',
     formLabel: 'Why? (private note, not sent anywhere)', formPlaceholder: 'e.g. already has a website, bad timing...', withScreenshot: false,
@@ -1109,7 +1100,6 @@ function statusTimeline(l) {
 
   const pending = pendingOutcome.get(l.id);
   const pendingDef = pending ? outcomeStepFor(pending) : null;
-  const pendingScript = pendingDef ? (pendingDef.scriptFor ? pendingDef.scriptFor(l) : pendingDef.script) : null;
   let followUpPanel = '';
   if (pendingDef && pendingDef.followUp === 'form') {
     followUpPanel = `
@@ -1127,7 +1117,7 @@ function statusTimeline(l) {
             <input type="file" accept="image/*" class="outcome-screenshot" data-lead="${l.id}">
           </label>
         </div>` : ''}
-        ${pendingScript ? `<div class="tl-script-box">${_esc(pendingScript)}<button class="tl-copy-btn" data-copy="${_escAttr(pendingScript)}">Copy</button></div>` : ''}
+        ${pendingDef.script ? `<div class="tl-script-box">${_esc(pendingDef.script)}<button class="tl-copy-btn" data-copy="${_escAttr(pendingDef.script)}">Copy</button></div>` : ''}
         <div class="outreach-actions">
           <button class="btn sm outcome-save-btn" data-lead="${l.id}" data-status="${pending}">Save</button>
           <button class="btn sm sec outcome-cancel-btn" data-lead="${l.id}">Cancel</button>
@@ -1137,7 +1127,7 @@ function statusTimeline(l) {
     followUpPanel = `
       <div class="tl-outreach-form" style="margin-top:10px;">
         ${pendingDef.status === 'Warm Lead' ? '<div class="outreach-label">Send this to your team lead/owner</div>' : ''}
-        <div class="tl-script-box">${_esc(pendingScript)}<button class="tl-copy-btn" data-copy="${_escAttr(pendingScript)}">Copy</button></div>
+        <div class="tl-script-box">${_esc(pendingDef.script)}<button class="tl-copy-btn" data-copy="${_escAttr(pendingDef.script)}">Copy</button></div>
         <div class="outreach-actions">
           <button class="btn sm outcome-save-btn" data-lead="${l.id}" data-status="${pending}">Done</button>
           <button class="btn sm sec outcome-cancel-btn" data-lead="${l.id}">Cancel</button>

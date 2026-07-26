@@ -218,7 +218,7 @@
     </div>
     <div class="oe-row">
       <div class="oe-label">Warm lead</div>
-      <div class="oe-desc">Shows a ready-made handoff message - addressed to your team lead/owner, not the prospect - with the business name and contact info filled in. Copy it and send it up. Clicking Done commits status &rarr; <strong>Warm Lead</strong> and surfaces the amber "notify your team lead now" banner. Stays in My Leads until the handoff closes out.</div>
+      <div class="oe-desc">Shows a generic handoff script - addressed to your team lead/owner, not the prospect. Fill in the brackets (business name, contact info) yourself, then copy and send it up. Clicking Done commits status &rarr; <strong>Warm Lead</strong> and surfaces the amber "notify your team lead now" banner. Stays in My Leads until the handoff closes out.</div>
     </div>
     <div class="oe-row">
       <div class="oe-label">Not interested</div>
@@ -248,16 +248,9 @@ const OUTCOME_STEPS = [
   { status: 'Warm Lead',      dot: 'warm',    label: 'Warm lead',      followUp: 'script',
     icon: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
     // Handoff message to the team lead/owner, not a reply to the prospect -
-    // built per-lead since it has to carry actual contact details.
-    scriptFor: (l) => {
-      const contactLines = [];
-      if (l.phone) contactLines.push(`Phone: ${l.phone}`);
-      if (l.address) contactLines.push(`Address: ${l.address}`);
-      if (l.facebook) contactLines.push(`Facebook: ${l.facebook}`);
-      if (l.websiteUrl) contactLines.push(`Website/Booking: ${l.websiteUrl}`);
-      const contactBlock = contactLines.length ? '\n' + contactLines.join('\n') : '';
-      return `Warm lead - ${l.business}${l.city ? ` (${l.city})` : ''} is interested and ready for you to take over. No price talk or timelines from me, just a warm handoff.${contactBlock}`;
-    } },
+    // a generic template like the other outcomes, not auto-filled with the
+    // lead's details.
+    script: 'Warm lead - [business name] is interested and ready for you to take over. No price talk or timelines from me, just a warm handoff. Contact info: [phone / address / socials]' },
   { status: 'Not Interested', dot: 'no',      label: 'Not interested', followUp: 'form',
     icon: '<circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/>',
     formLabel: 'Why? (private note, not sent anywhere)', formPlaceholder: 'e.g. already has a website, bad timing...', withScreenshot: false,
@@ -274,11 +267,7 @@ const ACTIVE_ON_OUTCOME = { 'Replied': true, 'Warm Lead': true, 'No Reply': true
 const INTERESTED_STATUSES = ['Warm Lead'];
 
 function freshLead() {
-  return {
-    business: 'A Touch Of Class Beauty & Barber', city: 'Fayetteville', category: 'Salon', status: 'Contacted',
-    phone: '(910) 835-1315', address: '1102 Strickland Bridge Rd, Fayetteville, NC 28304',
-    facebook: 'https://www.facebook.com/atouchofclasssalon/',
-  };
+  return { business: 'A Touch Of Class Beauty & Barber', city: 'Fayetteville', category: 'Salon', status: 'Contacted' };
 }
 let lead = freshLead();
 let pendingOutcome = null; // status string once a card is clicked, before Save/Done
@@ -309,7 +298,6 @@ function render() {
     </div>`;
 
   const pendingDef = pendingOutcome ? outcomeStepFor(pendingOutcome) : null;
-  const pendingScript = pendingDef ? (pendingDef.scriptFor ? pendingDef.scriptFor(lead) : pendingDef.script) : null;
   let followUpPanel = '';
   if (pendingDef && pendingDef.followUp === 'form') {
     followUpPanel = `
@@ -318,7 +306,7 @@ function render() {
           <div class="outreach-label">${pendingDef.formLabel}</div>
           <textarea class="outcome-note" placeholder="${_escAttr(pendingDef.formPlaceholder)}"></textarea>
         </div>
-        ${pendingScript ? `<div class="tl-script-box">${_esc(pendingScript)}<button class="tl-copy-btn" data-copy="${_escAttr(pendingScript)}">Copy</button></div>` : ''}
+        ${pendingDef.script ? `<div class="tl-script-box">${_esc(pendingDef.script)}<button class="tl-copy-btn" data-copy="${_escAttr(pendingDef.script)}">Copy</button></div>` : ''}
         <div class="outreach-actions">
           <button class="btn sm outcome-save-btn" data-status="${pendingOutcome}">Save</button>
           <button class="btn sm sec outcome-cancel-btn">Cancel</button>
@@ -328,7 +316,7 @@ function render() {
     followUpPanel = `
       <div class="tl-outreach-form" style="margin-top:10px;">
         ${pendingDef.status === 'Warm Lead' ? '<div class="outreach-label">Send this to your team lead/owner</div>' : ''}
-        <div class="tl-script-box">${_esc(pendingScript)}<button class="tl-copy-btn" data-copy="${_escAttr(pendingScript)}">Copy</button></div>
+        <div class="tl-script-box">${_esc(pendingDef.script)}<button class="tl-copy-btn" data-copy="${_escAttr(pendingDef.script)}">Copy</button></div>
         <div class="outreach-actions">
           <button class="btn sm outcome-save-btn" data-status="${pendingOutcome}">Done</button>
           <button class="btn sm sec outcome-cancel-btn">Cancel</button>
