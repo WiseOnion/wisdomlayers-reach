@@ -619,50 +619,6 @@
   .sk-row:nth-child(3) .sk { animation-delay: 0.24s; }
   .sk-row:nth-child(4) .sk { animation-delay: 0.36s; }
   .sk-row:nth-child(5) .sk { animation-delay: 0.48s; }
-  /* Matches the detail pane's current render (measured against a live
-     renderLeadDetail() + statusTimeline() output): detail-head (72px -
-     title and status pill inline on one row, meta below, border under),
-     a "Lead" section-label row with the flag icon, an "Outreach & status"
-     section-label, then the 3-step timeline itself - Claimed and the
-     outcome step collapsed to a dot + one-line label (35px each), Contacted
-     expanded with its label/sub-copy and the same email/screenshot form
-     nested inside (textarea step + file-drop step + action buttons), and a
-     one-button footer (Remove/Unclaim). Kept in sync with the timeline
-     rewrite so the loading state holds the same shape and height as what
-     replaces it, instead of the old flat form layout this used to mirror. */
-  .sk-detail .sk-title, .sk-detail .sk-meta, .sk-detail .sk-section-label,
-  .sk-detail .sk-step-label, .sk-detail .sk-tl-label, .sk-detail .sk-tl-sub { display: block; }
-  .sk-detail .detail-head { margin-bottom: 4px; padding-bottom: 18px; border-bottom: 1px solid var(--gray-100); }
-  .sk-detail .sk-title-row { display: flex; align-items: center; gap: 10px; height: 34px; margin-bottom: 4px; }
-  .sk-detail .sk-title-row .sk-title { width: 320px; height: 34px; }
-  .sk-detail .sk-title-row .sk-pill { width: 71px; height: 21px; border-radius: 20px; flex-shrink: 0; animation-delay: 0.06s; }
-  .sk-detail .sk-meta { width: 30%; height: 15px; animation-delay: 0.08s; }
-  .sk-detail .sk-label-row { display: flex; align-items: center; justify-content: space-between; height: 24px; margin: 0 0 14px; }
-  .sk-detail .sk-label-row .sk-section-label { margin: 0; }
-  .sk-detail .sk-label-row .sk-flagbtn { width: 24px; height: 24px; border-radius: 50%; animation-delay: 0.1s; }
-  .sk-detail .sk-section-label { width: 130px; height: 11px; margin: 0 0 10px; animation-delay: 0.12s; }
-  .sk-detail .sk-timeline { list-style: none; }
-  .sk-detail .sk-tl-item { display: flex; align-items: flex-start; gap: 12px; }
-  .sk-detail .sk-tl-item + .sk-tl-item { margin-top: 10px; }
-  .sk-detail .sk-tl-dot { width: 17px; height: 17px; border-radius: 50%; flex-shrink: 0; }
-  .sk-detail .sk-tl-collapsed { height: 35px; align-items: center; }
-  .sk-detail .sk-tl-collapsed .sk-tl-label { width: 90px; height: 16px; }
-  .sk-detail .sk-tl-current .sk-tl-body { flex: 1; min-width: 0; }
-  .sk-detail .sk-tl-label { width: 100px; height: 16px; margin-bottom: 6px; animation-delay: 0.14s; }
-  .sk-detail .sk-tl-sub { width: 70%; height: 14px; margin-bottom: 14px; animation-delay: 0.16s; }
-  .sk-detail .sk-outreach-form {
-    background: var(--gray-50); border: 1px solid var(--gray-100); border-radius: 10px;
-    padding: 16px 18px;
-  }
-  .sk-detail .sk-step-label { width: 140px; height: 18px; margin-bottom: 9px; animation-delay: 0.18s; }
-  .sk-detail .sk-textarea { width: 100%; height: 78px; border-radius: 8px; margin-bottom: 18px; animation-delay: 0.2s; }
-  .sk-detail .sk-filedrop { width: 100%; height: 42px; border-radius: 8px; margin-bottom: 18px; animation-delay: 0.24s; }
-  .sk-detail .sk-btn-row { display: flex; gap: 10px; }
-  .sk-detail .sk-btn-row .sk { height: 40px; border-radius: 8px; animation-delay: 0.28s; }
-  .sk-detail .sk-btn-row .sk:first-child { width: 145px; }
-  .sk-detail .sk-btn-row .sk:last-child { width: 180px; animation-delay: 0.32s; }
-  .sk-detail .sk-footer { margin-top: 18px; }
-  .sk-detail .sk-footer .sk { width: 80px; height: 40px; border-radius: 8px; animation-delay: 0.36s; }
 </style>
 </head>
 <body>
@@ -757,38 +713,8 @@
             <div class="sk-row"><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div><div class="sk sk-pill"></div></div>
           </div>
         </div>
-        <div class="panel leads-detail-pane sk-detail" id="leadsDetailPane">
-          <div class="detail-head">
-            <div class="sk-title-row">
-              <div class="sk sk-text sk-title"></div>
-              <div class="sk sk-pill"></div>
-            </div>
-            <div class="sk sk-text sk-meta"></div>
-          </div>
-          <div class="sk-label-row">
-            <div class="sk sk-text sk-section-label"></div>
-            <div class="sk sk-flagbtn"></div>
-          </div>
-          <div class="sk sk-text sk-section-label"></div>
-          <ul class="sk-timeline">
-            <li class="sk-tl-item sk-tl-collapsed"><div class="sk sk-tl-dot"></div><div class="sk sk-text sk-tl-label"></div></li>
-            <li class="sk-tl-item sk-tl-current">
-              <div class="sk sk-tl-dot"></div>
-              <div class="sk-tl-body">
-                <div class="sk sk-text sk-tl-label"></div>
-                <div class="sk sk-text sk-tl-sub"></div>
-                <div class="sk-outreach-form">
-                  <div class="sk sk-text sk-step-label"></div>
-                  <div class="sk sk-textarea"></div>
-                  <div class="sk sk-text sk-step-label"></div>
-                  <div class="sk sk-filedrop"></div>
-                  <div class="sk-btn-row"><div class="sk"></div><div class="sk"></div></div>
-                </div>
-              </div>
-            </li>
-            <li class="sk-tl-item sk-tl-collapsed"><div class="sk sk-tl-dot"></div><div class="sk sk-text sk-tl-label"></div></li>
-          </ul>
-          <div class="sk-footer"><div class="sk"></div></div>
+        <div class="panel leads-detail-pane" id="leadsDetailPane">
+          <div class="empty-state">Select a lead from the list to see its details, log outreach, or update its status.</div>
         </div>
       </div>
 
