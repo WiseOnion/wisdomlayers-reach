@@ -1559,9 +1559,14 @@ async function loadNotes(leadId) {
 // it turned into a warm lead. Reply rate is the one number research on
 // commission-only outbound reps flags as the biggest missing feedback loop:
 // raw counts don't tell you if your emails are working, a rate does.
-const OUTREACH_SENT_STATUSES = ['Contacted', 'Replied', 'Warm Lead', 'Not Interested', 'Unsubscribed'];
+const OUTREACH_SENT_STATUSES = ['Contacted', 'Replied', 'Warm Lead', 'Not Interested', 'No Reply', 'Unsubscribed'];
 const REPLIED_STATUSES = ['Replied', 'Warm Lead'];
-const INTERESTED_STATUSES = ['Replied', 'Warm Lead'];
+// Only Warm Lead has a handoff script - Replied is a real conversation the
+// rep is still having themselves, nothing to hand off yet. Separate from
+// REPLIED_STATUSES above (that one's for reply-rate math and rightly
+// includes both), since this one gates a banner that promises a "handoff
+// message below" that only actually exists for Warm Lead.
+const INTERESTED_STATUSES = ['Warm Lead'];
 
 function _setStat(id, text) {
   const el = document.getElementById(id);
