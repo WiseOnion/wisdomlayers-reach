@@ -576,6 +576,21 @@ function _statusClass(status) {
   return (status || 'Pending').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
+// Paints from cache before initSidebarIdentity's network round-trip even
+// starts - see index.html for the full rationale. Without this the list
+// starts as skeleton markup and gets swapped to real rows a line into
+// loadHistory(), which on every repeat visit happens before the skeleton
+// is ever actually painted, reading as a flicker rather than a loading state.
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  WORKSPACE_KEY = params.get('w');
+  if (!WORKSPACE_KEY) return;
+  const cached = _readLeadsCache();
+  if (!cached) return;
+  allLeads = cached;
+  renderHistory();
+})();
+
 (async () => {
   const hasIdentity = await initSidebarIdentity();
 

@@ -1794,6 +1794,26 @@ function _statusClass(status) {
 // It's now async (fetches the workspace map from the backend instead of
 // reading a hardcoded const), so everything gated on identity moves inside
 // this IIFE and awaits it first.
+// Paints from cache before initSidebarIdentity's network round-trip even
+// starts. WORKSPACE_KEY only needs to be a string to build the right cache
+// key - it doesn't need the ?w= param to be verified as a real workspace
+// yet, since a wrong/guessed key just means _readLeadsCache() finds nothing
+// (nothing was ever written under that key) and this becomes a no-op.
+// Without this, the stat row and My Leads list start as skeleton markup and
+// get swapped to real numbers a line into loadMyLeads() - on every repeat
+// visit that swap happens before the skeleton is ever actually painted, so
+// it reads as a flicker rather than a loading state doing anything useful.
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  WORKSPACE_KEY = params.get('w');
+  if (!WORKSPACE_KEY) return;
+  const cached = _readLeadsCache();
+  if (!cached) return;
+  allLeads = cached;
+  renderMyLeads();
+  renderStats();
+})();
+
 (async () => {
   const hasIdentity = await initSidebarIdentity();
 
