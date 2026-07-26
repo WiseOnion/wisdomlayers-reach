@@ -349,7 +349,7 @@
 
       <div class="page-head">
         <h1>History</h1>
-        <p>Leads that hit a dead end - not interested, no reply, unsubscribed, or flagged. Replied and Warm Lead stay active on the Dashboard until they're closed out.</p>
+        <p>Leads that hit a true dead end - not interested, unsubscribed, or flagged. Contacted, Replied, Warm Lead, and No Reply all stay active on the Dashboard.</p>
       </div>
 
       <div class="board-controls">
@@ -450,7 +450,7 @@ async function initSidebarIdentity() {
 }
 
 const STATUS_OPTIONS = ['Claimed','Contacted','Replied','Warm Lead','Not Interested','No Reply','Unsubscribed','Flagged'];
-const RESOLVED_STATUSES = ['Not Interested', 'No Reply', 'Unsubscribed', 'Flagged'];
+const RESOLVED_STATUSES = ['Not Interested', 'Unsubscribed', 'Flagged'];
 
 // Labels only - mirrors the outcome definitions on the Dashboard
 // (index.html's OUTCOME_STEPS) so a resolved status reads with the same
@@ -568,7 +568,7 @@ function renderHistory() {
   });
 
   if (!mine.length) {
-    el.innerHTML = '<div class="empty-state">Nothing here yet. Once a lead is not interested, gets no reply, unsubscribes, or is flagged on the <a href="index.html?w=' + WORKSPACE_KEY + '">Dashboard</a>, it shows up here.</div>';
+    el.innerHTML = '<div class="empty-state">Nothing here yet. Once a lead is marked not interested, unsubscribes, or is flagged on the <a href="index.html?w=' + WORKSPACE_KEY + '">Dashboard</a>, it shows up here.</div>';
     return;
   }
   if (!filtered.length) {
@@ -687,7 +687,7 @@ function _statusClass(status) {
     // does nothing if the tour isn't running or is on a different page.
     var TOUR_TOTAL_STEPS = 8;
     var HISTORY_TOUR_STEPS = [
-      { selector: '#historyPanel', title: 'Worked Leads', body: 'Leads that reached a dead end - not interested, no reply, unsubscribed, or flagged - land here. Click one to expand its full trail.' },
+      { selector: '#historyPanel', title: 'Worked Leads', body: 'Leads that reached a true dead end - not interested, unsubscribed, or flagged - land here. Click one to expand its full trail.' },
       { selector: '#navTracker', title: 'Lead Tracker', body: 'The full shared pool of researched businesses lives here, not just yours. Search, filter, and claim directly from the board.', href: `tracker.html?w=${WORKSPACE_KEY}` },
     ];
     SpotlightTour.registerPage(HISTORY_TOUR_STEPS, 5, TOUR_TOTAL_STEPS, WORKSPACE_KEY);
