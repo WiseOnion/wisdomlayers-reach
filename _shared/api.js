@@ -79,15 +79,15 @@ const WISDOMLAYERS_API = (function () {
 
   function claimNextLead(workspaceKey) { return _post({ action: 'claim', key: workspaceKey }); }
   function claimSpecificLead(workspaceKey, leadId) { return _post({ action: 'claimSpecific', key: workspaceKey, leadId }); }
-  function setStatus(workspaceKey, leadId, status) { return _post({ action: 'setStatus', key: workspaceKey, leadId, status }); }
+  function setStatus(workspaceKey, leadId, status, note) { return _post({ action: 'setStatus', key: workspaceKey, leadId, status, note }); }
   function addNote(workspaceKey, leadId, text) { return _post({ action: 'addNote', key: workspaceKey, leadId, text }); }
   function getNotes(workspaceKey, leadId) { return _post({ action: 'getNotes', key: workspaceKey, leadId }); }
   function submitOutreach(workspaceKey, leadId, emailText, screenshotBase64, screenshotMimeType) {
     return _post({ action: 'submitOutreach', key: workspaceKey, leadId, emailText, screenshotBase64, screenshotMimeType });
   }
-  function flagGoodWebsite(workspaceKey, leadId) { return _post({ action: 'flagGoodWebsite', key: workspaceKey, leadId }); }
+  function flagLead(workspaceKey, leadId, reason) { return _post({ action: 'flagLead', key: workspaceKey, leadId, reason }); }
   function addLead(workspaceKey, lead) { return _post({ action: 'addLead', key: workspaceKey, lead }); }
   function removeLead(workspaceKey, leadId) { return _post({ action: 'removeLead', key: workspaceKey, leadId }); }
 
-  return { getWorkspaceName, listLeads, claimNextLead, claimSpecificLead, setStatus, addNote, getNotes, submitOutreach, flagGoodWebsite, addLead, removeLead };
+  return { getWorkspaceName, listLeads, claimNextLead, claimSpecificLead, setStatus, addNote, getNotes, submitOutreach, flagLead, addLead, removeLead };
 })();

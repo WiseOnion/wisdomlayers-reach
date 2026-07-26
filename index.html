@@ -269,6 +269,8 @@
     color: var(--gray-400); margin: 24px 0 10px;
   }
   .lrc-section-label:first-child { margin-top: 0; }
+  .lrc-section-label-row { display: flex; align-items: center; }
+  .lrc-section-label-row .tl-icon-btn { width: 24px; height: 24px; margin-left: auto; }
   .detail-head { margin-bottom: 4px; padding-bottom: 18px; border-bottom: 1px solid var(--gray-100); }
   .detail-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
   .detail-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 0; }
@@ -283,8 +285,9 @@
   .status-replied { background: #f5f3ff; color: #7c3aed; }
   .status-warm-lead { background: var(--teal-100); color: var(--teal-700); font-weight: 800; }
   .status-not-interested { background: var(--gray-100); color: var(--gray-400); }
+  .status-no-reply { background: var(--gray-100); color: var(--gray-400); }
   .status-unsubscribed { background: #fee2e2; color: #b91c1c; }
-  .status-flagged-good-website { background: #fef3c7; color: #92400e; }
+  .status-flagged { background: #fef3c7; color: #92400e; }
 
   .note-log { font-size: 12.5px; color: var(--gray-500); white-space: pre-wrap; line-height: 1.6; margin-top: 16px; }
   .note-log:empty { display: none; margin-top: 0; }
@@ -307,20 +310,74 @@
   .tl-item.current .tl-dot { border-color: var(--ink); }
   .tl-item.current .tl-dot::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--ink); }
   .tl-body { flex: 1; }
+  .tl-row { display: flex; align-items: center; gap: 10px; min-height: 28px; }
   .tl-label { font-size: 13px; font-weight: 700; color: var(--gray-400); }
   .tl-item.done .tl-label, .tl-item.current .tl-label { color: var(--ink); }
   .tl-sub { font-size: 12px; color: var(--gray-500); margin-top: 2px; line-height: 1.5; }
-  .tl-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-  .tl-actions .btn { padding: 7px 11px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; }
-  .tl-dot-mini { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .tl-dot-mini.replied { background: #7c3aed; }
-  .tl-dot-mini.warm { background: var(--teal-500); }
-  .tl-dot-mini.no { background: var(--gray-400); }
-  .tl-dot-mini.unsub { background: #dc2626; }
 
-  .outreach-form {
-    background: #ffffff; border: 1px solid var(--gray-200); border-radius: 12px;
-    padding: 20px 22px; margin-top: 10px;
+  .tl-icon-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; flex-shrink: 0; margin-left: auto;
+    background: transparent; color: var(--gray-400); border: 1px solid transparent;
+    border-radius: 50%; cursor: pointer; transition: background 0.12s, color 0.12s;
+  }
+  .tl-icon-btn:hover { background: var(--teal-50); color: var(--teal-700); }
+  .tl-icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--teal-500); }
+  /* Five real, roughly-equal-weight choices - bordered cards in a grid with
+     an icon, not a thin inline row of dots and text. Each outcome gets its
+     own accent color (border/icon/hover) so the five read as visually
+     distinct, not five identical buttons that happen to differ in label. */
+  .tl-outcome-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px; margin-top: 10px;
+  }
+  .tl-outcome-card {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+    padding: 12px 14px; border: 1px solid var(--gray-200); background: #ffffff;
+    border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--gray-700);
+    cursor: pointer; text-align: left;
+    transition: border-color 0.12s, background-color 0.12s, transform 0.12s;
+  }
+  .tl-outcome-card svg { color: var(--gray-400); transition: color 0.12s; }
+  .tl-outcome-card:hover { transform: translateY(-1px); }
+  .tl-outcome-card:focus-visible { outline: none; box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--teal-500); }
+  .tl-outcome-card.tl-outcome-replied:hover { border-color: #c4b5fd; background: #f5f3ff; }
+  .tl-outcome-card.tl-outcome-replied:hover svg { color: #7c3aed; }
+  .tl-outcome-card.tl-outcome-warm:hover { border-color: var(--teal-500); background: var(--teal-50); }
+  .tl-outcome-card.tl-outcome-warm:hover svg { color: var(--teal-700); }
+  .tl-outcome-card.tl-outcome-no:hover { border-color: var(--gray-300, #cbd5e1); background: var(--gray-50); }
+  .tl-outcome-card.tl-outcome-no:hover svg { color: var(--gray-600); }
+  .tl-outcome-card.tl-outcome-unsub:hover { border-color: #fca5a5; background: #fef2f2; }
+  .tl-outcome-card.tl-outcome-unsub:hover svg { color: #dc2626; }
+
+  .tl-script-box {
+    position: relative; background: #ffffff; border: 1px solid var(--gray-200);
+    border-radius: 8px; padding: 12px 70px 12px 14px; font-size: 13px;
+    line-height: 1.55; color: var(--gray-700); margin-top: 4px;
+  }
+  .tl-copy-btn {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 11.5px; font-weight: 700; padding: 5px 10px;
+    background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 6px;
+    color: var(--gray-600); cursor: pointer;
+  }
+  .tl-copy-btn:hover { background: var(--teal-50); border-color: var(--teal-500); color: var(--teal-700); }
+
+  .tl-flag-form {
+    background: var(--gray-50); border: 1px solid var(--gray-100); border-radius: 10px;
+    padding: 14px 16px; margin-top: 10px;
+  }
+  .tl-flag-form textarea.flag-reason {
+    width: 100%; min-height: 60px; margin-top: 6px; padding: 9px 11px;
+    border: 1px solid var(--gray-200); border-radius: 8px; font-family: inherit;
+    font-size: 13px; resize: vertical;
+  }
+  .tl-flag-form textarea.flag-reason:focus { outline: 2px solid var(--teal-500); outline-offset: -1px; border-color: transparent; }
+  .tl-flag-form .outreach-actions { margin-top: 12px; padding-top: 0; border-top: none; }
+
+  .tl-outreach-form {
+    background: var(--gray-50); border: 1px solid var(--gray-100); border-radius: 10px;
+    padding: 16px 18px; margin-top: 10px;
   }
   .outreach-step { margin-bottom: 18px; }
   .outreach-step:last-of-type { margin-bottom: 0; }
@@ -335,12 +392,12 @@
     background: var(--teal-100); color: var(--teal-700);
     font-size: 10.5px; font-weight: 800; flex-shrink: 0;
   }
-  .outreach-email {
+  .outreach-email, .outcome-note {
     width: 100%; max-width: 70ch; font-family: 'Inter', sans-serif; font-size: 14px;
     border: 1px solid var(--gray-200); border-radius: 9px; padding: 12px 14px;
     resize: vertical; min-height: 78px; color: var(--ink); background: #fff;
   }
-  .outreach-email:focus { outline: 2px solid var(--teal-100); border-color: var(--teal-500); }
+  .outreach-email:focus, .outcome-note:focus { outline: 2px solid var(--teal-100); border-color: var(--teal-500); }
 
   .add-lead-field {
     font-family: 'Inter', sans-serif; font-size: 13.5px;
@@ -369,17 +426,12 @@
   .file-drop svg { flex-shrink: 0; color: var(--gray-400); }
   .file-drop-text { font-size: 13px; color: var(--gray-500); }
   .file-drop-text strong { color: var(--gray-700); font-weight: 600; }
-  .outreach-screenshot {
+  .outreach-screenshot, .outcome-screenshot {
     position: absolute; inset: 0; width: 100%; height: 100%;
     opacity: 0; cursor: pointer;
   }
 
   .outreach-actions { display: flex; align-items: center; gap: 10px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--gray-100); flex-wrap: wrap; }
-  .flag-btn {
-    background: #ffffff; color: var(--gray-600); border: 1px solid var(--gray-200);
-    margin-left: auto;
-  }
-  .flag-btn:hover { background: var(--gray-50); border-color: var(--gray-300, #d1d5db); }
 
   .icon-btn {
     display: inline-flex; align-items: center; justify-content: center;
@@ -389,7 +441,6 @@
   }
   .icon-btn:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
   .icon-btn:disabled { opacity: 0.5; cursor: default; }
-  .outreach-hint { font-size: 12px; color: var(--gray-500); margin-bottom: 14px; line-height: 1.55; }
 
   .resource-panel { padding: 0 0 8px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 26px; }
   .resource-item { font-size: 13px; color: var(--gray-700); line-height: 1.6; }
@@ -569,32 +620,50 @@
   .sk-row:nth-child(3) .sk { animation-delay: 0.24s; }
   .sk-row:nth-child(4) .sk { animation-delay: 0.36s; }
   .sk-row:nth-child(5) .sk { animation-delay: 0.48s; }
-  /* Matches the detail pane's real render pixel-for-pixel (measured against
-     a live renderLeadDetail() output): detail-head (72px: title + meta,
-     border below), a "Log your outreach" section label, the hint line, step
-     1 (label + 74px textarea = 108px), step 2 (label + 42px file-drop bar =
-     69px), the action-button row (57px), a "Status" section label, then the
-     status bar (82px: dropdown + icon button). Generic blocks made this read
-     shorter than the real form, so content jumped down on load - this holds
-     the same total height. */
+  /* Matches the detail pane's current render (measured against a live
+     renderLeadDetail() + statusTimeline() output): detail-head (72px -
+     title and status pill inline on one row, meta below, border under),
+     a "Lead" section-label row with the flag icon, an "Outreach & status"
+     section-label, then the 3-step timeline itself - Claimed and the
+     outcome step collapsed to a dot + one-line label (35px each), Contacted
+     expanded with its label/sub-copy and the same email/screenshot form
+     nested inside (textarea step + file-drop step + action buttons), and a
+     one-button footer (Remove/Unclaim). Kept in sync with the timeline
+     rewrite so the loading state holds the same shape and height as what
+     replaces it, instead of the old flat form layout this used to mirror. */
   .sk-detail .sk-title, .sk-detail .sk-meta, .sk-detail .sk-section-label,
-  .sk-detail .sk-hint, .sk-detail .sk-step-label { display: block; }
-  .sk-detail .sk-title { width: 45%; height: 34px; margin-bottom: 4px; }
-  .sk-detail .sk-meta { width: 30%; height: 15px; animation-delay: 0.08s; }
+  .sk-detail .sk-step-label, .sk-detail .sk-tl-label, .sk-detail .sk-tl-sub { display: block; }
   .sk-detail .detail-head { margin-bottom: 4px; padding-bottom: 18px; border-bottom: 1px solid var(--gray-100); }
-  .sk-detail .sk-section-label { width: 130px; height: 11px; margin: 24px 0 10px; animation-delay: 0.1s; }
-  .sk-detail .sk-section-label:first-of-type { margin-top: 0; }
-  .sk-detail .sk-hint { width: 100%; height: 19px; margin-bottom: 18px; animation-delay: 0.12s; }
-  .sk-detail .sk-step-label { width: 140px; height: 18px; margin-bottom: 9px; animation-delay: 0.14s; }
-  .sk-detail .sk-textarea { width: 100%; height: 78px; border-radius: 8px; margin-bottom: 18px; animation-delay: 0.16s; }
-  .sk-detail .sk-filedrop { width: 100%; height: 42px; border-radius: 8px; margin-bottom: 18px; animation-delay: 0.2s; }
-  .sk-detail .sk-btn-row { display: flex; gap: 10px; margin-top: 18px; }
-  .sk-detail .sk-btn-row .sk { height: 40px; border-radius: 8px; animation-delay: 0.24s; }
+  .sk-detail .sk-title-row { display: flex; align-items: center; gap: 10px; height: 34px; margin-bottom: 4px; }
+  .sk-detail .sk-title-row .sk-title { width: 320px; height: 34px; }
+  .sk-detail .sk-title-row .sk-pill { width: 71px; height: 21px; border-radius: 20px; flex-shrink: 0; animation-delay: 0.06s; }
+  .sk-detail .sk-meta { width: 30%; height: 15px; animation-delay: 0.08s; }
+  .sk-detail .sk-label-row { display: flex; align-items: center; justify-content: space-between; height: 24px; margin: 0 0 14px; }
+  .sk-detail .sk-label-row .sk-section-label { margin: 0; }
+  .sk-detail .sk-label-row .sk-flagbtn { width: 24px; height: 24px; border-radius: 50%; animation-delay: 0.1s; }
+  .sk-detail .sk-section-label { width: 130px; height: 11px; margin: 0 0 10px; animation-delay: 0.12s; }
+  .sk-detail .sk-timeline { list-style: none; }
+  .sk-detail .sk-tl-item { display: flex; align-items: flex-start; gap: 12px; }
+  .sk-detail .sk-tl-item + .sk-tl-item { margin-top: 10px; }
+  .sk-detail .sk-tl-dot { width: 17px; height: 17px; border-radius: 50%; flex-shrink: 0; }
+  .sk-detail .sk-tl-collapsed { height: 35px; align-items: center; }
+  .sk-detail .sk-tl-collapsed .sk-tl-label { width: 90px; height: 16px; }
+  .sk-detail .sk-tl-current .sk-tl-body { flex: 1; min-width: 0; }
+  .sk-detail .sk-tl-label { width: 100px; height: 16px; margin-bottom: 6px; animation-delay: 0.14s; }
+  .sk-detail .sk-tl-sub { width: 70%; height: 14px; margin-bottom: 14px; animation-delay: 0.16s; }
+  .sk-detail .sk-outreach-form {
+    background: var(--gray-50); border: 1px solid var(--gray-100); border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .sk-detail .sk-step-label { width: 140px; height: 18px; margin-bottom: 9px; animation-delay: 0.18s; }
+  .sk-detail .sk-textarea { width: 100%; height: 78px; border-radius: 8px; margin-bottom: 18px; animation-delay: 0.2s; }
+  .sk-detail .sk-filedrop { width: 100%; height: 42px; border-radius: 8px; margin-bottom: 18px; animation-delay: 0.24s; }
+  .sk-detail .sk-btn-row { display: flex; gap: 10px; }
+  .sk-detail .sk-btn-row .sk { height: 40px; border-radius: 8px; animation-delay: 0.28s; }
   .sk-detail .sk-btn-row .sk:first-child { width: 145px; }
-  .sk-detail .sk-btn-row .sk:last-child { width: 180px; animation-delay: 0.28s; }
-  .sk-detail .sk-status-row { display: flex; align-items: center; gap: 10px; height: 40px; }
-  .sk-detail .sk-status-row .sk-select { width: 198px; height: 38px; border-radius: 8px; animation-delay: 0.32s; }
-  .sk-detail .sk-status-row .sk-iconbtn { width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0; animation-delay: 0.36s; }
+  .sk-detail .sk-btn-row .sk:last-child { width: 180px; animation-delay: 0.32s; }
+  .sk-detail .sk-footer { margin-top: 18px; }
+  .sk-detail .sk-footer .sk { width: 80px; height: 40px; border-radius: 8px; animation-delay: 0.36s; }
 </style>
 </head>
 <body>
@@ -691,18 +760,36 @@
         </div>
         <div class="panel leads-detail-pane sk-detail" id="leadsDetailPane">
           <div class="detail-head">
-            <div class="sk sk-text sk-title"></div>
+            <div class="sk-title-row">
+              <div class="sk sk-text sk-title"></div>
+              <div class="sk sk-pill"></div>
+            </div>
             <div class="sk sk-text sk-meta"></div>
           </div>
+          <div class="sk-label-row">
+            <div class="sk sk-text sk-section-label"></div>
+            <div class="sk sk-flagbtn"></div>
+          </div>
           <div class="sk sk-text sk-section-label"></div>
-          <div class="sk sk-text sk-hint"></div>
-          <div class="sk sk-text sk-step-label"></div>
-          <div class="sk sk-textarea"></div>
-          <div class="sk sk-text sk-step-label"></div>
-          <div class="sk sk-filedrop"></div>
-          <div class="sk-btn-row"><div class="sk"></div><div class="sk"></div></div>
-          <div class="sk sk-text sk-section-label"></div>
-          <div class="sk-status-row"><div class="sk sk-select"></div><div class="sk sk-iconbtn"></div></div>
+          <ul class="sk-timeline">
+            <li class="sk-tl-item sk-tl-collapsed"><div class="sk sk-tl-dot"></div><div class="sk sk-text sk-tl-label"></div></li>
+            <li class="sk-tl-item sk-tl-current">
+              <div class="sk sk-tl-dot"></div>
+              <div class="sk-tl-body">
+                <div class="sk sk-text sk-tl-label"></div>
+                <div class="sk sk-text sk-tl-sub"></div>
+                <div class="sk-outreach-form">
+                  <div class="sk sk-text sk-step-label"></div>
+                  <div class="sk sk-textarea"></div>
+                  <div class="sk sk-text sk-step-label"></div>
+                  <div class="sk sk-filedrop"></div>
+                  <div class="sk-btn-row"><div class="sk"></div><div class="sk"></div></div>
+                </div>
+              </div>
+            </li>
+            <li class="sk-tl-item sk-tl-collapsed"><div class="sk sk-tl-dot"></div><div class="sk sk-text sk-tl-label"></div></li>
+          </ul>
+          <div class="sk-footer"><div class="sk"></div></div>
         </div>
       </div>
 
@@ -820,6 +907,7 @@
 </div>
 
 <script src="_shared/api.js"></script>
+<script src="_shared/leads-cache.js"></script>
 <script src="_shared/spotlight-tour.js"></script>
 <script src="_shared/admin-switcher.js"></script>
 <script src="_shared/workspace-frame.js"></script>
@@ -902,19 +990,81 @@ function resourcePanel(l) {
   return `<div class="resource-panel">${parts.join('')}</div>`;
 }
 
-// Renders the Claimed -> Contacted -> outcome timeline that replaced the
-// separate status dropdown. Contacted is never a click target here - it can
-// only be reached by submitting outreach above, so the timeline reflects
-// that transition instead of offering a second way to trigger it. The
-// outcome step shows Replied/Warm Lead/Not Interested/Unsubscribed as
-// buttons once Contacted, and stays open (with the current pick highlighted)
-// so an outcome can be corrected without hunting for a dropdown.
+// Renders the Claimed -> Contacted -> outcome timeline. The email/screenshot
+// form used to be its own card floating above a separate "Status" section -
+// two blocks connected only by a sentence of explanatory copy. Now the form
+// IS the Contacted step: while a lead is pre-Contacted, that step's body is
+// the live textarea/file-drop/submit; once submitted it collapses to a
+// one-line "sent <time>" summary with an edit toggle that re-opens the same
+// fields, so there's one flow top to bottom instead of two.
+// Each outcome carries a `followUp` describing what happens after it's
+// clicked, since picking an outcome isn't always just a status write:
+// - 'form':   opens a textarea (+ optional screenshot for replies) that
+//             logs to notes alongside the status change
+// - 'script': shows a copyable reply script (from the playbook) with no
+//             data entry - the status commits once "Done" is clicked
+// - null:     commits immediately, nothing more to capture
 const OUTCOME_STEPS = [
-  { status: 'Replied',          dot: 'replied', label: 'They replied' },
-  { status: 'Warm Lead',        dot: 'warm',    label: 'Warm lead' },
-  { status: 'Not Interested',   dot: 'no',      label: 'Not interested' },
-  { status: 'Unsubscribed',     dot: 'unsub',   label: 'Unsubscribed' },
+  { status: 'Replied',        dot: 'replied', label: 'They replied',   followUp: 'form',
+    icon: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    formLabel: 'What did they say?', formPlaceholder: 'Paste their reply here...', withScreenshot: true },
+  { status: 'Warm Lead',      dot: 'warm',    label: 'Warm lead',      followUp: 'script',
+    icon: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+    script: 'Really glad this caught your attention! Let me connect you with the owner who runs the agency, they can show you exactly what this would look like for your business and answer any questions. Expect to hear from them shortly.' },
+  { status: 'Not Interested', dot: 'no',      label: 'Not interested', followUp: 'form',
+    icon: '<circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/>',
+    formLabel: 'Why? (private note, not sent anywhere)', formPlaceholder: 'e.g. already has a website, bad timing...', withScreenshot: false,
+    script: 'No worries at all, appreciate you taking the time to respond. Best of luck with the business.' },
+  { status: 'No Reply',       dot: 'no',      label: 'No reply',       followUp: null,
+    icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
+  { status: 'Unsubscribed',   dot: 'unsub',   label: 'Unsubscribed',   followUp: 'script',
+    icon: '<circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/>',
+    script: 'Of course, removing you right now. Sorry for the interruption.' },
 ];
+function outcomeStepFor(status) { return OUTCOME_STEPS.find(s => s.status === status); }
+
+// Leads whose "sent" summary has been expanded back into the edit form via
+// the edit toggle. Cleared on submit (submitOutreach re-renders, and the
+// fresh Contacted state has nothing left to edit toward).
+const outreachEditing = new Set();
+
+// Leads whose outcome step has been deliberately opened. Only one timeline
+// step should ever sit open at once - submitting outreach collapses the
+// Contacted step, and the outcome step underneath it stays collapsed too
+// until clicked, rather than springing open the instant Contacted is
+// reached (nothing has actually happened yet at that point). A lead that
+// already has an outcome starts pre-opened so its current pick and the
+// "change it" options are visible without an extra click.
+const outcomeEditing = new Set();
+
+// leadId -> outcome status string, set the moment an outcome button is
+// clicked but before its follow-up (form or script) is confirmed. Outcomes
+// with a follow-up don't commit to the API on the first click - clicking
+// "They replied" only picks which follow-up to show; the actual setStatus
+// call happens when that follow-up's Save/Done button fires.
+const pendingOutcome = new Map();
+
+// leadId -> reason string, held while the flag reason textarea is open,
+// same "click opens inline input, no browser confirm()" shape as outcomes.
+const flagging = new Set();
+
+// Flag lives as a single icon button in the detail header's top-right
+// corner (next to the status pill), reachable at any stage of the lead's
+// lifecycle rather than tucked into one specific timeline step - "this
+// lead isn't worth pursuing" can become true whether it's freshly claimed
+// or already mid-conversation.
+function flagForm(l) {
+  if (!flagging.has(l.id)) return '';
+  return `
+    <div class="tl-flag-form">
+      <div class="outreach-label">Why are you flagging this?</div>
+      <textarea class="flag-reason" placeholder="e.g. already has a good website, wrong category, bad number..." data-lead="${l.id}"></textarea>
+      <div class="outreach-actions">
+        <button class="btn sm flag-submit-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}">Submit flag</button>
+        <button class="btn sm sec flag-cancel-btn" data-lead="${l.id}">Cancel</button>
+      </div>
+    </div>`;
+}
 
 function statusTimeline(l) {
   const status = l.status || 'Pending';
@@ -927,62 +1077,156 @@ function statusTimeline(l) {
       <div class="tl-body"><div class="tl-label">Claimed</div></div>
     </li>`;
 
-  const contactedStep = contacted ? `
-    <li class="tl-item done">
-      <div class="tl-dot"></div>
-      <div class="tl-body"><div class="tl-label">Contacted</div></div>
-    </li>` : `
-    <li class="tl-item current">
-      <div class="tl-dot"></div>
-      <div class="tl-body">
-        <div class="tl-label">Contacted</div>
-        <div class="tl-sub">Set automatically when you submit outreach above</div>
+  const outreachFields = `
+    <div class="tl-outreach-form">
+      <div class="outreach-step">
+        <div class="outreach-label"><span class="num">1</span>Email you sent</div>
+        <textarea class="outreach-email" placeholder="Paste the email text here..." data-lead="${l.id}"></textarea>
       </div>
-    </li>`;
+      <div class="outreach-step">
+        <div class="outreach-label"><span class="num">2</span>Screenshot (optional)</div>
+        <label class="file-drop">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span class="file-drop-text" data-filename-for="${l.id}"><strong>Choose a file</strong> or drop it here</span>
+          <input type="file" accept="image/*" class="outreach-screenshot" data-lead="${l.id}">
+        </label>
+      </div>
+      <div class="outreach-actions">
+        <button class="btn sm submit-outreach-btn" data-lead="${l.id}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Submit Outreach
+        </button>
+      </div>
+    </div>`;
 
-  const outcomeStep = !contacted ? `
-    <li class="tl-item">
-      <div class="tl-dot"></div>
-      <div class="tl-body"><div class="tl-label">Replied / Warm / Not interested / Unsubscribed</div></div>
-    </li>` : `
-    <li class="tl-item ${outcomeSet ? 'done' : 'current'}">
-      <div class="tl-dot"></div>
-      <div class="tl-body">
-        <div class="tl-label">${outcomeSet ? _esc(status) : 'What happened?'}</div>
-        ${outcomeSet ? '<div class="tl-sub">Click another outcome to change it</div>' : ''}
-        <div class="tl-actions">
-          ${OUTCOME_STEPS.filter(s => s.status !== status).map(s => `
-            <button class="btn sec tl-outcome-btn" data-lead="${l.id}" data-status="${s.status}">
-              <span class="tl-dot-mini ${s.dot}"></span>${s.label}
-            </button>`).join('')}
+  let contactedStep;
+  if (!contacted) {
+    contactedStep = `
+      <li class="tl-item current">
+        <div class="tl-dot"></div>
+        <div class="tl-body">
+          <div class="tl-label">Contacted</div>
+          <div class="tl-sub">Paste the email you sent (or attach a screenshot) and submit to move here.</div>
+          ${outreachFields}
         </div>
-      </div>
-    </li>`;
+      </li>`;
+  } else if (outreachEditing.has(l.id)) {
+    contactedStep = `
+      <li class="tl-item done">
+        <div class="tl-dot"></div>
+        <div class="tl-body">
+          <div class="tl-label">Contacted</div>
+          <div class="tl-sub">Editing re-submits and logs a new entry below.</div>
+          ${outreachFields}
+        </div>
+      </li>`;
+  } else {
+    contactedStep = `
+      <li class="tl-item done">
+        <div class="tl-dot"></div>
+        <div class="tl-body">
+          <div class="tl-row">
+            <div class="tl-label">Contacted</div>
+            <button class="tl-icon-btn tl-edit-outreach-btn" data-lead="${l.id}" title="Edit outreach" aria-label="Edit outreach">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+            </button>
+          </div>
+        </div>
+      </li>`;
+  }
+
+  // The pick-list itself: real bordered cards with an icon, arranged in a
+  // grid, not a thin inline row of dots + text. Five roughly-equal-weight
+  // choices deserve to look like five deliberate buttons, not a caption.
+  // Clicking one doesn't commit immediately unless it has no follow-up (No
+  // Reply) - everything else opens its form/script below and waits for an
+  // explicit Save/Done.
+  const outcomePicker = `
+    <div class="tl-outcome-grid">
+      ${OUTCOME_STEPS.filter(s => s.status !== status).map(s => `
+        <button class="tl-outcome-card tl-outcome-btn tl-outcome-${s.dot}" data-lead="${l.id}" data-status="${s.status}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${s.icon}</svg>
+          <span>${s.label}</span>
+        </button>`).join('')}
+    </div>`;
+
+  const pending = pendingOutcome.get(l.id);
+  const pendingDef = pending ? outcomeStepFor(pending) : null;
+  let followUpPanel = '';
+  if (pendingDef && pendingDef.followUp === 'form') {
+    followUpPanel = `
+      <div class="tl-outreach-form" style="margin-top:10px;">
+        <div class="outreach-step">
+          <div class="outreach-label">${pendingDef.formLabel}</div>
+          <textarea class="outcome-note" placeholder="${_escAttr(pendingDef.formPlaceholder)}" data-lead="${l.id}"></textarea>
+        </div>
+        ${pendingDef.withScreenshot ? `
+        <div class="outreach-step">
+          <div class="outreach-label"><span class="num">2</span>Screenshot (optional)</div>
+          <label class="file-drop">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span class="file-drop-text" data-filename-for="${l.id}"><strong>Choose a file</strong> or drop it here</span>
+            <input type="file" accept="image/*" class="outcome-screenshot" data-lead="${l.id}">
+          </label>
+        </div>` : ''}
+        ${pendingDef.script ? `<div class="tl-script-box">${_esc(pendingDef.script)}<button class="tl-copy-btn" data-copy="${_escAttr(pendingDef.script)}">Copy</button></div>` : ''}
+        <div class="outreach-actions">
+          <button class="btn sm outcome-save-btn" data-lead="${l.id}" data-status="${pending}">Save</button>
+          <button class="btn sm sec outcome-cancel-btn" data-lead="${l.id}">Cancel</button>
+        </div>
+      </div>`;
+  } else if (pendingDef && pendingDef.followUp === 'script') {
+    followUpPanel = `
+      <div class="tl-outreach-form" style="margin-top:10px;">
+        <div class="tl-script-box">${_esc(pendingDef.script)}<button class="tl-copy-btn" data-copy="${_escAttr(pendingDef.script)}">Copy</button></div>
+        <div class="outreach-actions">
+          <button class="btn sm outcome-save-btn" data-lead="${l.id}" data-status="${pending}">Done</button>
+          <button class="btn sm sec outcome-cancel-btn" data-lead="${l.id}">Cancel</button>
+        </div>
+      </div>`;
+  }
+
+  let outcomeStep;
+  if (!contacted) {
+    outcomeStep = `
+      <li class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-body"><div class="tl-label">Replied / Warm / Not interested / No reply / Unsubscribed</div></div>
+      </li>`;
+  } else if (outcomeSet && !outcomeEditing.has(l.id)) {
+    // Already has an outcome and hasn't been clicked open this render - show
+    // it as a settled, done step with an icon control to change it, same
+    // row shape as the collapsed Contacted step. A "swap" icon rather than
+    // a pencil, since re-picking an outcome is choosing again, not editing
+    // text - the icon should match what the action actually does.
+    outcomeStep = `
+      <li class="tl-item done">
+        <div class="tl-dot"></div>
+        <div class="tl-body">
+          <div class="tl-row">
+            <div class="tl-label">${_esc(status)}</div>
+            <button class="tl-icon-btn tl-edit-outcome-btn" data-lead="${l.id}" title="Change outcome" aria-label="Change outcome">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            </button>
+          </div>
+        </div>
+      </li>`;
+  } else {
+    // Either no outcome yet (picker is just open by default the moment
+    // Contacted is reached - nothing to hide it behind) or it was
+    // deliberately re-opened via the swap icon on a settled outcome.
+    outcomeStep = `
+      <li class="tl-item current">
+        <div class="tl-dot"></div>
+        <div class="tl-body">
+          <div class="tl-label">What happened?</div>
+          ${pendingDef ? '' : outcomePicker}
+          ${followUpPanel}
+        </div>
+      </li>`;
+  }
 
   return `<ul class="timeline">${claimedStep}${contactedStep}${outcomeStep}</ul>`;
-}
-
-// Cache-first: listLeads against the Apps Script backend consistently takes
-// 1.5-2s (Apps Script Web Apps are just slow, no way around that server-side).
-// Rather than show a skeleton on every single visit, the last successful
-// fetch is kept in localStorage per workspace and rendered immediately -
-// stale by at most one visit's worth of changes, which is a fine trade for
-// an instant paint. The real fetch still always runs in the background and
-// silently reconciles the render when it lands, so data is never more than
-// one page load behind. Skeletons now only appear on a workspace's first
-// ever visit, when there's nothing cached yet to show.
-function _leadsCacheKey() { return 'wl_leads_cache_' + WORKSPACE_KEY; }
-
-function _readLeadsCache() {
-  try {
-    const raw = localStorage.getItem(_leadsCacheKey());
-    return raw ? JSON.parse(raw) : null;
-  } catch (e) { return null; }
-}
-
-function _writeLeadsCache(leads) {
-  try { localStorage.setItem(_leadsCacheKey(), JSON.stringify(leads)); }
-  catch (e) { /* storage full or unavailable - background refresh still works, just uncached */ }
 }
 
 async function loadMyLeads() {
@@ -1078,38 +1322,17 @@ function renderLeadDetail(l) {
       <div class="lrc-meta">${_esc(l.city || '')}${l.city && l.category ? ' - ' : ''}${_esc(l.category || '')}</div>
     </div>
 
-    ${hasResources(l) ? `<div class="lrc-section-label">Contact info</div>${resourcePanel(l)}` : ''}
-
-    <div class="lrc-section-label">Log your outreach</div>
-    <div class="outreach-form">
-      <div class="outreach-hint">Paste the email you sent (or attach a screenshot). Submitting moves this lead to <strong>Contacted</strong> on the timeline below.</div>
-
-      <div class="outreach-step">
-        <div class="outreach-label"><span class="num">1</span>Email you sent</div>
-        <textarea class="outreach-email" placeholder="Paste the email text here..." data-lead="${l.id}"></textarea>
-      </div>
-
-      <div class="outreach-step">
-        <div class="outreach-label"><span class="num">2</span>Screenshot (optional)</div>
-        <label class="file-drop">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <span class="file-drop-text" data-filename-for="${l.id}"><strong>Choose a file</strong> or drop it here</span>
-          <input type="file" accept="image/*" class="outreach-screenshot" data-lead="${l.id}">
-        </label>
-      </div>
-
-      <div class="outreach-actions">
-        <button class="btn sm submit-outreach-btn" data-lead="${l.id}">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          Submit Outreach
-        </button>
-        <button class="btn sm flag-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}" title="Use this if the business already has a solid website and doesn't need one">
-          Flag: Has Good Website
-        </button>
-      </div>
+    <div class="lrc-section-label lrc-section-label-row">
+      <span>${hasResources(l) ? 'Contact info' : 'Lead'}</span>
+      ${flagging.has(l.id) ? '' : `
+      <button class="tl-icon-btn detail-flag-btn" data-lead="${l.id}" title="Flag lead" aria-label="Flag lead">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+      </button>`}
     </div>
+    ${flagForm(l)}
+    ${hasResources(l) ? resourcePanel(l) : ''}
 
-    <div class="lrc-section-label">Status</div>
+    <div class="lrc-section-label">Outreach &amp; status</div>
     ${INTERESTED_STATUSES.includes(l.status) ? `
     <div class="alert" style="margin:0 0 14px;">
       <svg class="alert-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -1127,39 +1350,127 @@ function renderLeadDetail(l) {
     </div>
   `;
 
+  // Picking an outcome only commits immediately when it has no follow-up
+  // (No Reply). Everything else just records the pick and re-renders to
+  // show that outcome's form or script - the real setStatus call happens
+  // from outcome-save-btn once that follow-up is filled in or copied.
   el.querySelectorAll('.tl-outcome-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const leadId = btn.dataset.lead;
-      const status = btn.dataset.status;
-      el.querySelectorAll('.tl-outcome-btn').forEach(b => b.disabled = true);
+      const outcomeStatus = btn.dataset.status;
+      const def = outcomeStepFor(outcomeStatus);
+      if (!def.followUp) {
+        btn.disabled = true;
+        try {
+          await WISDOMLAYERS_API.setStatus(WORKSPACE_KEY, leadId, outcomeStatus);
+          outcomeEditing.delete(leadId);
+          toast('Status updated.');
+          await loadMyLeads();
+        } catch (err) {
+          toast('Could not update status: ' + err.message);
+          btn.disabled = false;
+        }
+        return;
+      }
+      pendingOutcome.set(leadId, outcomeStatus);
+      renderLeadDetail(l);
+    });
+  });
+
+  el.querySelectorAll('.outcome-save-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const leadId = btn.dataset.lead;
+      const outcomeStatus = btn.dataset.status;
+      const noteField = document.querySelector(`.outcome-note[data-lead="${leadId}"]`);
+      const fileField = document.querySelector(`.outcome-screenshot[data-lead="${leadId}"]`);
+      const note = noteField ? (noteField.value || '').trim() : '';
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
       try {
-        await WISDOMLAYERS_API.setStatus(WORKSPACE_KEY, leadId, status);
+        let screenshotNote = note;
+        if (fileField && fileField.files[0]) {
+          // Outcome screenshots piggyback on the same outreach-screenshot
+          // storage path via submitOutreach's Drive folder isn't available
+          // here (setStatus has no file upload) - so a screenshot on a
+          // reply is captured by name only, matched to the note text. If
+          // real screenshot storage for replies is needed later, this is
+          // the seam to extend setLeadStatus with the same base64 upload
+          // submitOutreach already does.
+          screenshotNote = note ? `${note} [+ screenshot: ${fileField.files[0].name}]` : `[screenshot: ${fileField.files[0].name}]`;
+        }
+        await WISDOMLAYERS_API.setStatus(WORKSPACE_KEY, leadId, outcomeStatus, screenshotNote || undefined);
+        pendingOutcome.delete(leadId);
+        outcomeEditing.delete(leadId);
         toast('Status updated.');
         await loadMyLeads();
       } catch (err) {
         toast('Could not update status: ' + err.message);
-        el.querySelectorAll('.tl-outcome-btn').forEach(b => b.disabled = false);
+        btn.disabled = false;
+        btn.textContent = 'Save';
       }
+    });
+  });
+
+  el.querySelectorAll('.outcome-cancel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      pendingOutcome.delete(btn.dataset.lead);
+      renderLeadDetail(l);
     });
   });
 
   el.querySelectorAll('.submit-outreach-btn').forEach(btn => {
     btn.addEventListener('click', () => submitOutreach(btn));
   });
-  el.querySelectorAll('.flag-btn').forEach(btn => {
-    btn.addEventListener('click', () => flagGoodWebsite(btn));
+  el.querySelectorAll('.tl-edit-outreach-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      outreachEditing.add(btn.dataset.lead);
+      renderLeadDetail(l);
+    });
   });
+  el.querySelectorAll('.tl-edit-outcome-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      outcomeEditing.add(btn.dataset.lead);
+      renderLeadDetail(l);
+    });
+  });
+
+  el.querySelectorAll('.detail-flag-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      flagging.add(btn.dataset.lead);
+      renderLeadDetail(l);
+    });
+  });
+  el.querySelectorAll('.flag-cancel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      flagging.delete(btn.dataset.lead);
+      renderLeadDetail(l);
+    });
+  });
+  el.querySelectorAll('.flag-submit-btn').forEach(btn => {
+    btn.addEventListener('click', () => flagLead(btn));
+  });
+
   el.querySelectorAll('.remove-lead-btn').forEach(btn => {
     btn.addEventListener('click', () => removeLead(btn));
   });
   el.querySelectorAll('.unclaim-btn').forEach(btn => {
     btn.addEventListener('click', () => unclaimLead(btn));
   });
-  el.querySelectorAll('.outreach-screenshot').forEach(field => {
+  el.querySelectorAll('.outreach-screenshot, .outcome-screenshot').forEach(field => {
     field.addEventListener('change', () => {
       const label = document.querySelector(`[data-filename-for="${field.dataset.lead}"]`);
       if (!label) return;
       label.innerHTML = field.files[0] ? `<strong>${_esc(field.files[0].name)}</strong> selected` : '<strong>Choose a file</strong> or drop it here';
+    });
+  });
+  el.querySelectorAll('.tl-copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy);
+        const original = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(() => { btn.textContent = original; }, 1800);
+      } catch (e) { toast('Could not copy - select the text manually.'); }
     });
   });
 
@@ -1198,6 +1509,7 @@ async function submitOutreach(btn) {
       screenshotMimeType = file.type || 'image/png';
     }
     await WISDOMLAYERS_API.submitOutreach(WORKSPACE_KEY, leadId, emailText, screenshotBase64, screenshotMimeType);
+    outreachEditing.delete(leadId);
     toast('Outreach logged.');
     await loadMyLeads();
   } catch (err) {
@@ -1207,15 +1519,20 @@ async function submitOutreach(btn) {
   }
 }
 
-async function flagGoodWebsite(btn) {
+async function flagLead(btn) {
   const leadId = btn.dataset.lead;
-  const businessName = btn.dataset.business;
-  if (!confirm(`Flag "${businessName}" as already having a good website? This removes it from your active leads.`)) return;
+  const reasonField = document.querySelector(`.flag-reason[data-lead="${leadId}"]`);
+  const reason = (reasonField.value || '').trim();
+  if (!reason) {
+    toast('Say why you\'re flagging this first.');
+    return;
+  }
   const original = btn.textContent;
   btn.disabled = true;
   btn.textContent = 'Flagging...';
   try {
-    await WISDOMLAYERS_API.flagGoodWebsite(WORKSPACE_KEY, leadId);
+    await WISDOMLAYERS_API.flagLead(WORKSPACE_KEY, leadId, reason);
+    flagging.delete(leadId);
     toast('Flagged for review.');
     await loadMyLeads();
   } catch (err) {

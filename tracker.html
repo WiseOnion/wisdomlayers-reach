@@ -184,7 +184,9 @@
   .status-replied { background: #f5f3ff; color: #7c3aed; }
   .status-warmlead { background: var(--teal-100); color: var(--teal-700); font-weight: 800; }
   .status-notinterested { background: var(--gray-100); color: var(--gray-400); }
+  .status-noreply { background: var(--gray-100); color: var(--gray-400); }
   .status-unsubscribed { background: #fee2e2; color: #b91c1c; }
+  .status-flagged { background: #fef3c7; color: #92400e; }
 
   .group-header {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
@@ -374,7 +376,7 @@
           <option value="">All Statuses</option>
           <option>Pending</option><option>Claimed</option><option>Contacted</option>
           <option>Replied</option><option>Warm Lead</option>
-          <option>Not Interested</option><option>Unsubscribed</option><option>Flagged - Good Website</option>
+          <option>Not Interested</option><option>No Reply</option><option>Unsubscribed</option><option>Flagged</option>
         </select>
         <select id="boardCategoryFilter" onchange="renderBoard()">
           <option value="">All Categories</option>
@@ -434,6 +436,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="_shared/api.js"></script>
+<script src="_shared/leads-cache.js"></script>
 <script src="_shared/spotlight-tour.js"></script>
 <script src="_shared/admin-switcher.js"></script>
 <script src="_shared/workspace-frame.js"></script>
@@ -443,7 +446,8 @@ let WORKSPACE_KEY = null;
 const STATUS_CLASS = {
   'Pending': 'status-pending', 'Claimed': 'status-claimed', 'Contacted': 'status-contacted',
   'Replied': 'status-replied', 'Warm Lead': 'status-warmlead',
-  'Not Interested': 'status-notinterested', 'Unsubscribed': 'status-unsubscribed',
+  'Not Interested': 'status-notinterested', 'No Reply': 'status-noreply',
+  'Unsubscribed': 'status-unsubscribed', 'Flagged': 'status-flagged',
 };
 
 let allLeads = [];
@@ -514,12 +518,22 @@ function setBoardView(v) {
 }
 
 async function loadBoard() {
+  const cached = _readLeadsCache();
+  if (cached) {
+    allLeads = cached;
+    buildFilterOptions();
+    renderBoard();
+  }
+
   try {
     allLeads = await WISDOMLAYERS_API.listLeads(WORKSPACE_KEY);
   } catch (err) {
-    document.getElementById('boardList').innerHTML = `<div class="empty-state">Could not load the claim board. ${err.message}</div>`;
+    if (!cached) {
+      document.getElementById('boardList').innerHTML = `<div class="empty-state">Could not load the claim board. ${err.message}</div>`;
+    }
     return;
   }
+  _writeLeadsCache(allLeads);
   buildFilterOptions();
   renderBoard();
 }

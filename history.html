@@ -197,8 +197,9 @@
   .status-replied { background: #f5f3ff; color: #7c3aed; }
   .status-warm-lead { background: var(--teal-100); color: var(--teal-700); font-weight: 800; }
   .status-not-interested { background: var(--gray-100); color: var(--gray-400); }
+  .status-no-reply { background: var(--gray-100); color: var(--gray-400); }
   .status-unsubscribed { background: #fee2e2; color: #b91c1c; }
-  .status-flagged-good-website { background: #fef3c7; color: #92400e; }
+  .status-flagged { background: #fef3c7; color: #92400e; }
 
   select.status-select {
     font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
@@ -336,7 +337,7 @@
         <select id="historyStatusFilter" onchange="renderHistory()">
           <option value="">All Statuses</option>
           <option>Contacted</option><option>Replied</option><option>Warm Lead</option>
-          <option>Not Interested</option><option>Unsubscribed</option><option>Flagged - Good Website</option>
+          <option>Not Interested</option><option>No Reply</option><option>Unsubscribed</option><option>Flagged</option>
         </select>
       </div>
 
@@ -366,6 +367,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="_shared/api.js"></script>
+<script src="_shared/leads-cache.js"></script>
 <script src="_shared/spotlight-tour.js"></script>
 <script src="_shared/admin-switcher.js"></script>
 <script src="_shared/workspace-frame.js"></script>
@@ -410,8 +412,8 @@ async function initSidebarIdentity() {
   return true;
 }
 
-const STATUS_OPTIONS = ['Claimed','Contacted','Replied','Warm Lead','Not Interested','Unsubscribed','Flagged - Good Website'];
-const RESOLVED_STATUSES = ['Contacted', 'Replied', 'Warm Lead', 'Not Interested', 'Unsubscribed', 'Flagged - Good Website'];
+const STATUS_OPTIONS = ['Claimed','Contacted','Replied','Warm Lead','Not Interested','No Reply','Unsubscribed','Flagged'];
+const RESOLVED_STATUSES = ['Contacted', 'Replied', 'Warm Lead', 'Not Interested', 'No Reply', 'Unsubscribed', 'Flagged'];
 
 let allLeads = [];
 let openLeadId = null;
@@ -449,12 +451,21 @@ function resourcePanel(l) {
 }
 
 async function loadHistory() {
+  const cached = _readLeadsCache();
+  if (cached) {
+    allLeads = cached;
+    renderHistory();
+  }
+
   try {
     allLeads = await WISDOMLAYERS_API.listLeads(WORKSPACE_KEY);
   } catch (err) {
-    document.getElementById('historyList').innerHTML = `<div class="empty-state">Could not load your history. ${err.message}</div>`;
+    if (!cached) {
+      document.getElementById('historyList').innerHTML = `<div class="empty-state">Could not load your history. ${err.message}</div>`;
+    }
     return;
   }
+  _writeLeadsCache(allLeads);
   renderHistory();
 }
 
