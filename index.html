@@ -855,24 +855,7 @@ function showGate() {
   document.getElementById('noIdentityGate').style.display = 'flex';
 }
 
-async function initSidebarIdentity() {
-  const params = new URLSearchParams(window.location.search);
-  const key = params.get('w');
-
-  let name;
-  try {
-    name = await WISDOMLAYERS_API.getWorkspaceName(key);
-  } catch (err) {
-    showGate();
-    return false;
-  }
-
-  if (!name) {
-    showGate();
-    return false;
-  }
-
-  WORKSPACE_KEY = key;
+function _paintIdentity(key, name) {
   document.getElementById('sbIdentity').style.display = 'flex';
   applyWorkspaceFrame(name);
   document.getElementById('sbAvatar').textContent = name[0];
@@ -883,6 +866,40 @@ async function initSidebarIdentity() {
   document.getElementById('navTracker').href = `tracker.html?w=${key}`;
   document.getElementById('navPlaybook').href = `playbook.html?w=${key}`;
   document.getElementById('navOnboarding').href = `onboarding.html?w=${key}`;
+}
+
+async function initSidebarIdentity() {
+  const params = new URLSearchParams(window.location.search);
+  const key = params.get('w');
+  if (!key) { showGate(); return false; }
+
+  // Paint from cache immediately (see _shared/leads-cache.js) so the
+  // sidebar avatar/name/"Welcome back" don't sit as placeholders for the
+  // full round-trip on every single load - names essentially never change,
+  // so a cached one is fine to show while the real check confirms it.
+  const cachedName = _readWorkspaceNameCache(key);
+  if (cachedName) {
+    WORKSPACE_KEY = key;
+    _paintIdentity(key, cachedName);
+    if (_isWorkspaceNameCacheFresh(key)) return true;
+  }
+
+  let name;
+  try {
+    name = await WISDOMLAYERS_API.getWorkspaceName(key);
+  } catch (err) {
+    if (!cachedName) { showGate(); return false; }
+    return true; // network hiccup - already showing the cached identity, nothing to correct
+  }
+
+  if (!name) {
+    showGate();
+    return false;
+  }
+
+  WORKSPACE_KEY = key;
+  _writeWorkspaceNameCache(key, name);
+  _paintIdentity(key, name);
   return true;
 }
 

@@ -464,20 +464,39 @@ function showGate() {
   document.getElementById('noIdentityGate').style.display = 'flex';
 }
 
+function _paintIdentity(key, name) {
+  document.getElementById('sbIdentity').style.display = 'flex';
+  applyWorkspaceFrame(name);
+  document.getElementById('sbAvatar').textContent = name[0];
+  document.getElementById('sbIdName').textContent = name;
+  document.getElementById('navDashboard').href = `index.html?w=${key}`;
+  document.getElementById('navHistory').href = `history.html?w=${key}`;
+  document.getElementById('navTracker').href = `tracker.html?w=${key}`;
+  document.getElementById('navPlaybook').href = `playbook.html?w=${key}`;
+  document.getElementById('navOnboarding').href = `onboarding.html?w=${key}`;
+}
+
 async function initSidebarIdentity() {
   const params = new URLSearchParams(window.location.search);
   const key = params.get('w');
-  const dashLink = document.getElementById('navDashboard');
-  const historyLink = document.getElementById('navHistory');
-  const trackerLink = document.getElementById('navTracker');
-  const playbookLink = document.getElementById('navPlaybook');
-  const onboardingLink = document.getElementById('navOnboarding');
+  if (!key) { showGate(); return; }
+
+  // Paint from cache immediately (see _shared/leads-cache.js) so the
+  // sidebar avatar/name don't sit as placeholders for the full round-trip
+  // on every single load - names essentially never change, so a cached one
+  // is fine to show while the real check confirms it.
+  const cachedName = _readWorkspaceNameCache(key);
+  if (cachedName) {
+    WORKSPACE_KEY = key;
+    _paintIdentity(key, cachedName);
+    if (_isWorkspaceNameCacheFresh(key)) return;
+  }
 
   let name;
   try {
     name = await WISDOMLAYERS_API.getWorkspaceName(key);
   } catch (err) {
-    showGate();
+    if (!cachedName) showGate();
     return;
   }
 
@@ -487,15 +506,8 @@ async function initSidebarIdentity() {
   }
 
   WORKSPACE_KEY = key;
-  document.getElementById('sbIdentity').style.display = 'flex';
-  applyWorkspaceFrame(name);
-  document.getElementById('sbAvatar').textContent = name[0];
-  document.getElementById('sbIdName').textContent = name;
-  dashLink.href = `index.html?w=${key}`;
-  historyLink.href = `history.html?w=${key}`;
-  trackerLink.href = `tracker.html?w=${key}`;
-  playbookLink.href = `playbook.html?w=${key}`;
-  onboardingLink.href = `onboarding.html?w=${key}`;
+  _writeWorkspaceNameCache(key, name);
+  _paintIdentity(key, name);
 }
 
 function toast(msg) {

@@ -45,3 +45,39 @@ function _isLeadsCacheFresh() {
     return t > 0 && (Date.now() - t) < LEADS_CACHE_FRESH_MS;
   } catch (e) { return false; }
 }
+
+/**
+ * Same idea for the workspace name (sidebar identity block): getWorkspaceName
+ * hits the same slow Apps Script dispatcher as listLeads, but on every page
+ * it ran with no cache at all, so the sidebar avatar/name always popped in
+ * abruptly - a visible "?" / "-" placeholder sitting under a static
+ * "Outreach Specialist" label until the round-trip finished, every single
+ * load. Names essentially never change once set (a contractor doesn't
+ * rename themselves), so this uses a much longer freshness window than the
+ * leads list - a day, not 45 seconds - while still always reconciling
+ * against the real fetch in the background so a revoked/changed key
+ * corrects itself.
+ */
+const WORKSPACE_NAME_FRESH_MS = 24 * 60 * 60 * 1000;
+
+function _workspaceNameCacheKey(key) { return 'wl_name_cache_' + key; }
+function _workspaceNameCacheTimeKey(key) { return 'wl_name_cache_time_' + key; }
+
+function _readWorkspaceNameCache(key) {
+  try { return localStorage.getItem(_workspaceNameCacheKey(key)); }
+  catch (e) { return null; }
+}
+
+function _writeWorkspaceNameCache(key, name) {
+  try {
+    localStorage.setItem(_workspaceNameCacheKey(key), name);
+    localStorage.setItem(_workspaceNameCacheTimeKey(key), String(Date.now()));
+  } catch (e) { /* storage full or unavailable - background refresh still works, just uncached */ }
+}
+
+function _isWorkspaceNameCacheFresh(key) {
+  try {
+    const t = Number(localStorage.getItem(_workspaceNameCacheTimeKey(key)));
+    return t > 0 && (Date.now() - t) < WORKSPACE_NAME_FRESH_MS;
+  } catch (e) { return false; }
+}
