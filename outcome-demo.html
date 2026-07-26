@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outcome Demo - WisdomLayers</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --teal-50:  #f0fdfa;
+    --teal-100: #ccfbf1;
+    --teal-500: #14b8a6;
+    --teal-600: #0d9488;
+    --teal-700: #0f766e;
+    --ink:      #0f172a;
+    --gray-700: #374151;
+    --gray-600: #4b5563;
+    --gray-500: #6b7280;
+    --gray-400: #9ca3af;
+    --gray-200: #e5e7eb;
+    --gray-100: #f3f4f6;
+    --gray-50:  #f9fafb;
+    --amber-50: #fffbeb;
+    --amber-200: #fde68a;
+    --amber-700: #b45309;
+  }
+
+  body {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--gray-50);
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+  }
+  h1, h2, h3 { font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif; }
+
+  .wrap { max-width: 640px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  .page-head { margin-bottom: 22px; }
+  .page-head h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .page-head p { font-size: 14px; color: var(--gray-500); line-height: 1.6; }
+
+  .reset-row { margin-bottom: 20px; }
+  .btn-reset {
+    font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700;
+    padding: 8px 14px; border-radius: 8px; border: 1px solid var(--gray-200);
+    background: #fff; color: var(--gray-600); cursor: pointer;
+  }
+  .btn-reset:hover { background: var(--gray-50); border-color: var(--gray-300, #d1d5db); }
+
+  .panel { background: #ffffff; border: 1px solid var(--gray-200); border-radius: 14px; padding: 26px 28px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03); }
+
+  .detail-head { margin-bottom: 4px; padding-bottom: 18px; border-bottom: 1px solid var(--gray-100); }
+  .detail-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .detail-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 0; }
+  .detail-meta { font-size: 12.5px; color: var(--gray-500); }
+
+  .lrc-section-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--gray-400); margin: 24px 0 10px;
+  }
+  .lrc-section-label:first-child { margin-top: 0; }
+
+  .status-pill {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 4px 10px; border-radius: 20px; flex-shrink: 0;
+  }
+  .status-pending { background: var(--gray-100); color: var(--gray-500); }
+  .status-contacted { background: #e0e7ff; color: #4338ca; }
+  .status-replied { background: #f5f3ff; color: #7c3aed; }
+  .status-warm-lead { background: var(--teal-100); color: var(--teal-700); font-weight: 800; }
+  .status-not-interested { background: var(--gray-100); color: var(--gray-400); }
+  .status-no-reply { background: var(--gray-100); color: var(--gray-400); }
+  .status-unsubscribed { background: #fee2e2; color: #b91c1c; }
+
+  .timeline { list-style: none; margin-top: 4px; }
+  .tl-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; position: relative; }
+  .tl-item:not(:last-child)::before {
+    content: ''; position: absolute; left: 8px; top: 26px; width: 1px;
+    height: calc(100% - 6px); background: var(--gray-200);
+  }
+  .tl-dot {
+    width: 17px; height: 17px; border-radius: 50%; border: 2px solid var(--gray-200);
+    background: #ffffff; flex-shrink: 0; margin-top: 2px; display: flex;
+    align-items: center; justify-content: center; z-index: 1;
+  }
+  .tl-item.done .tl-dot { border-color: var(--teal-500); background: var(--teal-500); }
+  .tl-item.done .tl-dot::after { content: '\2713'; color: #fff; font-size: 9px; font-weight: 800; }
+  .tl-item.current .tl-dot { border-color: var(--teal-500); background: var(--teal-50); box-shadow: 0 0 0 3px var(--teal-50); }
+  .tl-body { flex: 1; }
+  .tl-row { display: flex; align-items: center; gap: 10px; min-height: 28px; }
+  .tl-label { font-size: 13px; font-weight: 700; color: var(--gray-400); }
+  .tl-item.done .tl-label, .tl-item.current .tl-label { color: var(--ink); }
+  .tl-sub { font-size: 12px; color: var(--gray-500); margin-top: 2px; line-height: 1.5; }
+
+  .tl-icon-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; flex-shrink: 0; margin-left: auto;
+    background: transparent; color: var(--gray-400); border: 1px solid transparent;
+    border-radius: 50%; cursor: pointer; transition: background 0.12s, color 0.12s;
+  }
+  .tl-icon-btn:hover { background: var(--teal-50); color: var(--teal-700); }
+
+  .tl-outcome-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px; margin-top: 10px;
+  }
+  .tl-outcome-card {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+    padding: 12px 14px; border: 1px solid var(--gray-200); background: #ffffff;
+    border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--gray-700);
+    cursor: pointer; text-align: left;
+    transition: border-color 0.12s, background-color 0.12s, transform 0.12s;
+  }
+  .tl-outcome-card svg { color: var(--gray-400); transition: color 0.12s; }
+  .tl-outcome-card:hover { transform: translateY(-1px); }
+  .tl-outcome-card.tl-outcome-replied:hover { border-color: #c4b5fd; background: #f5f3ff; }
+  .tl-outcome-card.tl-outcome-replied:hover svg { color: #7c3aed; }
+  .tl-outcome-card.tl-outcome-warm:hover { border-color: var(--teal-500); background: var(--teal-50); }
+  .tl-outcome-card.tl-outcome-warm:hover svg { color: var(--teal-700); }
+  .tl-outcome-card.tl-outcome-no:hover { border-color: var(--gray-300, #cbd5e1); background: var(--gray-50); }
+  .tl-outcome-card.tl-outcome-no:hover svg { color: var(--gray-600); }
+  .tl-outcome-card.tl-outcome-unsub:hover { border-color: #fca5a5; background: #fef2f2; }
+  .tl-outcome-card.tl-outcome-unsub:hover svg { color: #dc2626; }
+
+  .tl-script-box {
+    position: relative; background: #ffffff; border: 1px solid var(--gray-200);
+    border-radius: 8px; padding: 12px 70px 12px 14px; font-size: 13px;
+    line-height: 1.55; color: var(--gray-700); margin-top: 4px;
+  }
+  .tl-copy-btn {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 11.5px; font-weight: 700; padding: 5px 10px;
+    background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 6px;
+    color: var(--gray-600); cursor: pointer;
+  }
+  .tl-copy-btn:hover { background: var(--teal-50); border-color: var(--teal-500); color: var(--teal-700); }
+
+  .tl-outreach-form {
+    background: var(--gray-50); border: 1px solid var(--gray-100); border-radius: 10px;
+    padding: 16px 18px; margin-top: 10px;
+  }
+  .outreach-step { margin-bottom: 18px; }
+  .outreach-step:last-of-type { margin-bottom: 0; }
+  .outreach-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--gray-500); margin-bottom: 9px;
+  }
+  .outcome-note {
+    width: 100%; max-width: 70ch; font-family: 'Inter', sans-serif; font-size: 14px;
+    border: 1px solid var(--gray-200); border-radius: 9px; padding: 12px 14px;
+    resize: vertical; min-height: 78px; color: var(--ink); background: #fff;
+  }
+  .outcome-note:focus { outline: 2px solid var(--teal-100); border-color: var(--teal-500); }
+
+  .outreach-actions { display: flex; align-items: center; gap: 10px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--gray-100); flex-wrap: wrap; }
+
+  .btn { display: inline-flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; font-weight: 700; border-radius: 8px; cursor: pointer; white-space: nowrap; transition: background 0.12s, border-color 0.12s; }
+  .btn.sm { padding: 10px 16px; font-size: 13px; background: var(--teal-600); color: #fff; border: 1px solid var(--teal-600); }
+  .btn.sm:hover { background: var(--teal-700); border-color: var(--teal-700); }
+  .btn.sm.sec { background: #fff; color: var(--gray-600); border: 1px solid var(--gray-200); }
+  .btn.sm.sec:hover { background: var(--gray-50); border-color: var(--gray-300, #d1d5db); }
+
+  .alert {
+    background: var(--amber-50); border: 1px solid var(--amber-200);
+    border-radius: 12px; padding: 16px 20px; margin-bottom: 16px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .alert-icon { flex-shrink: 0; margin-top: 1px; color: var(--amber-700); }
+  .alert p { font-size: 13px; color: var(--amber-700); line-height: 1.6; }
+  .alert strong { font-weight: 700; }
+
+  .outcome-explainer {
+    margin-top: 26px; background: #ffffff; border: 1px solid var(--gray-200);
+    border-radius: 14px; padding: 22px 24px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  }
+  .outcome-explainer h2 { font-size: 1.05rem; font-weight: 800; margin-bottom: 14px; }
+  .oe-row { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--gray-100); }
+  .oe-row:last-child { border-bottom: none; }
+  .oe-label { flex-shrink: 0; width: 128px; font-size: 12.5px; font-weight: 700; color: var(--ink); }
+  .oe-desc { font-size: 12.5px; color: var(--gray-600); line-height: 1.6; }
+
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: white; font-size: 12.5px; font-weight: 500;
+    padding: 10px 18px; border-radius: 8px; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s; z-index: 200; max-width: 90vw; text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="page-head">
+    <h1>Outcome Demo</h1>
+    <p>Not wired to any workspace or backend - this is the same outcome picker from the Dashboard, running on one fake lead so you can click through all five outcomes and see exactly what each one shows.</p>
+  </div>
+
+  <div class="reset-row">
+    <button class="btn-reset" id="resetBtn">Reset demo lead</button>
+  </div>
+
+  <div class="panel" id="detailPane"></div>
+
+  <div class="outcome-explainer">
+    <h2>What each outcome actually does</h2>
+    <div class="oe-row">
+      <div class="oe-label">They replied</div>
+      <div class="oe-desc">Opens a note field for what they said, plus an optional screenshot. Saving commits status &rarr; <strong>Replied</strong>. Stays in My Leads - there's usually a follow-up conversation still to have.</div>
+    </div>
+    <div class="oe-row">
+      <div class="oe-label">Warm lead</div>
+      <div class="oe-desc">Shows a ready-made handoff message - addressed to your team lead/owner, not the prospect - with the business name and contact info filled in. Copy it and send it up. Clicking Done commits status &rarr; <strong>Warm Lead</strong> and surfaces the amber "notify your team lead now" banner. Stays in My Leads until the handoff closes out.</div>
+    </div>
+    <div class="oe-row">
+      <div class="oe-label">Not interested</div>
+      <div class="oe-desc">Opens a private note field (why - not sent anywhere) plus a courtesy script to copy. Saving commits status &rarr; <strong>Not Interested</strong>. This is a true dead end - moves to History.</div>
+    </div>
+    <div class="oe-row">
+      <div class="oe-label">No reply</div>
+      <div class="oe-desc">No form, no script - commits immediately on click, status &rarr; <strong>No Reply</strong>. Not a dead end, just means try again later - stays active in My Leads as a follow-up nudge.</div>
+    </div>
+    <div class="oe-row">
+      <div class="oe-label">Unsubscribed</div>
+      <div class="oe-desc">Shows a removal-confirmation script to copy. Clicking Done commits status &rarr; <strong>Unsubscribed</strong>. True dead end - moves to History.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Same OUTCOME_STEPS shape as index.html's Dashboard - kept in sync by hand
+// since this is a standalone demo, not loaded from the real app.
+const OUTCOME_STEPS = [
+  { status: 'Replied',        dot: 'replied', label: 'They replied',   followUp: 'form',
+    icon: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    formLabel: 'What did they say?', formPlaceholder: 'Paste their reply here...', withScreenshot: true },
+  { status: 'Warm Lead',      dot: 'warm',    label: 'Warm lead',      followUp: 'script',
+    icon: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+    // Handoff message to the team lead/owner, not a reply to the prospect -
+    // built per-lead since it has to carry actual contact details.
+    scriptFor: (l) => {
+      const contactLines = [];
+      if (l.phone) contactLines.push(`Phone: ${l.phone}`);
+      if (l.address) contactLines.push(`Address: ${l.address}`);
+      if (l.facebook) contactLines.push(`Facebook: ${l.facebook}`);
+      if (l.websiteUrl) contactLines.push(`Website/Booking: ${l.websiteUrl}`);
+      const contactBlock = contactLines.length ? '\n' + contactLines.join('\n') : '';
+      return `Warm lead - ${l.business}${l.city ? ` (${l.city})` : ''} is interested and ready for you to take over. No price talk or timelines from me, just a warm handoff.${contactBlock}`;
+    } },
+  { status: 'Not Interested', dot: 'no',      label: 'Not interested', followUp: 'form',
+    icon: '<circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/>',
+    formLabel: 'Why? (private note, not sent anywhere)', formPlaceholder: 'e.g. already has a website, bad timing...', withScreenshot: false,
+    script: 'No worries at all, appreciate you taking the time to respond. Best of luck with the business.' },
+  { status: 'No Reply',       dot: 'no',      label: 'No reply',       followUp: null,
+    icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
+  { status: 'Unsubscribed',   dot: 'unsub',   label: 'Unsubscribed',   followUp: 'script',
+    icon: '<circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/>',
+    script: 'Of course, removing you right now. Sorry for the interruption.' },
+];
+function outcomeStepFor(status) { return OUTCOME_STEPS.find(s => s.status === status); }
+
+const ACTIVE_ON_OUTCOME = { 'Replied': true, 'Warm Lead': true, 'No Reply': true, 'Not Interested': false, 'Unsubscribed': false };
+const INTERESTED_STATUSES = ['Warm Lead'];
+
+function freshLead() {
+  return {
+    business: 'A Touch Of Class Beauty & Barber', city: 'Fayetteville', category: 'Salon', status: 'Contacted',
+    phone: '(910) 835-1315', address: '1102 Strickland Bridge Rd, Fayetteville, NC 28304',
+    facebook: 'https://www.facebook.com/atouchofclasssalon/',
+  };
+}
+let lead = freshLead();
+let pendingOutcome = null; // status string once a card is clicked, before Save/Done
+let outcomeEditing = true; // picker starts open since a fresh Contacted lead has no outcome yet
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2600);
+}
+function _esc(v) { return String(v || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function _escAttr(v) { return _esc(v).replace(/"/g, '&quot;'); }
+function _statusClass(status) { return (status || 'Pending').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+
+function render() {
+  const el = document.getElementById('detailPane');
+  const status = lead.status;
+  const outcomeSet = OUTCOME_STEPS.some(s => s.status === status);
+
+  const outcomePicker = `
+    <div class="tl-outcome-grid">
+      ${OUTCOME_STEPS.filter(s => s.status !== status).map(s => `
+        <button class="tl-outcome-card tl-outcome-btn tl-outcome-${s.dot}" data-status="${s.status}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${s.icon}</svg>
+          <span>${s.label}</span>
+        </button>`).join('')}
+    </div>`;
+
+  const pendingDef = pendingOutcome ? outcomeStepFor(pendingOutcome) : null;
+  const pendingScript = pendingDef ? (pendingDef.scriptFor ? pendingDef.scriptFor(lead) : pendingDef.script) : null;
+  let followUpPanel = '';
+  if (pendingDef && pendingDef.followUp === 'form') {
+    followUpPanel = `
+      <div class="tl-outreach-form" style="margin-top:10px;">
+        <div class="outreach-step">
+          <div class="outreach-label">${pendingDef.formLabel}</div>
+          <textarea class="outcome-note" placeholder="${_escAttr(pendingDef.formPlaceholder)}"></textarea>
+        </div>
+        ${pendingScript ? `<div class="tl-script-box">${_esc(pendingScript)}<button class="tl-copy-btn" data-copy="${_escAttr(pendingScript)}">Copy</button></div>` : ''}
+        <div class="outreach-actions">
+          <button class="btn sm outcome-save-btn" data-status="${pendingOutcome}">Save</button>
+          <button class="btn sm sec outcome-cancel-btn">Cancel</button>
+        </div>
+      </div>`;
+  } else if (pendingDef && pendingDef.followUp === 'script') {
+    followUpPanel = `
+      <div class="tl-outreach-form" style="margin-top:10px;">
+        ${pendingDef.status === 'Warm Lead' ? '<div class="outreach-label">Send this to your team lead/owner</div>' : ''}
+        <div class="tl-script-box">${_esc(pendingScript)}<button class="tl-copy-btn" data-copy="${_escAttr(pendingScript)}">Copy</button></div>
+        <div class="outreach-actions">
+          <button class="btn sm outcome-save-btn" data-status="${pendingOutcome}">Done</button>
+          <button class="btn sm sec outcome-cancel-btn">Cancel</button>
+        </div>
+      </div>`;
+  }
+
+  let outcomeStep;
+  if (outcomeSet && !outcomeEditing) {
+    outcomeStep = `
+      <li class="tl-item done">
+        <div class="tl-dot"></div>
+        <div class="tl-body">
+          <div class="tl-row">
+            <div class="tl-label">${_esc(status)}</div>
+            <button class="tl-icon-btn tl-edit-outcome-btn" title="Change outcome" aria-label="Change outcome">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            </button>
+          </div>
+        </div>
+      </li>`;
+  } else {
+    outcomeStep = `
+      <li class="tl-item current">
+        <div class="tl-dot"></div>
+        <div class="tl-body">
+          <div class="tl-label">What happened?</div>
+          ${pendingDef ? '' : outcomePicker}
+          ${followUpPanel}
+        </div>
+      </li>`;
+  }
+
+  el.innerHTML = `
+    <div class="detail-head">
+      <div class="detail-title-row">
+        <h2 class="detail-title">${_esc(lead.business)}</h2>
+        <span class="status-pill status-${_statusClass(status)}">${_esc(status)}</span>
+      </div>
+      <div class="detail-meta">${_esc(lead.city)} - ${_esc(lead.category)}</div>
+    </div>
+
+    ${INTERESTED_STATUSES.includes(status) ? `
+    <div class="alert" style="margin:16px 0 0;">
+      <svg class="alert-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <p><strong>This lead is interested - notify your team lead now.</strong> No price talk, no timelines. Copy the handoff message below and send it up so they can take over the conversation.</p>
+    </div>` : ''}
+
+    <div class="lrc-section-label">Outreach &amp; status</div>
+    <ul class="timeline">
+      <li class="tl-item done"><div class="tl-dot"></div><div class="tl-body"><div class="tl-label">Claimed</div></div></li>
+      <li class="tl-item done"><div class="tl-dot"></div><div class="tl-body"><div class="tl-label">Contacted</div></div></li>
+      ${outcomeStep}
+    </ul>
+
+    <div class="lrc-section-label">Where this lead lives now</div>
+    <div class="tl-script-box" style="margin-top:0;">
+      ${outcomeSet
+        ? (ACTIVE_ON_OUTCOME[status]
+            ? `Stays in <strong>My Leads</strong> - ${status} isn't a dead end, there's more to do.`
+            : `Moved to <strong>History</strong> - ${status} is a true dead end.`)
+        : `Still in <strong>My Leads</strong> - no outcome picked yet.`}
+    </div>
+  `;
+
+  el.querySelectorAll('.tl-outcome-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const outcomeStatus = btn.dataset.status;
+      const def = outcomeStepFor(outcomeStatus);
+      if (!def.followUp) {
+        lead.status = outcomeStatus;
+        pendingOutcome = null;
+        outcomeEditing = false;
+        toast('Status updated -> ' + outcomeStatus);
+        render();
+        return;
+      }
+      pendingOutcome = outcomeStatus;
+      render();
+    });
+  });
+
+  el.querySelectorAll('.outcome-save-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      lead.status = btn.dataset.status;
+      pendingOutcome = null;
+      outcomeEditing = false;
+      toast('Status updated -> ' + lead.status);
+      render();
+    });
+  });
+
+  el.querySelectorAll('.outcome-cancel-btn').forEach(btn => {
+    btn.addEventListener('click', () => { pendingOutcome = null; render(); });
+  });
+
+  el.querySelectorAll('.tl-edit-outcome-btn').forEach(btn => {
+    btn.addEventListener('click', () => { outcomeEditing = true; render(); });
+  });
+
+  el.querySelectorAll('.tl-copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy);
+        const original = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      } catch (e) { toast('Could not copy - select the text manually.'); }
+    });
+  });
+}
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  lead = freshLead();
+  pendingOutcome = null;
+  outcomeEditing = true;
+  toast('Demo lead reset.');
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
