@@ -226,7 +226,7 @@
     </div>
     <div class="oe-row">
       <div class="oe-label">No reply</div>
-      <div class="oe-desc">No form, no script - commits immediately on click, status &rarr; <strong>No Reply</strong>. Not a dead end, just means try again later - stays active in My Leads as a follow-up nudge.</div>
+      <div class="oe-desc">Shows a copyable follow-up check-in script for a second attempt. Clicking Done commits status &rarr; <strong>No Reply</strong>. Not a dead end, just means try again later - stays active in My Leads as a follow-up nudge.</div>
     </div>
     <div class="oe-row">
       <div class="oe-label">Unsubscribed</div>
@@ -255,8 +255,9 @@ const OUTCOME_STEPS = [
     icon: '<circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/>',
     formLabel: 'Why? (private note, not sent anywhere)', formPlaceholder: 'e.g. already has a website, bad timing...', withScreenshot: false,
     script: 'No worries at all, appreciate you taking the time to respond. Best of luck with the business.' },
-  { status: 'No Reply',       dot: 'no',      label: 'No reply',       followUp: null,
-    icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
+  { status: 'No Reply',       dot: 'no',      label: 'No reply',       followUp: 'script',
+    icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    script: 'Just following up on my last email in case it got buried - still happy to help [business name] out whenever the timing works for you.' },
   { status: 'Unsubscribed',   dot: 'unsub',   label: 'Unsubscribed',   followUp: 'script',
     icon: '<circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/>',
     script: 'Of course, removing you right now. Sorry for the interruption.' },

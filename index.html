@@ -963,8 +963,9 @@ const OUTCOME_STEPS = [
     icon: '<circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/>',
     formLabel: 'Why? (private note, not sent anywhere)', formPlaceholder: 'e.g. already has a website, bad timing...', withScreenshot: false,
     script: 'No worries at all, appreciate you taking the time to respond. Best of luck with the business.' },
-  { status: 'No Reply',       dot: 'no',      label: 'No reply',       followUp: null,
-    icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
+  { status: 'No Reply',       dot: 'no',      label: 'No reply',       followUp: 'script',
+    icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    script: 'Just following up on my last email in case it got buried - still happy to help [business name] out whenever the timing works for you.' },
   { status: 'Unsubscribed',   dot: 'unsub',   label: 'Unsubscribed',   followUp: 'script',
     icon: '<circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/>',
     script: 'Of course, removing you right now. Sorry for the interruption.' },
@@ -1309,10 +1310,10 @@ function renderLeadDetail(l) {
     </div>
   `;
 
-  // Picking an outcome only commits immediately when it has no follow-up
-  // (No Reply). Everything else just records the pick and re-renders to
-  // show that outcome's form or script - the real setStatus call happens
-  // from outcome-save-btn once that follow-up is filled in or copied.
+  // Picking an outcome only commits immediately when it has no follow-up.
+  // Every current outcome has one (form or script), so this is a safety net
+  // rather than a live path - the real setStatus call happens from
+  // outcome-save-btn once that follow-up is filled in or copied.
   el.querySelectorAll('.tl-outcome-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const leadId = btn.dataset.lead;
