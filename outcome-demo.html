@@ -230,7 +230,7 @@
     </div>
     <div class="oe-row">
       <div class="oe-label">Unsubscribed</div>
-      <div class="oe-desc">Shows a removal-confirmation script to copy. Clicking Done commits status &rarr; <strong>Unsubscribed</strong>. True dead end - moves to History.</div>
+      <div class="oe-desc">No form, no script - unambiguous the moment it's clicked, so it commits immediately, status &rarr; <strong>Unsubscribed</strong>. True dead end - moves straight to History.</div>
     </div>
   </div>
 
@@ -258,9 +258,8 @@ const OUTCOME_STEPS = [
   { status: 'No Reply',       dot: 'no',      label: 'No reply',       followUp: 'script',
     icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
     script: 'Just following up on my last email in case it got buried - still happy to help [business name] out whenever the timing works for you.' },
-  { status: 'Unsubscribed',   dot: 'unsub',   label: 'Unsubscribed',   followUp: 'script',
-    icon: '<circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/>',
-    script: 'Of course, removing you right now. Sorry for the interruption.' },
+  { status: 'Unsubscribed',   dot: 'unsub',   label: 'Unsubscribed',   followUp: null,
+    icon: '<circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/>' },
 ];
 function outcomeStepFor(status) { return OUTCOME_STEPS.find(s => s.status === status); }
 

@@ -966,9 +966,8 @@ const OUTCOME_STEPS = [
   { status: 'No Reply',       dot: 'no',      label: 'No reply',       followUp: 'script',
     icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
     script: 'Just following up on my last email in case it got buried - still happy to help [business name] out whenever the timing works for you.' },
-  { status: 'Unsubscribed',   dot: 'unsub',   label: 'Unsubscribed',   followUp: 'script',
-    icon: '<circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/>',
-    script: 'Of course, removing you right now. Sorry for the interruption.' },
+  { status: 'Unsubscribed',   dot: 'unsub',   label: 'Unsubscribed',   followUp: null,
+    icon: '<circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/>' },
 ];
 function outcomeStepFor(status) { return OUTCOME_STEPS.find(s => s.status === status); }
 
@@ -1310,9 +1309,10 @@ function renderLeadDetail(l) {
     </div>
   `;
 
-  // Picking an outcome only commits immediately when it has no follow-up.
-  // Every current outcome has one (form or script), so this is a safety net
-  // rather than a live path - the real setStatus call happens from
+  // Picking an outcome only commits immediately when it has no follow-up
+  // (Unsubscribed - unambiguous the moment it's clicked, nothing to fill in
+  // or copy first). Everything else records the pick and re-renders to show
+  // that outcome's form or script - the real setStatus call happens from
   // outcome-save-btn once that follow-up is filled in or copied.
   el.querySelectorAll('.tl-outcome-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
