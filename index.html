@@ -1217,11 +1217,13 @@ function removeMyLeadId(id) {
   localStorage.setItem('wl_mine_' + WORKSPACE_KEY, JSON.stringify(myLeadIds().filter(x => x !== id)));
 }
 
-// "My Leads" on the dashboard is the active work queue only - leads that
-// haven't been acted on yet (Pending/Claimed). The moment a lead is
-// contacted, flagged, or otherwise resolved, it belongs in History instead
-// so this list can't grow without bound while someone is doing their job well.
-const ACTIVE_STATUSES = ['Pending', 'Claimed'];
+// "My Leads" on the dashboard is the active work queue - leads still in
+// play. Replied and Warm Lead are mid-conversation, not endpoints, so they
+// stay active too - there's more to do after either (closing the warm lead,
+// following up on the reply) even though no further outcome step exists yet.
+// A lead only moves to History once it hits a true dead end (not interested,
+// no reply, unsubscribed) or is flagged for review.
+const ACTIVE_STATUSES = ['Pending', 'Claimed', 'Contacted', 'Replied', 'Warm Lead'];
 let openLeadId = null;
 
 function renderMyLeads() {
@@ -1879,7 +1881,7 @@ function _statusClass(status) {
       { selector: '#addLeadToggleBtn', title: 'Add a Lead', body: 'Found a business yourself while researching? Add it here, it\'s claimed to you the moment you save it.' },
       { selector: '#leadsMasterDetail', title: 'My Leads', body: 'Everything you\'ve claimed shows up here. Click a lead on the left to see its details, log outreach, or update its status on the right.' },
       { selector: '#statRow', title: 'Your Stats', body: 'Live numbers for what you\'ve claimed, contacted, and heard back from. Reply Rate is the one that actually tells you if your emails are working.' },
-      { selector: '#navHistory', title: 'History', body: 'Once a lead is contacted, flagged, or resolved, it moves out of My Leads and into History, so your active queue never gets cluttered.', href: `history.html?w=${WORKSPACE_KEY}` },
+      { selector: '#navHistory', title: 'History', body: 'Once a lead hits a dead end, not interested, no reply, unsubscribed, or is flagged, it moves out of My Leads and into History. Replied and Warm Lead stay active since there\'s usually more to do.', href: `history.html?w=${WORKSPACE_KEY}` },
     ];
     // If a tour is already in progress (started here, or someone navigated
     // back), resume at whatever step is saved rather than restarting.

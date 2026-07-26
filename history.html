@@ -171,23 +171,59 @@
   .empty-state { padding: 32px 18px; text-align: center; color: var(--gray-400); font-size: 13px; }
   .empty-state a { color: var(--teal-700); font-weight: 600; }
 
-  .lead-row-compact { border-bottom: 1px solid var(--gray-100); }
+  /* Same master-detail shape as the Dashboard's My Leads: a list pane plus
+     a persistent detail pane, not an accordion that pushes the page down.
+     History leads are resolved, so the detail pane renders a read-only
+     trail instead of the Dashboard's editable forms/outcome picker. */
+  .leads-master-detail { display: flex; flex-direction: column; gap: 20px; margin-bottom: 0; max-width: none; }
+  .leads-list-pane, .leads-detail-pane { max-width: none; margin-bottom: 0; }
+  .leads-list-pane { max-height: 700px; overflow-y: auto; }
+  .leads-detail-pane { padding: 26px 28px; }
+  .leads-detail-pane .empty-state { padding: 70px 18px; }
+  @media (min-width: 1100px) {
+    .leads-master-detail { flex-direction: row; align-items: flex-start; }
+    .leads-list-pane { width: 400px; flex-shrink: 0; }
+    .leads-detail-pane { flex: 1; min-width: 0; }
+  }
+
+  .lead-row-compact { border-bottom: 1px solid var(--gray-100); cursor: pointer; }
   .lead-row-compact:last-child { border-bottom: none; }
+  .lead-row-compact.selected { background: var(--teal-50); box-shadow: inset 3px 0 0 var(--teal-600); }
+  .lead-row-compact.selected .lrc-title { color: var(--teal-700); }
   .lrc-head {
     display: flex; align-items: center; gap: 12px;
-    padding: 16px 22px; cursor: pointer; transition: background 0.1s;
+    padding: 16px 22px; transition: background 0.1s;
   }
-  .lrc-head:hover { background: var(--gray-50); }
-  .lrc-chevron { color: var(--gray-400); flex-shrink: 0; transition: transform 0.15s; }
-  .lrc-chevron.open { transform: rotate(90deg); }
+  .lead-row-compact:not(.selected) .lrc-head:hover { background: var(--gray-50); }
   .lrc-title { font-size: 14.5px; font-weight: 700; color: var(--ink); flex-shrink: 0; }
   .lrc-meta { font-size: 12.5px; color: var(--gray-500); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .lrc-body { padding: 0 22px 20px 49px; }
   .lrc-section-label {
     font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
-    color: var(--gray-400); margin: 20px 0 10px;
+    color: var(--gray-400); margin: 24px 0 10px;
   }
-  .lrc-section-label:first-child { margin-top: 4px; }
+  .lrc-section-label:first-child { margin-top: 0; }
+  .detail-head { margin-bottom: 4px; padding-bottom: 18px; border-bottom: 1px solid var(--gray-100); }
+  .detail-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .detail-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 0; }
+  .detail-footer { display: flex; justify-content: flex-end; margin-top: 16px; }
+
+  .timeline { list-style: none; margin-top: 4px; }
+  .tl-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; position: relative; }
+  .tl-item:not(:last-child)::before {
+    content: ''; position: absolute; left: 8px; top: 26px; width: 1px;
+    height: calc(100% - 6px); background: var(--gray-200);
+  }
+  .tl-dot {
+    width: 17px; height: 17px; border-radius: 50%; border: 2px solid var(--gray-200);
+    background: #ffffff; flex-shrink: 0; margin-top: 2px; display: flex;
+    align-items: center; justify-content: center; z-index: 1;
+  }
+  .tl-item.done .tl-dot { border-color: var(--teal-500); background: var(--teal-500); }
+  .tl-item.done .tl-dot::after { content: '\2713'; color: #fff; font-size: 9px; font-weight: 800; }
+  .tl-body { flex: 1; }
+  .tl-label { font-size: 13px; font-weight: 700; color: var(--gray-400); }
+  .tl-item.done .tl-label { color: var(--ink); }
+  .tl-sub { font-size: 12px; color: var(--gray-500); margin-top: 2px; line-height: 1.5; }
 
   .status-pill {
     font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
@@ -209,10 +245,11 @@
     background: #ffffff; color: var(--gray-700); cursor: pointer;
   }
 
-  .note-log { font-size: 12.5px; color: var(--gray-500); white-space: pre-wrap; line-height: 1.6; }
+  .note-log { font-size: 12.5px; color: var(--gray-500); white-space: pre-wrap; line-height: 1.6; margin-top: 16px; }
   .note-log:empty::before { content: "No activity logged."; color: var(--gray-400); }
-  .status-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #ffffff; border: 1px solid var(--gray-200); border-radius: 12px; padding: 16px 18px; }
-  .status-bar .note-log { flex: 1; }
+  .status-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--gray-50); border: 1px solid var(--gray-100); border-radius: 10px; padding: 14px 16px; margin-top: 10px; }
+  .status-bar .note-log { flex: 1; margin-top: 0; }
+  .status-bar .note-log:empty::before { content: "No activity logged yet."; }
 
   .resource-panel { padding: 0 0 8px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 26px; }
   .resource-item { font-size: 13px; color: var(--gray-700); line-height: 1.6; }
@@ -331,7 +368,7 @@
 
       <div class="page-head">
         <h1>History</h1>
-        <p>Every lead you've claimed and already worked - contacted, replied, closed, or flagged. Your active queue stays on the Dashboard.</p>
+        <p>Leads that hit a dead end - not interested, no reply, unsubscribed, or flagged. Replied and Warm Lead stay active on the Dashboard until they're closed out.</p>
       </div>
 
       <div class="board-controls">
@@ -343,13 +380,17 @@
         </select>
       </div>
 
-      <div class="panel" id="historyPanel">
-        <div class="panel-head"><span>Worked Leads</span></div>
-        <div id="historyList">
-          <div class="sk-row"><div class="sk sk-chevron"></div><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div><div class="sk sk-pill"></div></div>
-          <div class="sk-row"><div class="sk sk-chevron"></div><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div><div class="sk sk-pill"></div></div>
-          <div class="sk-row"><div class="sk sk-chevron"></div><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div><div class="sk sk-pill"></div></div>
-          <div class="sk-row"><div class="sk sk-chevron"></div><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div><div class="sk sk-pill"></div></div>
+      <div class="leads-master-detail" id="historyPanel">
+        <div class="panel leads-list-pane">
+          <div class="panel-head"><span>Worked Leads</span></div>
+          <div id="historyList">
+            <div class="sk-row"><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div><div class="sk sk-pill"></div></div>
+            <div class="sk-row"><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div><div class="sk sk-pill"></div></div>
+            <div class="sk-row"><div class="sk sk-text sk-line1"></div><div class="sk sk-text sk-line2"></div><div class="sk sk-pill"></div></div>
+          </div>
+        </div>
+        <div class="panel leads-detail-pane" id="historyDetailPane">
+          <div class="empty-state">Select a lead from the list to see its full trail.</div>
         </div>
       </div>
 
@@ -432,7 +473,19 @@ async function initSidebarIdentity() {
 }
 
 const STATUS_OPTIONS = ['Claimed','Contacted','Replied','Warm Lead','Not Interested','No Reply','Unsubscribed','Flagged'];
-const RESOLVED_STATUSES = ['Contacted', 'Replied', 'Warm Lead', 'Not Interested', 'No Reply', 'Unsubscribed', 'Flagged'];
+const RESOLVED_STATUSES = ['Not Interested', 'No Reply', 'Unsubscribed', 'Flagged'];
+
+// Labels only - mirrors the outcome definitions on the Dashboard
+// (index.html's OUTCOME_STEPS) so a resolved status reads with the same
+// wording here as it did when it was picked. No forms/scripts needed since
+// these leads are already resolved and read-only here.
+const OUTCOME_LABELS = {
+  'Replied': 'They replied',
+  'Warm Lead': 'Warm lead',
+  'Not Interested': 'Not interested',
+  'No Reply': 'No reply',
+  'Unsubscribed': 'Unsubscribed',
+};
 
 let allLeads = [];
 let openLeadId = null;
@@ -467,6 +520,38 @@ function resourcePanel(l) {
   if (l.services) parts.push(`<div class="resource-item full"><span class="rk">Services</span>${_esc(l.services)}</div>`);
   if (!parts.length) return '';
   return `<div class="resource-panel">${parts.join('')}</div>`;
+}
+
+// Read-only version of the Dashboard's Claimed -> Contacted -> outcome
+// timeline. Every lead here already has a final status, so there's nothing
+// left to fill in - each step just renders as a settled "done" checkmark,
+// no forms, no outcome picker.
+function historyTimeline(l) {
+  const status = l.status || 'Pending';
+  const outcomeLabel = OUTCOME_LABELS[status] || status;
+
+  const claimedStep = `
+    <li class="tl-item done">
+      <div class="tl-dot"></div>
+      <div class="tl-body"><div class="tl-label">Claimed</div></div>
+    </li>`;
+
+  const contactedStep = `
+    <li class="tl-item done">
+      <div class="tl-dot"></div>
+      <div class="tl-body"><div class="tl-label">Contacted</div></div>
+    </li>`;
+
+  const outcomeStep = `
+    <li class="tl-item done">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <div class="tl-label">${_esc(outcomeLabel)}</div>
+        ${status === 'Flagged' ? '<div class="tl-sub">Flagged for review - see notes below.</div>' : ''}
+      </div>
+    </li>`;
+
+  return `<ul class="timeline">${claimedStep}${contactedStep}${outcomeStep}</ul>`;
 }
 
 // respectFreshness=true (page load only) skips the network call entirely
@@ -506,7 +591,9 @@ function renderHistory() {
   });
 
   if (!mine.length) {
-    el.innerHTML = '<div class="empty-state">Nothing here yet. Once you submit outreach or flag a lead on the <a href="index.html?w=' + WORKSPACE_KEY + '">Dashboard</a>, it shows up here.</div>';
+    el.innerHTML = '<div class="empty-state">Nothing here yet. Once a lead is not interested, gets no reply, unsubscribes, or is flagged on the <a href="index.html?w=' + WORKSPACE_KEY + '">Dashboard</a>, it shows up here.</div>';
+    document.getElementById('historyDetailPane').innerHTML = '<div class="empty-state">Select a lead from the list to see its full trail.</div>';
+    openLeadId = null;
     return;
   }
   if (!filtered.length) {
@@ -514,39 +601,60 @@ function renderHistory() {
     return;
   }
 
+  if (!openLeadId || !filtered.some(l => l.id === openLeadId)) openLeadId = filtered[0].id;
+
   el.innerHTML = filtered.map(l => `
-    <div class="lead-row-compact" data-lead="${l.id}">
+    <div class="lead-row-compact${openLeadId === l.id ? ' selected' : ''}" data-lead="${l.id}">
       <div class="lrc-head">
-        <svg class="lrc-chevron${openLeadId === l.id ? ' open' : ''}" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         <div class="lrc-title">${_esc(l.business)}</div>
         <div class="lrc-meta">${_esc(l.city || '')}${l.city && l.category ? ' - ' : ''}${_esc(l.category || '')}</div>
         <span class="status-pill status-${_statusClass(l.status)}">${_esc(l.status || 'Pending')}</span>
       </div>
-      <div class="lrc-body" style="${openLeadId === l.id ? '' : 'display:none;'}">
-        ${hasResources(l) ? `<div class="lrc-section-label">Contact info</div>${resourcePanel(l)}` : ''}
-
-        <div class="lrc-section-label">Activity</div>
-        <div class="status-bar">
-          <div class="note-log" id="notelog-${l.id}"></div>
-          <select class="status-select" data-lead="${l.id}">
-            ${STATUS_OPTIONS.map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
-          </select>
-          ${l.canDelete ? `<button class="btn sm sec remove-lead-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}">Remove</button>` : ''}
-        </div>
-      </div>
     </div>
   `).join('');
 
-  el.querySelectorAll('.lrc-head').forEach(head => {
-    head.addEventListener('click', () => {
-      const leadId = head.closest('.lead-row-compact').dataset.lead;
-      openLeadId = openLeadId === leadId ? null : leadId;
+  el.querySelectorAll('.lead-row-compact').forEach(row => {
+    row.addEventListener('click', () => {
+      openLeadId = row.dataset.lead;
       renderHistory();
     });
   });
 
+  renderHistoryDetail(filtered.find(l => l.id === openLeadId));
+}
+
+function renderHistoryDetail(l) {
+  const el = document.getElementById('historyDetailPane');
+  if (!l) { el.innerHTML = '<div class="empty-state">Select a lead from the list to see its full trail.</div>'; return; }
+
+  el.innerHTML = `
+    <div class="detail-head">
+      <div class="detail-title-row">
+        <h2 class="detail-title">${_esc(l.business)}</h2>
+        <span class="status-pill status-${_statusClass(l.status)}">${_esc(l.status || 'Pending')}</span>
+      </div>
+      <div class="lrc-meta">${_esc(l.city || '')}${l.city && l.category ? ' - ' : ''}${_esc(l.category || '')}</div>
+    </div>
+
+    ${hasResources(l) ? `<div class="lrc-section-label">Contact info</div>${resourcePanel(l)}` : ''}
+
+    <div class="lrc-section-label">Outreach &amp; status</div>
+    ${historyTimeline(l)}
+
+    <div class="lrc-section-label">Activity</div>
+    <div class="status-bar">
+      <div class="note-log" id="notelog-${l.id}"></div>
+      <select class="status-select" data-lead="${l.id}">
+        ${STATUS_OPTIONS.map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
+      </select>
+    </div>
+
+    <div class="detail-footer">
+      ${l.canDelete ? `<button class="btn sm sec remove-lead-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}">Remove</button>` : ''}
+    </div>
+  `;
+
   el.querySelectorAll('select.status-select').forEach(sel => {
-    sel.addEventListener('click', (e) => e.stopPropagation());
     sel.addEventListener('change', async () => {
       const leadId = sel.dataset.lead;
       try {
@@ -557,10 +665,10 @@ function renderHistory() {
     });
   });
   el.querySelectorAll('.remove-lead-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => { e.stopPropagation(); removeLead(btn); });
+    btn.addEventListener('click', () => removeLead(btn));
   });
 
-  if (openLeadId) loadNotes(openLeadId);
+  loadNotes(l.id);
 }
 
 async function removeLead(btn) {
@@ -622,7 +730,7 @@ function _statusClass(status) {
     // does nothing if the tour isn't running or is on a different page.
     var TOUR_TOTAL_STEPS = 8;
     var HISTORY_TOUR_STEPS = [
-      { selector: '#historyPanel', title: 'Worked Leads', body: 'Every lead you\'ve contacted, replied to, or resolved lands here, filterable by status. Your active queue on the Dashboard stays short because of this.' },
+      { selector: '#historyPanel', title: 'Worked Leads', body: 'Leads that reached a dead end - not interested, no reply, unsubscribed, or flagged - land here with their full trail. Click one to see it.' },
       { selector: '#navTracker', title: 'Lead Tracker', body: 'The full shared pool of researched businesses lives here, not just yours. Search, filter, and claim directly from the board.', href: `tracker.html?w=${WORKSPACE_KEY}` },
     ];
     SpotlightTour.registerPage(HISTORY_TOUR_STEPS, 5, TOUR_TOTAL_STEPS, WORKSPACE_KEY);
