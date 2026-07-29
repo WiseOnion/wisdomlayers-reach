@@ -759,9 +759,6 @@
     </div>
     <div class="preview-modal-body" id="previewModalBody"></div>
     <div class="preview-modal-actions">
-      <button class="icon-btn" id="previewFlagBtn" title="Flag this lead" aria-label="Flag this lead">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-      </button>
       <button class="btn sec" id="previewSkipBtn">Skip, Give Me Another</button>
       <button class="btn" id="previewAcceptBtn">Claim This Lead</button>
     </div>
@@ -1611,7 +1608,12 @@ function hasContactPath(l) {
 function renderPreviewBody(lead) {
   const thin = hasResources(lead) && !hasContactPath(lead);
   return `
-    <div class="preview-business">${_esc(lead.business)}</div>
+    <div class="detail-title-row">
+      <div class="preview-business" style="margin-bottom:0;">${_esc(lead.business)}</div>
+      <button class="tl-icon-btn preview-flag-btn" title="Flag this lead" aria-label="Flag this lead" style="margin-left:auto;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+      </button>
+    </div>
     <div class="preview-meta">${_esc(lead.city || '')}${lead.city && lead.category ? ' - ' : ''}${_esc(lead.category || '')}</div>
     ${thin ? `<div class="alert" style="margin:0 0 14px;"><svg class="alert-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><p><strong>No phone or Facebook on file.</strong> You'll need to look this business up yourself before you can contact them.</p></div>` : ''}
     ${hasResources(lead) ? resourcePanel(lead) : '<div class="empty-state" style="padding:20px 0;">No research on file for this lead yet - you\'ll need to look it up yourself.</div>'}
@@ -1623,8 +1625,8 @@ function showPreview(lead) {
   document.getElementById('previewModalBody').innerHTML = renderPreviewBody(lead);
   document.getElementById('previewOverlay').style.display = 'flex';
   requestAnimationFrame(() => document.getElementById('previewOverlay').classList.add('open'));
-  document.getElementById('previewFlagBtn').style.display = 'inline-flex';
-  document.getElementById('previewFlagBtn').disabled = false;
+  const flagBtn = document.querySelector('.preview-flag-btn');
+  if (flagBtn) flagBtn.addEventListener('click', showPreviewFlagForm);
   document.getElementById('previewSkipBtn').style.display = 'inline-flex';
   document.getElementById('previewSkipBtn').disabled = false;
   document.getElementById('previewAcceptBtn').style.display = 'inline-flex';
@@ -1640,7 +1642,6 @@ function showPreview(lead) {
 // neither action makes sense mid-flag.
 function showPreviewFlagForm() {
   if (!previewLead) return;
-  document.getElementById('previewFlagBtn').style.display = 'none';
   document.getElementById('previewSkipBtn').style.display = 'none';
   document.getElementById('previewAcceptBtn').style.display = 'none';
   document.getElementById('previewModalBody').innerHTML = `
@@ -1721,8 +1722,6 @@ async function _runReel(pickNext, finalLead) {
   `;
   document.getElementById('previewOverlay').style.display = 'flex';
   requestAnimationFrame(() => document.getElementById('previewOverlay').classList.add('open'));
-  document.getElementById('previewFlagBtn').style.display = 'inline-flex';
-  document.getElementById('previewFlagBtn').disabled = true;
   document.getElementById('previewSkipBtn').style.display = 'inline-flex';
   document.getElementById('previewSkipBtn').disabled = true;
   document.getElementById('previewAcceptBtn').style.display = 'inline-flex';
@@ -1766,7 +1765,6 @@ document.getElementById('claimBtn').addEventListener('click', () => {
 });
 
 document.getElementById('previewCloseBtn').addEventListener('click', hidePreview);
-document.getElementById('previewFlagBtn').addEventListener('click', showPreviewFlagForm);
 document.getElementById('previewSkipBtn').addEventListener('click', () => {
   const open = allLeads.filter(l => (l.status || 'Pending') === 'Pending');
   if (!open.length) {
