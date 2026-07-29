@@ -759,6 +759,9 @@
     </div>
     <div class="preview-modal-body" id="previewModalBody"></div>
     <div class="preview-modal-actions">
+      <button class="icon-btn" id="previewFlagBtn" title="Flag this lead" aria-label="Flag this lead">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+      </button>
       <button class="btn sec" id="previewSkipBtn">Skip, Give Me Another</button>
       <button class="btn" id="previewAcceptBtn">Claim This Lead</button>
     </div>
@@ -1620,8 +1623,69 @@ function showPreview(lead) {
   document.getElementById('previewModalBody').innerHTML = renderPreviewBody(lead);
   document.getElementById('previewOverlay').style.display = 'flex';
   requestAnimationFrame(() => document.getElementById('previewOverlay').classList.add('open'));
+  document.getElementById('previewFlagBtn').style.display = 'inline-flex';
+  document.getElementById('previewFlagBtn').disabled = false;
+  document.getElementById('previewSkipBtn').style.display = 'inline-flex';
   document.getElementById('previewSkipBtn').disabled = false;
+  document.getElementById('previewAcceptBtn').style.display = 'inline-flex';
   document.getElementById('previewAcceptBtn').disabled = false;
+}
+
+// Flagging from the preview modal (before the lead is ever claimed) reuses
+// the same flagLead API as the dashboard's flag form - flagLead already
+// allows flagging an unclaimed row (only blocks when claimed by a *different*
+// workspace, see Leads.gs), so no backend change was needed, just this UI.
+// Swaps the modal body to a reason form in place, same shape as the
+// dashboard's tl-flag-form, and hides Skip/Claim while it's open since
+// neither action makes sense mid-flag.
+function showPreviewFlagForm() {
+  if (!previewLead) return;
+  document.getElementById('previewFlagBtn').style.display = 'none';
+  document.getElementById('previewSkipBtn').style.display = 'none';
+  document.getElementById('previewAcceptBtn').style.display = 'none';
+  document.getElementById('previewModalBody').innerHTML = `
+    <div class="preview-business">${_esc(previewLead.business)}</div>
+    <div class="tl-flag-form" style="margin-top:10px;">
+      <div class="outreach-label">Why are you flagging this?</div>
+      <textarea class="flag-reason" id="previewFlagReason" placeholder="e.g. already has a good website, wrong category, bad number..."></textarea>
+      <div class="outreach-actions">
+        <button class="btn sm" id="previewFlagSubmitBtn">Submit flag</button>
+        <button class="btn sm sec" id="previewFlagCancelBtn">Cancel</button>
+      </div>
+    </div>`;
+  document.getElementById('previewFlagSubmitBtn').addEventListener('click', submitPreviewFlag);
+  document.getElementById('previewFlagCancelBtn').addEventListener('click', () => showPreview(previewLead));
+}
+
+async function submitPreviewFlag() {
+  const lead = previewLead;
+  if (!lead) return;
+  const reasonField = document.getElementById('previewFlagReason');
+  const reason = (reasonField.value || '').trim();
+  if (!reason) { toast('Say why you\'re flagging this first.'); return; }
+
+  const btn = document.getElementById('previewFlagSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Flagging...';
+  try {
+    await WISDOMLAYERS_API.flagLead(WORKSPACE_KEY, lead.id, reason);
+    toast(`Flagged: ${lead.business}`);
+    await loadMyLeads();
+    const open = allLeads.filter(l => (l.status || 'Pending') === 'Pending');
+    if (!open.length) {
+      hidePreview();
+      toast('No more unclaimed leads left in the pool right now.');
+      return;
+    }
+    _runReel(
+      () => open[Math.floor(Math.random() * open.length)],
+      Promise.resolve(open[Math.floor(Math.random() * open.length)])
+    );
+  } catch (err) {
+    toast('Could not flag: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = 'Submit flag';
+  }
 }
 
 function hidePreview() {
@@ -1657,7 +1721,11 @@ async function _runReel(pickNext, finalLead) {
   `;
   document.getElementById('previewOverlay').style.display = 'flex';
   requestAnimationFrame(() => document.getElementById('previewOverlay').classList.add('open'));
+  document.getElementById('previewFlagBtn').style.display = 'inline-flex';
+  document.getElementById('previewFlagBtn').disabled = true;
+  document.getElementById('previewSkipBtn').style.display = 'inline-flex';
   document.getElementById('previewSkipBtn').disabled = true;
+  document.getElementById('previewAcceptBtn').style.display = 'inline-flex';
   document.getElementById('previewAcceptBtn').disabled = true;
 
   const strip = document.getElementById('reelStrip');
@@ -1698,6 +1766,7 @@ document.getElementById('claimBtn').addEventListener('click', () => {
 });
 
 document.getElementById('previewCloseBtn').addEventListener('click', hidePreview);
+document.getElementById('previewFlagBtn').addEventListener('click', showPreviewFlagForm);
 document.getElementById('previewSkipBtn').addEventListener('click', () => {
   const open = allLeads.filter(l => (l.status || 'Pending') === 'Pending');
   if (!open.length) {
