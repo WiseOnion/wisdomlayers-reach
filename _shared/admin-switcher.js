@@ -7,21 +7,34 @@
  * currently open, to jump between workspaces without a dedicated page to
  * visit or bookmark. Works on any page that includes this script.
  *
- * ADMIN_KEY is a shared secret, not real auth - anyone who has the URL can
- * use it. It only needs to keep the workspace names out of pages contractors
- * load, not withstand a determined attacker.
+ * The workspace key->name list used to be hardcoded here as a WORKSPACES
+ * array, which meant (a) it had to be hand-edited and redeployed every time
+ * a contractor was added or removed, and (b) every browser that loaded this
+ * script received the FULL list of every workspace key, whether or not
+ * ?admin= was actually present - directly undermining the "never enumerate
+ * workspace keys" design goal documented in _shared/api.js's
+ * getWorkspaceName(). Now it's fetched on demand from the backend
+ * (WISDOMLAYERS_API.listWorkspaces), gated by the same admin secret, so a
+ * page load with no ?admin= param never requests or receives the list at
+ * all, and adding/removing a contractor (via the WisdomLayers Sheet menu)
+ * shows up here immediately with no code change or redeploy needed.
+ *
+ * The admin key itself is still just a shared secret, not real auth -
+ * anyone who has the URL can use it. It only needs to keep the workspace
+ * names out of pages contractors load, not withstand a determined attacker.
  */
-const ADMIN_KEY = 'wl-owner-2b7f';
-
-const WORKSPACES = [
-  { key: '59vz9a0ukwcy4wkhrkftkxjm', name: 'Delight' },
-  { key: 'amiu0f2hkhgfhnpczfycpuqm', name: 'Festus' },
-  { key: 'x3hbq1vng5d3hl05oly4bk9q', name: 'Shelton' },
-];
-
-function initAdminSwitcher() {
+async function initAdminSwitcher() {
   const params = new URLSearchParams(window.location.search);
-  if (params.get('admin') !== ADMIN_KEY) return;
+  const adminKey = params.get('admin');
+  if (!adminKey) return;
+
+  let workspaces;
+  try {
+    workspaces = await WISDOMLAYERS_API.listWorkspaces(adminKey);
+  } catch (err) {
+    return; // wrong/missing admin key, or a network hiccup - fail silently, same as before
+  }
+  if (!workspaces.length) return;
 
   const style = document.createElement('style');
   style.textContent = `
@@ -52,8 +65,8 @@ function initAdminSwitcher() {
   const bar = document.createElement('div');
   bar.className = 'admin-switcher';
   bar.innerHTML = `<div class="admin-switcher-label">Viewing as (owner only)</div>` +
-    WORKSPACES.map(w =>
-      `<a href="${page}?w=${w.key}&admin=${ADMIN_KEY}" class="${w.key === currentKey ? 'current' : ''}">${w.name}</a>`
+    workspaces.map(w =>
+      `<a href="${page}?w=${w.key}&admin=${encodeURIComponent(adminKey)}" class="${w.key === currentKey ? 'current' : ''}">${w.name}</a>`
     ).join('');
   document.body.appendChild(bar);
 }

@@ -604,18 +604,6 @@ function toggleResource(id) {
   renderBoard();
 }
 
-function myLeadIds() {
-  if (!WORKSPACE_KEY) return [];
-  try { return JSON.parse(localStorage.getItem('wl_mine_' + WORKSPACE_KEY) || '[]'); }
-  catch (e) { return []; }
-}
-function addMyLeadId(id) {
-  if (!WORKSPACE_KEY) return;
-  const ids = myLeadIds();
-  if (!ids.includes(id)) ids.push(id);
-  localStorage.setItem('wl_mine_' + WORKSPACE_KEY, JSON.stringify(ids));
-}
-
 async function claimSpecificLead(id, btn) {
   if (!WORKSPACE_KEY) {
     toast('Pick who you are from the sidebar first.');
@@ -628,7 +616,6 @@ async function claimSpecificLead(id, btn) {
       toast(res.error || 'Could not claim that lead. It may already be taken.');
       await loadBoard();
     } else {
-      addMyLeadId(String(res.lead.id));
       toast(`Claimed: ${res.lead.business}`);
       await loadBoard();
     }

@@ -291,6 +291,29 @@
   .status-unsubscribed { background: #fee2e2; color: #b91c1c; }
   .status-flagged { background: #fef3c7; color: #92400e; }
 
+  /* Follow-up nudge: a lead sitting at Contacted/No Reply past the Day
+     4/Day 9 cadence (see followUpDue on the lead object, computed
+     server-side in sheets/Leads.gs) gets a small badge instead of silently
+     blending in with everything else still "in progress." Amber for due,
+     red for past-due (the cadence policy already says no more than 3
+     touches - past-due is the signal to make that last touch or let it go). */
+  .followup-badge {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+    padding: 3px 8px; border-radius: 20px; flex-shrink: 0; white-space: nowrap;
+  }
+  .followup-due { background: var(--amber-50); color: var(--amber-700); border: 1px solid var(--amber-200); }
+  .followup-pastdue { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+  /* Live counter against the 40/day hard cap documented in
+     reach/playbook.html - a written rule nobody's tool ever counted toward
+     before, same gap the follow-up badge above closes for the Day 4/Day 9
+     cadence. Plain gray under the ramp-schedule range, amber once within
+     5 of the hard cap - not a hard block, since the cap is a policy line
+     the outreacher owns, not something this dashboard should enforce by
+     disabling buttons. */
+  .sent-today-badge { font-size: 11.5px; font-weight: 600; color: var(--gray-400); }
+  .sent-today-badge.near-cap { color: var(--amber-700); font-weight: 700; }
+
   .note-log { font-size: 12.5px; color: var(--gray-500); white-space: pre-wrap; line-height: 1.6; margin-top: 16px; }
   .note-log:empty { display: none; margin-top: 0; }
 
@@ -691,7 +714,7 @@
 
       <div class="stat-row" id="statRow">
         <div class="stat-cell"><div class="stat-num sk sk-text" id="statMine">&nbsp;</div><div class="stat-label">Claimed by You</div></div>
-        <div class="stat-cell"><div class="stat-num sk sk-text" id="statContacted">&nbsp;</div><div class="stat-label">Contacted</div></div>
+        <div class="stat-cell"><div class="stat-num sk sk-text" id="statFollowUp">&nbsp;</div><div class="stat-label">Due for Follow-Up</div></div>
         <div class="stat-cell"><div class="stat-num sk sk-text" id="statReplied">&nbsp;</div><div class="stat-label">Replied</div></div>
         <div class="stat-cell"><div class="stat-num sk sk-text" id="statWarm">&nbsp;</div><div class="stat-label">Warm Leads</div></div>
         <div class="stat-cell highlight"><div class="stat-num sk sk-text" id="statReplyRate">&nbsp;</div><div class="stat-label">Reply Rate</div></div>
@@ -700,7 +723,10 @@
       <div class="leads-master-detail" id="leadsMasterDetail">
         <div class="panel leads-list-pane">
           <div class="panel-head panel-head-stacked">
-            <span>My Leads</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span>My Leads</span>
+              <span id="sentTodayBadge" title="Businesses you moved to Contacted today. Ramp schedule and the 40/day hard cap are on the Email Scripts page."></span>
+            </div>
             <div class="panel-head-actions">
               <button class="btn get-lead-btn" id="claimBtn" title="Pulls one at random from the shared pool - claimed to you instantly.">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -1211,21 +1237,17 @@ async function loadMyLeads(respectFreshness) {
   renderStats();
 }
 
-// "Mine" tracking lives in this browser's localStorage, scoped by workspace
-// key, since the server never tells one workspace which rows belong to it -
-// only that a row is claimed. The claim response is the only moment a lead
-// ID is learned as "mine."
-function myLeadIds() {
-  try { return JSON.parse(localStorage.getItem('wl_mine_' + WORKSPACE_KEY) || '[]'); }
-  catch (e) { return []; }
-}
-function addMyLeadId(id) {
-  const ids = myLeadIds();
-  if (!ids.includes(id)) ids.push(id);
-  localStorage.setItem('wl_mine_' + WORKSPACE_KEY, JSON.stringify(ids));
-}
-function removeMyLeadId(id) {
-  localStorage.setItem('wl_mine_' + WORKSPACE_KEY, JSON.stringify(myLeadIds().filter(x => x !== id)));
+// "Mine" used to be tracked in this browser's localStorage, populated only
+// at the moment a claim/add succeeded - since the server never told one
+// workspace which rows belonged to it, only that a row was claimed. That
+// broke across devices/browsers and after any cache clear: a contractor's
+// own claimed leads could vanish from their dashboard for no reason visible
+// to them. Every lead returned by listLeads() now carries claimedByMe,
+// computed server-side (see _rowToLead in sheets/Leads.gs) by comparing the
+// row's claimed-by key to the caller's own key - so "mine" is now a server
+// fact, refreshed on every load, not a local memory of past clicks.
+function myLeads() {
+  return allLeads.filter(l => l.claimedByMe);
 }
 
 // "My Leads" on the dashboard is the active work queue - leads still in
@@ -1235,13 +1257,42 @@ function removeMyLeadId(id) {
 // No Reply isn't a dead end either - it just means try again later, so it
 // stays active as a nudge to follow up rather than getting buried in
 // History. A lead only moves to History once it hits a true dead end (not
-// interested, unsubscribed) or is flagged for review.
-const ACTIVE_STATUSES = ['Pending', 'Claimed', 'Contacted', 'Replied', 'Warm Lead', 'No Reply'];
+// interested, unsubscribed) or is flagged for review. This used to be a
+// hardcoded array duplicated (with a slightly different membership) in
+// history.html - now both pages derive it from the server's canonical
+// resolvedStatuses (see statusMeta() in Leads.gs, fetched via
+// WISDOMLAYERS_API.getMeta and cached in metaCache below).
+let metaCache = null;
+async function loadMeta() {
+  if (metaCache) return metaCache;
+  try { metaCache = await WISDOMLAYERS_API.getMeta(); }
+  catch (err) { metaCache = { resolvedStatuses: ['Not Interested', 'Unsubscribed', 'Flagged'] }; }
+  return metaCache;
+}
+function isActiveStatus(status) {
+  const resolved = (metaCache && metaCache.resolvedStatuses) || ['Not Interested', 'Unsubscribed', 'Flagged'];
+  return resolved.indexOf(status || 'Pending') === -1;
+}
 let openLeadId = null;
+
+// followUpDue is 'pastDue' | 'due' | null (see followUpDueState in
+// sheets/Leads.gs) - past-due sorts first so the leads most overdue for a
+// Day 4/Day 9 touch are the first thing seen, not buried in claim order.
+function _followUpRank(l) {
+  if (l.followUpDue === 'pastDue') return 0;
+  if (l.followUpDue === 'due') return 1;
+  return 2;
+}
+function _followUpBadge(l) {
+  if (l.followUpDue === 'pastDue') return '<span class="followup-badge followup-pastdue">Past due</span>';
+  if (l.followUpDue === 'due') return '<span class="followup-badge followup-due">Follow up</span>';
+  return '';
+}
 
 function renderMyLeads() {
   const el = document.getElementById('myLeadsList');
-  const mine = allLeads.filter(l => myLeadIds().includes(String(l.id)) && ACTIVE_STATUSES.includes(l.status || 'Pending'));
+  const mine = myLeads().filter(l => isActiveStatus(l.status))
+    .sort((a, b) => _followUpRank(a) - _followUpRank(b));
   if (!mine.length) {
     el.innerHTML = '<div class="empty-state">No active leads. Click "Get a Lead" above, or go research a business yourself and click "Add a Lead" to bring it in. Already worked some? Check <a href="history.html?w=' + WORKSPACE_KEY + '">History</a>.</div>';
     document.getElementById('leadsDetailPane').innerHTML = '<div class="empty-state">Select a lead from the list to see its details, log outreach, or update its status.</div>';
@@ -1250,8 +1301,8 @@ function renderMyLeads() {
   }
 
   // Keep whatever was selected if it's still in the active list; otherwise
-  // default to the first lead so the detail pane is never empty when there
-  // are leads to work.
+  // default to the first lead (now the most overdue one, if any) so the
+  // detail pane is never empty when there are leads to work.
   if (!openLeadId || !mine.some(l => l.id === openLeadId)) openLeadId = mine[0].id;
 
   el.innerHTML = mine.map(l => `
@@ -1259,6 +1310,7 @@ function renderMyLeads() {
       <div class="lrc-head">
         <div class="lrc-title">${_esc(l.business)}</div>
         <div class="lrc-meta">${_esc(l.city || '')}${l.city && l.category ? ' - ' : ''}${_esc(l.category || '')}</div>
+        ${_followUpBadge(l)}
         <span class="status-pill status-${_statusClass(l.status)}">${_esc(l.status || 'Pending')}</span>
       </div>
     </div>
@@ -1353,18 +1405,18 @@ function renderLeadDetail(l) {
       btn.disabled = true;
       btn.textContent = 'Saving...';
       try {
-        let screenshotNote = note;
-        if (fileField && fileField.files[0]) {
-          // Outcome screenshots piggyback on the same outreach-screenshot
-          // storage path via submitOutreach's Drive folder isn't available
-          // here (setStatus has no file upload) - so a screenshot on a
-          // reply is captured by name only, matched to the note text. If
-          // real screenshot storage for replies is needed later, this is
-          // the seam to extend setLeadStatus with the same base64 upload
-          // submitOutreach already does.
-          screenshotNote = note ? `${note} [+ screenshot: ${fileField.files[0].name}]` : `[screenshot: ${fileField.files[0].name}]`;
+        // Real upload now (setLeadStatus in sheets/Leads.gs accepts the same
+        // base64 screenshot upload submitOutreach already used) - this used
+        // to just paste the filename into the note text with nothing behind
+        // it; the actual image bytes never reached the server.
+        let screenshotBase64 = '';
+        let screenshotMimeType = '';
+        const file = fileField && fileField.files[0];
+        if (file) {
+          screenshotBase64 = await _fileToBase64(file);
+          screenshotMimeType = file.type || 'image/png';
         }
-        await WISDOMLAYERS_API.setStatus(WORKSPACE_KEY, leadId, outcomeStatus, screenshotNote || undefined);
+        await WISDOMLAYERS_API.setStatus(WORKSPACE_KEY, leadId, outcomeStatus, note || undefined, screenshotBase64 || undefined, screenshotMimeType || undefined);
         pendingOutcome.delete(leadId);
         outcomeEditing.delete(leadId);
         toast('Status updated.');
@@ -1536,7 +1588,6 @@ async function unclaimLead(btn) {
   btn.disabled = true;
   try {
     await WISDOMLAYERS_API.setStatus(WORKSPACE_KEY, leadId, 'Pending');
-    removeMyLeadId(leadId);
     toast('Unclaimed. Back in the shared pool.');
     await loadMyLeads();
   } catch (err) {
@@ -1575,15 +1626,38 @@ function _setStat(id, text) {
 }
 
 function renderStats() {
-  const mine = allLeads.filter(l => myLeadIds().includes(String(l.id)));
+  const mine = myLeads();
   _setStat('statMine', mine.length);
-  _setStat('statContacted', mine.filter(l => l.status === 'Contacted').length);
+  _setStat('statFollowUp', mine.filter(l => l.followUpDue).length);
   _setStat('statReplied', mine.filter(l => l.status === 'Replied').length);
   _setStat('statWarm', mine.filter(l => l.status === 'Warm Lead').length);
 
   const sent = mine.filter(l => OUTREACH_SENT_STATUSES.includes(l.status)).length;
   const replied = mine.filter(l => REPLIED_STATUSES.includes(l.status)).length;
   _setStat('statReplyRate', sent > 0 ? `${Math.round((replied / sent) * 100)}%` : '-');
+
+  renderSentToday(mine);
+}
+
+// Hard cap of 40/day/inbox is documented in reach/playbook.html's Rules
+// section - this is the first time the tool itself counts toward it
+// instead of that number living only in written policy. lastStatusAt
+// reflects the most recent status change (see _stampStatusChange in
+// sheets/Leads.gs), so this counts any lead this workspace moved past
+// Pending/Claimed today - the moment real outreach work happened on it,
+// not just when it was picked up.
+const DAILY_SEND_CAP = 40;
+function renderSentToday(mine) {
+  const badge = document.getElementById('sentTodayBadge');
+  if (!badge) return;
+  const today = new Date().toDateString();
+  const sentToday = mine.filter(l => {
+    if (!l.lastStatusAt) return false;
+    if (l.status === 'Pending' || l.status === 'Claimed') return false;
+    return new Date(l.lastStatusAt).toDateString() === today;
+  }).length;
+  badge.textContent = `${sentToday}/${DAILY_SEND_CAP} sent today`;
+  badge.className = 'sent-today-badge' + (sentToday >= DAILY_SEND_CAP - 5 ? ' near-cap' : '');
 }
 
 // Preview-before-claim: nothing is written server-side until "Claim This
@@ -1791,7 +1865,6 @@ document.getElementById('previewAcceptBtn').addEventListener('click', async (e) 
       const next = pickRandomOpenLead();
       if (next) { showPreview(next); } else { hidePreview(); }
     } else {
-      addMyLeadId(String(res.lead.id));
       toast(`Claimed: ${res.lead.business}`);
       hidePreview();
       await loadMyLeads();
@@ -1871,7 +1944,6 @@ document.getElementById('addLeadConfirmBtn').addEventListener('click', async (e)
   try {
     const res = await WISDOMLAYERS_API.addLead(WORKSPACE_KEY, lead);
     if (res.ok) {
-      addMyLeadId(String(res.lead.id));
       toast(`Added: ${lead.business}`);
       closeAddLeadModal();
       await loadMyLeads();
@@ -1928,6 +2000,12 @@ function _statusClass(status) {
   // in the sidebar is already visible (initSidebarIdentity turned it on), so
   // just leave the panes in their empty/loading state rather than fetching.
   if (hasIdentity) {
+    // Fetched in parallel with the leads list rather than awaited first -
+    // isActiveStatus() falls back to a sane default while this is still in
+    // flight (see loadMeta above), so there's no reason to block the first
+    // paint on it. Once it resolves, metaCache is set and every later
+    // renderMyLeads()/renderStats() call uses the server's real list.
+    loadMeta().then(() => renderMyLeads());
     loadMyLeads(true);
 
     // Same "have they seen onboarding" flag the spotlight tour writes on

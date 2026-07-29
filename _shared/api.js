@@ -13,7 +13,7 @@
  */
 
 const WISDOMLAYERS_API = (function () {
-  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyqEaS2GWH8d2YPHTuuZ14UcP3eLCKwN2ZH9fsFaaSbD20rIzebX-EUKf5R5BKadpwGEQ/exec';
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyGjQUh6CIItKiiSg8XUre0guXDNXtlgFf0nZ8YlDZ4hVNx3vMQISPXghQ5NVV1xLHm/exec';
 
   // Apps Script Web Apps can't set a real HTTP status code, so `res.ok` is
   // never a reliable failure signal here - every response is HTTP 200,
@@ -62,7 +62,37 @@ const WISDOMLAYERS_API = (function () {
     const res = await fetch(`${WEB_APP_URL}?action=list${qs}`);
     if (!res.ok) throw new Error('Could not load the claim board.');
     const data = _checkRequestError(await res.json());
+    // Every lead now carries claimedByMe (see Leads.gs _rowToLead) - a
+    // server-computed "is this yours" fact, not a per-browser guess. Callers
+    // should filter on l.claimedByMe instead of a localStorage list of IDs.
     return data.leads || [];
+  }
+
+  // Status/website option lists + which statuses count as "resolved" -
+  // static reference data, no key needed. See statusMeta() in Leads.gs.
+  // Cached in-memory per page load since this never changes mid-session.
+  let _metaPromise = null;
+  async function getMeta() {
+    if (_metaPromise) return _metaPromise;
+    _metaPromise = (async () => {
+      const res = await fetch(`${WEB_APP_URL}?action=meta`);
+      if (!res.ok) throw new Error('Could not load status reference data.');
+      return _checkRequestError(await res.json());
+    })();
+    return _metaPromise;
+  }
+
+  // Owner-only: the full workspace key->name list, gated by the admin
+  // secret (see ADMIN_SWITCHER_KEY in Auth.gs). Used by
+  // _shared/admin-switcher.js instead of a hardcoded WORKSPACES array that
+  // had to be hand-edited and redeployed every time a contractor was added
+  // or removed - and that shipped every workspace key to any browser that
+  // loaded the script, regardless of whether ?admin= was actually present.
+  async function listWorkspaces(adminKey) {
+    const res = await fetch(`${WEB_APP_URL}?action=listWorkspaces&admin=${encodeURIComponent(adminKey)}`);
+    if (!res.ok) throw new Error('Could not load workspaces.');
+    const data = _checkRequestError(await res.json());
+    return data.workspaces || [];
   }
 
   async function _post(payload) {
@@ -79,7 +109,13 @@ const WISDOMLAYERS_API = (function () {
 
   function claimNextLead(workspaceKey) { return _post({ action: 'claim', key: workspaceKey }); }
   function claimSpecificLead(workspaceKey, leadId) { return _post({ action: 'claimSpecific', key: workspaceKey, leadId }); }
-  function setStatus(workspaceKey, leadId, status, note) { return _post({ action: 'setStatus', key: workspaceKey, leadId, status, note }); }
+  // screenshotBase64/screenshotMimeType are optional - pass them to attach a
+  // real screenshot to this status change (e.g. proof of a reply), uploaded
+  // and linked the same way submitOutreach's screenshot is. See setLeadStatus
+  // in Leads.gs.
+  function setStatus(workspaceKey, leadId, status, note, screenshotBase64, screenshotMimeType) {
+    return _post({ action: 'setStatus', key: workspaceKey, leadId, status, note, screenshotBase64, screenshotMimeType });
+  }
   function addNote(workspaceKey, leadId, text) { return _post({ action: 'addNote', key: workspaceKey, leadId, text }); }
   function getNotes(workspaceKey, leadId) { return _post({ action: 'getNotes', key: workspaceKey, leadId }); }
   function submitOutreach(workspaceKey, leadId, emailText, screenshotBase64, screenshotMimeType) {
@@ -89,5 +125,9 @@ const WISDOMLAYERS_API = (function () {
   function addLead(workspaceKey, lead) { return _post({ action: 'addLead', key: workspaceKey, lead }); }
   function removeLead(workspaceKey, leadId) { return _post({ action: 'removeLead', key: workspaceKey, leadId }); }
 
-  return { getWorkspaceName, listLeads, claimNextLead, claimSpecificLead, setStatus, addNote, getNotes, submitOutreach, flagLead, addLead, removeLead };
+  return {
+    getWorkspaceName, listLeads, getMeta, listWorkspaces,
+    claimNextLead, claimSpecificLead, setStatus, addNote, getNotes,
+    submitOutreach, flagLead, addLead, removeLead,
+  };
 })();

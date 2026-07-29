@@ -449,8 +449,25 @@ async function initSidebarIdentity() {
   return true;
 }
 
-const STATUS_OPTIONS = ['Claimed','Contacted','Replied','Warm Lead','Not Interested','No Reply','Unsubscribed','Flagged'];
-const RESOLVED_STATUSES = ['Not Interested', 'Unsubscribed', 'Flagged'];
+// Status dropdown + "which statuses are resolved" both used to be hardcoded
+// here, duplicated (with slightly different membership) from index.html's
+// own copy - now both pages fetch the same canonical lists from the server
+// (see statusMeta() in sheets/Leads.gs), so adding/renaming a status is a
+// one-place change instead of a two-page hand-edit.
+let metaCache = null;
+async function loadMeta() {
+  if (metaCache) return metaCache;
+  try { metaCache = await WISDOMLAYERS_API.getMeta(); }
+  catch (err) { metaCache = { statusOptions: ['Claimed','Contacted','Replied','Warm Lead','Not Interested','No Reply','Unsubscribed','Flagged'], resolvedStatuses: ['Not Interested', 'Unsubscribed', 'Flagged'] }; }
+  return metaCache;
+}
+function statusOptions() {
+  return (metaCache && metaCache.statusOptions) || ['Claimed','Contacted','Replied','Warm Lead','Not Interested','No Reply','Unsubscribed','Flagged'];
+}
+function isResolvedStatus(status) {
+  const resolved = (metaCache && metaCache.resolvedStatuses) || ['Not Interested', 'Unsubscribed', 'Flagged'];
+  return resolved.indexOf(status || 'Pending') !== -1;
+}
 
 // Labels only - mirrors the outcome definitions on the Dashboard
 // (index.html's OUTCOME_STEPS) so a resolved status reads with the same
@@ -474,9 +491,13 @@ function toast(msg) {
   setTimeout(() => el.classList.remove('show'), 3200);
 }
 
-function myLeadIds() {
-  try { return JSON.parse(localStorage.getItem('wl_mine_' + WORKSPACE_KEY) || '[]'); }
-  catch (e) { return []; }
+// claimedByMe is computed server-side (see _rowToLead in sheets/Leads.gs) -
+// a real fact about the row, not a per-browser guess reconstructed from a
+// localStorage list that only ever got written at the moment of a
+// successful claim/add and could never recover a lead claimed on another
+// device or browser.
+function myLeads() {
+  return allLeads.filter(l => l.claimedByMe);
 }
 
 function hasResources(l) {
@@ -561,7 +582,7 @@ function renderHistory() {
   const q = (document.getElementById('historySearch').value || '').toLowerCase();
   const fs = document.getElementById('historyStatusFilter').value;
 
-  const mine = allLeads.filter(l => myLeadIds().includes(String(l.id)) && RESOLVED_STATUSES.includes(l.status));
+  const mine = myLeads().filter(l => isResolvedStatus(l.status));
   const filtered = mine.filter(l => {
     const t = [l.business, l.city, l.category].join(' ').toLowerCase();
     return (!q || t.includes(q)) && (!fs || l.status === fs);
@@ -594,7 +615,7 @@ function renderHistory() {
         <div class="status-bar">
           <div class="note-log" id="notelog-${l.id}"></div>
           <select class="status-select" data-lead="${l.id}">
-            ${STATUS_OPTIONS.map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
+            ${statusOptions().filter(s => s !== 'Pending').map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
           </select>
           ${l.canDelete ? `<button class="btn sm sec remove-lead-btn" data-lead="${l.id}" data-business="${_escAttr(l.business)}">Remove</button>` : ''}
         </div>
@@ -679,6 +700,7 @@ function _statusClass(status) {
   const hasIdentity = await initSidebarIdentity();
 
   if (hasIdentity) {
+    loadMeta().then(() => renderHistory());
     loadHistory(true);
 
     // This page's slice of the cross-page tour: offset 5 (after Dashboard's
