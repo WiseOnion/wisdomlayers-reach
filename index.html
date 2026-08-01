@@ -913,6 +913,7 @@ async function initSidebarIdentity() {
   const cachedName = _readWorkspaceNameCache(key);
   if (cachedName) {
     WORKSPACE_KEY = key;
+    _writeLastWorkspaceKey(key);
     _paintIdentity(key, cachedName);
     if (_isWorkspaceNameCacheFresh(key)) return true;
   }
