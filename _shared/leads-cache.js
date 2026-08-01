@@ -81,3 +81,22 @@ function _isWorkspaceNameCacheFresh(key) {
     return t > 0 && (Date.now() - t) < WORKSPACE_NAME_FRESH_MS;
   } catch (e) { return false; }
 }
+
+/**
+ * Last-known workspace key, written on every successful identity resolve.
+ * A contractor who bookmarks the bare page (no ?w=...), retypes the URL
+ * from memory, or otherwise loses the query string used to just hit a dead
+ * end "private workspace" gate with no way back in short of re-finding the
+ * original link. Every page's initSidebarIdentity now falls back to this
+ * before giving up, so losing the query string only costs a redirect, not
+ * a support message.
+ */
+function _readLastWorkspaceKey() {
+  try { return localStorage.getItem('wl_last_workspace_key'); }
+  catch (e) { return null; }
+}
+
+function _writeLastWorkspaceKey(key) {
+  try { localStorage.setItem('wl_last_workspace_key', key); }
+  catch (e) { /* storage full or unavailable - just no fallback next time */ }
+}

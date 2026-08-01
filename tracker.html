@@ -480,7 +480,19 @@ function _paintIdentity(key, name) {
 
 async function initSidebarIdentity() {
   const params = new URLSearchParams(window.location.search);
-  const key = params.get('w');
+  let key = params.get('w');
+  // No key in the URL - fall back to the last one that worked in this
+  // browser instead of an immediate dead end (see _readLastWorkspaceKey in
+  // _shared/leads-cache.js), and put it back in the address bar so every
+  // link on the page carries it forward again.
+  if (!key) {
+    key = _readLastWorkspaceKey();
+    if (key) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('w', key);
+      window.history.replaceState(null, '', url);
+    }
+  }
   if (!key) { showGate(); return; }
 
   // Paint from cache immediately (see _shared/leads-cache.js) so the
@@ -509,6 +521,7 @@ async function initSidebarIdentity() {
 
   WORKSPACE_KEY = key;
   _writeWorkspaceNameCache(key, name);
+  _writeLastWorkspaceKey(key);
   _paintIdentity(key, name);
 }
 

@@ -460,6 +460,7 @@ Notes (anything unusual, questions, blockers):</div>
 </div>
 
 <script src="_shared/api.js"></script>
+<script src="_shared/leads-cache.js"></script>
 <script src="_shared/admin-switcher.js"></script>
 <script src="_shared/workspace-frame.js"></script>
 <script>
@@ -468,7 +469,19 @@ Notes (anything unusual, questions, blockers):</div>
 // comment on this same function in index.html for why.
 async function initSidebarIdentity() {
   const params = new URLSearchParams(window.location.search);
-  const key = params.get('w');
+  let key = params.get('w');
+  // No key in the URL - fall back to the last one that worked in this
+  // browser instead of dropping straight to bare (keyless) nav links, which
+  // would just push the dead end onto whichever page they click next (see
+  // _readLastWorkspaceKey in _shared/leads-cache.js).
+  if (!key) {
+    key = _readLastWorkspaceKey();
+    if (key) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('w', key);
+      window.history.replaceState(null, '', url);
+    }
+  }
   const backLink = document.getElementById('backToWorkspace');
   const historyLink = document.getElementById('navHistory');
   const trackerLink = document.getElementById('navTracker');
@@ -496,6 +509,7 @@ async function initSidebarIdentity() {
   applyWorkspaceFrame(name);
   document.getElementById('sbAvatar').textContent = name[0];
   document.getElementById('sbIdName').textContent = name;
+  _writeLastWorkspaceKey(key);
   backLink.href = `index.html?w=${key}`;
   historyLink.href = `history.html?w=${key}`;
   trackerLink.href = `tracker.html?w=${key}`;
