@@ -1300,39 +1300,62 @@ function myLeads() {
   return allLeads.filter(l => l.claimedByMe);
 }
 
-// Mirrors MAX_UNSENT_CLAIMED in sheets/Leads.gs - the server is the real
-// enforcement (see claimNextLead/addSelfLead there), this is just a
-// same-number check so "Get a Lead"/"Add a Lead" can stop someone before
-// they even open the picker instead of letting them pick a business and
-// only finding out it's blocked at the very last step.
-const MAX_UNSENT_CLAIMED = 5;
+// Two-tier backlog check on leads sitting at Claimed (claimed, not yet
+// sent). WARN shows a dismissible heads-up so a contractor sees the limit
+// coming; HARD is a real block, mirroring MAX_UNSENT_CLAIMED in
+// sheets/Leads.gs (the actual enforcement - this client-side number is
+// just so "Get a Lead"/"Add a Lead" can stop someone before they even open
+// the picker, instead of letting them pick a business and only finding
+// out it's blocked at the very last step).
+const MAX_UNSENT_CLAIMED_WARN = 10;
+const MAX_UNSENT_CLAIMED_HARD = 20;
 
 function unsentClaimedCount() {
   return myLeads().filter(l => l.status === 'Claimed').length;
 }
 
-// Shown via #claimCapOverlay (markup above) rather than a toast - this is
-// deliberately more than "you're capped." Since this is also the natural
-// moment someone's about to go write real outreach emails, it doubles as
-// a reminder of the rules that are easy to forget under a new
-// contractor's own steam: the CAN-SPAM footer (legally required per
-// playbook.html/onboarding.html) and personalizing each email rather than
-// reusing one already sent. A one-line toast can't hold that much without
-// getting cut off or dismissed before it's read.
-function showClaimCapModal() {
-  document.getElementById('claimCapHeadline').textContent =
-    `You have ${unsentClaimedCount()} claimed leads waiting on an email. Send or drop one before claiming another.`;
+// Shared by both tiers via #claimCapOverlay (markup above) rather than a
+// toast - this is deliberately more than "you're capped/close to it."
+// Since this is also the natural moment someone's about to go write real
+// outreach emails, it doubles as a reminder of the rules that are easy to
+// forget under a new contractor's own steam: the CAN-SPAM footer (legally
+// required per playbook.html/onboarding.html) and personalizing each
+// email rather than reusing one already sent. A one-line toast can't hold
+// that much without getting cut off or dismissed before it's read.
+//
+// The warning tier gates the claim rather than racing it - dismissing it
+// (Got it) is what actually lets the reel/picker open next, via onDismiss.
+// Showing the reel underneath a modal that's also fighting for the same
+// full-screen overlay space would just be two stacked dialogs at once.
+let _claimCapDismissHandler = null;
+function _showClaimCapModal(isHard, onDismiss) {
+  const count = unsentClaimedCount();
+  document.getElementById('claimCapHeadline').textContent = isHard
+    ? `You have ${count} claimed leads waiting on an email. Send or drop some before claiming another.`
+    : `You have ${count} claimed leads waiting on an email. Consider sending a few before claiming more.`;
+  document.getElementById('claimCapOkBtn').textContent = isHard ? 'Got it' : 'Got it, continue';
+  _claimCapDismissHandler = onDismiss || null;
   const overlay = document.getElementById('claimCapOverlay');
   overlay.style.display = 'flex';
   requestAnimationFrame(() => overlay.classList.add('open'));
 }
+function showClaimCapModal() { _showClaimCapModal(true); }
+function showClaimCapWarnModal(onDismiss) { _showClaimCapModal(false, onDismiss); }
 function hideClaimCapModal() {
   const overlay = document.getElementById('claimCapOverlay');
   overlay.classList.remove('open');
   setTimeout(() => { overlay.style.display = 'none'; }, 220);
 }
-document.getElementById('claimCapCloseBtn').addEventListener('click', hideClaimCapModal);
-document.getElementById('claimCapOkBtn').addEventListener('click', hideClaimCapModal);
+document.getElementById('claimCapCloseBtn').addEventListener('click', () => {
+  _claimCapDismissHandler = null; // the X means "never mind," not "continue"
+  hideClaimCapModal();
+});
+document.getElementById('claimCapOkBtn').addEventListener('click', () => {
+  const onDismiss = _claimCapDismissHandler;
+  _claimCapDismissHandler = null;
+  hideClaimCapModal();
+  if (onDismiss) onDismiss();
+});
 
 // "My Leads" on the dashboard is the active work queue - leads still in
 // play. Replied and Warm Lead are mid-conversation, not endpoints, so they
@@ -1888,8 +1911,7 @@ async function _runReel(pickNext, finalLead) {
   showPreview(lead);
 }
 
-document.getElementById('claimBtn').addEventListener('click', () => {
-  if (unsentClaimedCount() >= MAX_UNSENT_CLAIMED) { showClaimCapModal(); return; }
+function _startGetALead() {
   const leadPromise = (async () => {
     await loadMyLeads(); // real refresh, runs in parallel with the reel
     return pickRandomOpenLead();
@@ -1898,6 +1920,13 @@ document.getElementById('claimBtn').addEventListener('click', () => {
     const pool = allLeads.length ? allLeads : null;
     return pool && pool.length ? pool[Math.floor(Math.random() * pool.length)] : { business: 'Finding a lead...' };
   }, leadPromise);
+}
+
+document.getElementById('claimBtn').addEventListener('click', () => {
+  const unsent = unsentClaimedCount();
+  if (unsent >= MAX_UNSENT_CLAIMED_HARD) { showClaimCapModal(); return; }
+  if (unsent >= MAX_UNSENT_CLAIMED_WARN) { showClaimCapWarnModal(_startGetALead); return; }
+  _startGetALead();
 });
 
 document.getElementById('previewCloseBtn').addEventListener('click', hidePreview);
@@ -1993,7 +2022,9 @@ function showAddLeadStep(step) {
 }
 
 document.getElementById('addLeadToggleBtn').addEventListener('click', () => {
-  if (unsentClaimedCount() >= MAX_UNSENT_CLAIMED) { showClaimCapModal(); return; }
+  const unsent = unsentClaimedCount();
+  if (unsent >= MAX_UNSENT_CLAIMED_HARD) { showClaimCapModal(); return; }
+  if (unsent >= MAX_UNSENT_CLAIMED_WARN) { showClaimCapWarnModal(openAddLeadModal); return; }
   openAddLeadModal();
 });
 document.getElementById('addLeadCloseBtn').addEventListener('click', closeAddLeadModal);
