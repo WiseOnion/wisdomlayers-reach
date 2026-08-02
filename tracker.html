@@ -508,11 +508,11 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="_shared/api.js"></script>
-<script src="_shared/leads-cache.js"></script>
-<script src="_shared/spotlight-tour.js"></script>
-<script src="_shared/admin-switcher.js"></script>
-<script src="_shared/workspace-frame.js"></script>
+<script src="js/api.js"></script>
+<script src="js/leads-cache.js"></script>
+<script src="js/spotlight-tour.js"></script>
+<script src="js/admin-switcher.js"></script>
+<script src="js/workspace-frame.js"></script>
 <script>
 let WORKSPACE_KEY = null;
 
@@ -538,7 +538,7 @@ function showGate() {
   // A tour left "active" in sessionStorage by a broken/missing identity
   // would otherwise try to resume mid-tour on whatever step it was stuck
   // on the next time this tab loads a page with a valid workspace again -
-  // see the abandon() doc comment in _shared/spotlight-tour.js.
+  // see the abandon() doc comment in js/spotlight-tour.js.
   SpotlightTour.abandon();
 }
 
@@ -566,7 +566,7 @@ async function initSidebarIdentity() {
   let key = params.get('w');
   // No key in the URL - fall back to the last one that worked in this
   // browser instead of an immediate dead end (see _readLastWorkspaceKey in
-  // _shared/leads-cache.js), and put it back in the address bar so every
+  // js/leads-cache.js), and put it back in the address bar so every
   // link on the page carries it forward again.
   if (!key) {
     key = _readLastWorkspaceKey();
@@ -578,7 +578,7 @@ async function initSidebarIdentity() {
   }
   if (!key) { showGate(); return false; }
 
-  // Paint from cache immediately (see _shared/leads-cache.js) so the
+  // Paint from cache immediately (see js/leads-cache.js) so the
   // sidebar avatar/name don't sit as placeholders for the full round-trip
   // on every single load - names essentially never change, so a cached one
   // is fine to show while the real check confirms it.

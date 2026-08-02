@@ -759,7 +759,7 @@
     <h2 class="welcome-title">Welcome to WisdomLayers</h2>
     <p class="welcome-sub">Here's the whole job in one loop: claim a lead, research it, send a personal email, log it, move on. Watch it once.</p>
     <div class="demo-frame-wrap">
-      <iframe class="demo-frame" title="Dashboard workflow demo" scrolling="no" src="assets/dashboard-demo.html"></iframe>
+      <iframe class="demo-frame" title="Dashboard workflow demo" scrolling="no" src="assets/welcome-walkthrough.html"></iframe>
     </div>
     <div class="welcome-actions">
       <button class="btn" id="welcomeGotItBtn">Got it, let's go</button>
@@ -872,11 +872,11 @@
   </div>
 </div>
 
-<script src="_shared/api.js"></script>
-<script src="_shared/leads-cache.js"></script>
-<script src="_shared/spotlight-tour.js"></script>
-<script src="_shared/admin-switcher.js"></script>
-<script src="_shared/workspace-frame.js"></script>
+<script src="js/api.js"></script>
+<script src="js/leads-cache.js"></script>
+<script src="js/spotlight-tour.js"></script>
+<script src="js/admin-switcher.js"></script>
+<script src="js/workspace-frame.js"></script>
 <script>
 let WORKSPACE_KEY = null;
 
@@ -897,7 +897,7 @@ function showGate() {
   // A tour left "active" in sessionStorage by a broken/missing identity
   // would otherwise try to resume mid-tour on whatever step it was stuck
   // on the next time this tab loads a page with a valid workspace again -
-  // see the abandon() doc comment in _shared/spotlight-tour.js.
+  // see the abandon() doc comment in js/spotlight-tour.js.
   SpotlightTour.abandon();
 }
 
@@ -927,7 +927,7 @@ async function initSidebarIdentity() {
   // No key in the URL - a bookmarked bare page, a retyped link missing the
   // query string, etc. Fall back to the last key that actually worked in
   // this browser instead of an immediate dead end (see
-  // _readLastWorkspaceKey in _shared/leads-cache.js), and put it back in
+  // _readLastWorkspaceKey in js/leads-cache.js), and put it back in
   // the address bar so every link on the page carries it forward again.
   if (!key) {
     key = _readLastWorkspaceKey();
@@ -939,7 +939,7 @@ async function initSidebarIdentity() {
   }
   if (!key) { showGate(); return false; }
 
-  // Paint from cache immediately (see _shared/leads-cache.js) so the
+  // Paint from cache immediately (see js/leads-cache.js) so the
   // sidebar avatar/name/"Welcome back" don't sit as placeholders for the
   // full round-trip on every single load - names essentially never change,
   // so a cached one is fine to show while the real check confirms it.

@@ -84,7 +84,7 @@ const WISDOMLAYERS_API = (function () {
 
   // Owner-only: the full workspace key->name list, gated by the admin
   // secret (see ADMIN_SWITCHER_KEY in Auth.gs). Used by
-  // _shared/admin-switcher.js instead of a hardcoded WORKSPACES array that
+  // js/admin-switcher.js instead of a hardcoded WORKSPACES array that
   // had to be hand-edited and redeployed every time a contractor was added
   // or removed - and that shipped every workspace key to any browser that
   // loaded the script, regardless of whether ?admin= was actually present.

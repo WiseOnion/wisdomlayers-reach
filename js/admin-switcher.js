@@ -12,7 +12,7 @@
  * a contractor was added or removed, and (b) every browser that loaded this
  * script received the FULL list of every workspace key, whether or not
  * ?admin= was actually present - directly undermining the "never enumerate
- * workspace keys" design goal documented in _shared/api.js's
+ * workspace keys" design goal documented in js/api.js's
  * getWorkspaceName(). Now it's fetched on demand from the backend
  * (WISDOMLAYERS_API.listWorkspaces), gated by the same admin secret, so a
  * page load with no ?admin= param never requests or receives the list at

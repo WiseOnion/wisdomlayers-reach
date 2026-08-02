@@ -459,10 +459,10 @@ Notes (anything unusual, questions, blockers):</div>
 
 </div>
 
-<script src="_shared/api.js"></script>
-<script src="_shared/leads-cache.js"></script>
-<script src="_shared/admin-switcher.js"></script>
-<script src="_shared/workspace-frame.js"></script>
+<script src="js/api.js"></script>
+<script src="js/leads-cache.js"></script>
+<script src="js/admin-switcher.js"></script>
+<script src="js/workspace-frame.js"></script>
 <script>
 // The key->name map is defined once, in sheets/Code.gs's WORKSPACE_KEYS,
 // and fetched here instead of being hardcoded per page - see the longer
@@ -473,7 +473,7 @@ async function initSidebarIdentity() {
   // No key in the URL - fall back to the last one that worked in this
   // browser instead of dropping straight to bare (keyless) nav links, which
   // would just push the dead end onto whichever page they click next (see
-  // _readLastWorkspaceKey in _shared/leads-cache.js).
+  // _readLastWorkspaceKey in js/leads-cache.js).
   if (!key) {
     key = _readLastWorkspaceKey();
     if (key) {
