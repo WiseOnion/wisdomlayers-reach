@@ -381,6 +381,7 @@
     <img src="assets/logo.png" alt="">
     <div class="gate-title">This is a private workspace</div>
     <div class="gate-sub">You'll need the personal link your team lead sent you to open this page. Reach out to them if you can't find it.</div>
+    <button class="btn sec sm" id="gateRetryBtn" style="margin-top:18px;">Try again</button>
   </div>
 </div>
 
@@ -400,7 +401,19 @@ let WORKSPACE_KEY = null;
 function showGate() {
   document.querySelector('.shell').style.display = 'none';
   document.getElementById('noIdentityGate').style.display = 'flex';
+  // A tour left "active" in sessionStorage by a broken/missing identity
+  // would otherwise try to resume mid-tour on whatever step it was stuck
+  // on the next time this tab loads a page with a valid workspace again -
+  // see the abandon() doc comment in _shared/spotlight-tour.js.
+  SpotlightTour.abandon();
 }
+
+// The gate used to be a pure dead end - even a one-off network blip on a
+// perfectly good link sent a non-technical contractor straight to "message
+// your team lead" with no way to just try again. A full reload (rather
+// than re-running init in place) is deliberate: it guarantees no partially
+// initialized state carries over into the retry.
+document.getElementById('gateRetryBtn').addEventListener('click', () => window.location.reload());
 
 function _paintIdentity(key, name) {
   document.getElementById('sbIdentity').style.display = 'flex';
@@ -440,7 +453,19 @@ async function initSidebarIdentity() {
     WORKSPACE_KEY = key;
     _writeLastWorkspaceKey(key);
     _paintIdentity(key, cachedName);
-    if (_isWorkspaceNameCacheFresh(key)) return true;
+    if (_isWorkspaceNameCacheFresh(key)) {
+      // Reconcile in the background even on a fresh cache hit - a
+      // workspace can be removed server-side at any time
+      // (menuRemoveWorkspace in sheets/Admin.gs), and without this a
+      // revoked key would keep painting a working-looking page from cache
+      // for up to 24h (WORKSPACE_NAME_FRESH_MS), surfacing only as a bare
+      // "Invalid workspace key" toast on the next write. Not blocking
+      // first paint on it, just catching a revocation within one load.
+      WISDOMLAYERS_API.getWorkspaceName(key).then(name => {
+        if (!name) showGate();
+      }).catch(() => { /* network hiccup - cached identity stands, nothing to correct */ });
+      return true;
+    }
   }
 
   let name;
@@ -646,14 +671,29 @@ function renderHistory() {
   });
 
   el.querySelectorAll('select.status-select').forEach(sel => {
+    // A native <select>'s displayed value changes the instant the user
+    // picks an option, before any network call - on a failed save that
+    // used to leave the dropdown showing the new value while the server
+    // still had the old one, with no re-render to correct it until some
+    // unrelated future action. Snapshot the value on focus (before the
+    // user has had a chance to change it) so a failed save can put the
+    // control back in sync with reality instead of just reporting it.
+    sel.dataset.prevValue = sel.value;
     sel.addEventListener('click', (e) => e.stopPropagation());
+    sel.addEventListener('focus', () => { sel.dataset.prevValue = sel.value; });
     sel.addEventListener('change', async () => {
       const leadId = sel.dataset.lead;
+      const previousValue = sel.dataset.prevValue;
+      sel.disabled = true;
       try {
         await WISDOMLAYERS_API.setStatus(WORKSPACE_KEY, leadId, sel.value);
         toast('Status updated.');
         await loadHistory();
-      } catch (err) { toast('Could not update status: ' + err.message); }
+      } catch (err) {
+        sel.value = previousValue;
+        sel.disabled = false;
+        toast('Could not update status: ' + err.message);
+      }
     });
   });
   el.querySelectorAll('.remove-lead-btn').forEach(btn => {

@@ -492,13 +492,27 @@ async function initSidebarIdentity() {
   try {
     name = await WISDOMLAYERS_API.getWorkspaceName(key);
   } catch (err) {
-    backLink.href = 'index.html';
-    historyLink.href = 'history.html';
-    trackerLink.href = 'tracker.html';
+    // Network hiccup, not a confirmed-bad key - keep it in the links rather
+    // than stripping it. Dropping a perfectly good key here just because
+    // one fetch failed used to turn a transient blip on this page into a
+    // guaranteed dead end one click later on Dashboard/History/Tracker,
+    // even though nothing was actually wrong with the key itself.
+    if (key) {
+      backLink.href = `index.html?w=${key}`;
+      historyLink.href = `history.html?w=${key}`;
+      trackerLink.href = `tracker.html?w=${key}`;
+    } else {
+      backLink.href = 'index.html';
+      historyLink.href = 'history.html';
+      trackerLink.href = 'tracker.html';
+    }
     return;
   }
 
   if (!name) {
+    // Confirmed invalid (server said no such workspace) - this is the one
+    // case stripping the key is actually correct, since carrying forward a
+    // key we now know is dead would just relocate the dead end.
     backLink.href = 'index.html';
     historyLink.href = 'history.html';
     trackerLink.href = 'tracker.html';
