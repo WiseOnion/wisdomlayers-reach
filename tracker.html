@@ -265,6 +265,14 @@
   .gate-card img { width: 40px; height: 50px; object-fit: contain; margin-bottom: 22px; }
   .gate-title { font-family: 'Poppins', sans-serif; font-size: 1.3rem; font-weight: 800; letter-spacing: -0.015em; color: var(--ink); margin-bottom: 10px; }
   .gate-sub { font-size: 14px; color: var(--gray-500); line-height: 1.6; }
+  /* .btn/.btn.sec/.btn.sm never existed on this page before the gate's
+     "Try again" button was added - it rendered as bare unstyled text
+     until now. Matches history.html's minimal .btn.sm/.btn.sm.sec shape. */
+  .btn { display: inline-flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; font-weight: 700; border-radius: 8px; cursor: pointer; white-space: nowrap; border: none; text-decoration: none; }
+  .btn.sm { padding: 10px 16px; font-size: 13px; background: var(--teal-600); color: #fff; border: 1px solid var(--teal-600); }
+  .btn.sm:hover { background: var(--teal-700); border-color: var(--teal-700); }
+  .btn.sm.sec { background: #fff; color: var(--gray-600); border: 1px solid var(--gray-200); }
+  .btn.sm.sec:hover { background: var(--gray-50); border-color: var(--gray-300, #d1d5db); }
 
   @media (max-width: 860px) {
     .sidebar { display: none; }
@@ -304,6 +312,48 @@
   @media (prefers-reduced-motion: reduce) {
     .sk { animation: none; background: var(--gray-100); }
   }
+
+  /* Claimed-leads-waiting modal - ported from index.html's preview-overlay
+     component rather than duplicated wholesale, since this page has no
+     modal pattern of its own to build on (it's just a table view). See
+     unsentClaimedCount()/claimSpecificLead() below for what triggers it. */
+  .preview-overlay {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, 0);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; z-index: 300;
+    transition: background 0.22s ease-out;
+  }
+  .preview-overlay.open { background: rgba(15, 23, 42, 0.5); }
+  .preview-modal {
+    background: #ffffff; border-radius: 14px; width: 100%; max-width: 460px;
+    max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+    opacity: 0; transform: scale(0.94) translateY(8px);
+    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .preview-overlay.open .preview-modal { opacity: 1; transform: scale(1) translateY(0); }
+  .preview-modal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; border-bottom: 1px solid var(--gray-100);
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray-500);
+  }
+  .preview-close {
+    background: none; border: none; font-size: 20px; line-height: 1; color: var(--gray-400);
+    cursor: pointer; padding: 0 2px;
+  }
+  .preview-close:hover { color: var(--gray-700); }
+  .preview-modal-body { padding: 18px 20px; overflow-y: auto; }
+  .preview-modal-actions {
+    display: flex; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--gray-100);
+  }
+  .claim-cap-ok-btn {
+    flex: 1; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--teal-600); color: white; border: 1px solid var(--teal-600);
+    border-radius: 10px; padding: 12px 20px;
+    font-family: 'Inter', sans-serif; font-size: 14.5px; font-weight: 700;
+    cursor: pointer;
+  }
+  .claim-cap-ok-btn:hover { background: var(--teal-700); border-color: var(--teal-700); }
 </style>
 </head>
 <body>
@@ -425,6 +475,26 @@
     </div>
   </div>
 
+</div>
+
+<div class="preview-overlay" id="claimCapOverlay" style="display:none;">
+  <div class="preview-modal">
+    <div class="preview-modal-head">
+      <span>Claimed Leads Waiting</span>
+      <button class="preview-close" id="claimCapCloseBtn" aria-label="Close">&times;</button>
+    </div>
+    <div class="preview-modal-body">
+      <p id="claimCapHeadline" style="font-size:14px;color:var(--gray-700);line-height:1.6;margin:0 0 14px;"></p>
+      <ul style="margin:0;padding-left:20px;font-size:13px;color:var(--gray-600);line-height:1.7;">
+        <li>Every email needs the unsubscribe footer ("To stop receiving these emails, reply with 'unsubscribe'"), it's required by law, never skip it.</li>
+        <li>Personalize each one. A copy-pasted email reads as spam and gets worse results than one that mentions something real about that business.</li>
+        <li>Log the outreach as soon as you send it, don't batch that for later.</li>
+      </ul>
+    </div>
+    <div class="preview-modal-actions">
+      <button class="claim-cap-ok-btn" id="claimCapOkBtn">Got it</button>
+    </div>
+  </div>
 </div>
 
 <div class="gate" id="noIdentityGate" style="display:none;">
@@ -644,17 +714,79 @@ function toggleResource(id) {
   renderBoard();
 }
 
+// Same two-tier backlog check as index.html's "Get a Lead"/"Add a Lead" -
+// mirrors MAX_UNSENT_CLAIMED in sheets/Leads.gs (the real, server-side
+// enforcement; this is just so the board's Claim buttons can gray out and
+// the warning can show before a click round-trips to the server only to
+// be rejected). Claiming straight off the shared board used to skip both
+// checks entirely - the button stayed clickable past the cap and, on
+// rejection, showed a bare one-line toast instead of the same reminder
+// modal the Dashboard shows.
+const MAX_UNSENT_CLAIMED_WARN = 10;
+const MAX_UNSENT_CLAIMED_HARD = 20;
+function unsentClaimedCount() {
+  return allLeads.filter(l => l.claimedByMe && l.status === 'Claimed').length;
+}
+
+// Ported from index.html's version of the same modal - see the fuller
+// comment there. The warning tier gates the claim rather than racing it:
+// dismissing "Got it, continue" is what actually runs onDismiss.
+let _claimCapDismissHandler = null;
+function _showClaimCapModal(isHard, onDismiss) {
+  const count = unsentClaimedCount();
+  document.getElementById('claimCapHeadline').textContent = isHard
+    ? `You have ${count} claimed leads waiting on an email. Send or drop some before claiming another.`
+    : `You have ${count} claimed leads waiting on an email. Consider sending a few before claiming more.`;
+  document.getElementById('claimCapOkBtn').textContent = isHard ? 'Got it' : 'Got it, continue';
+  _claimCapDismissHandler = onDismiss || null;
+  const overlay = document.getElementById('claimCapOverlay');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => overlay.classList.add('open'));
+}
+function showClaimCapModal() { _showClaimCapModal(true); }
+function showClaimCapWarnModal(onDismiss) { _showClaimCapModal(false, onDismiss); }
+function hideClaimCapModal() {
+  const overlay = document.getElementById('claimCapOverlay');
+  overlay.classList.remove('open');
+  setTimeout(() => { overlay.style.display = 'none'; }, 220);
+}
+document.getElementById('claimCapCloseBtn').addEventListener('click', () => {
+  _claimCapDismissHandler = null;
+  hideClaimCapModal();
+});
+document.getElementById('claimCapOkBtn').addEventListener('click', () => {
+  const onDismiss = _claimCapDismissHandler;
+  _claimCapDismissHandler = null;
+  hideClaimCapModal();
+  if (onDismiss) onDismiss();
+});
+
 async function claimSpecificLead(id, btn) {
   if (!WORKSPACE_KEY) {
     toast('Pick who you are from the sidebar first.');
     return;
   }
+  const unsent = unsentClaimedCount();
+  if (unsent >= MAX_UNSENT_CLAIMED_HARD) { showClaimCapModal(); return; }
+  if (unsent >= MAX_UNSENT_CLAIMED_WARN) {
+    showClaimCapWarnModal(() => _doClaimSpecificLead(id, btn));
+    return;
+  }
+  _doClaimSpecificLead(id, btn);
+}
+
+async function _doClaimSpecificLead(id, btn) {
   if (btn) { btn.disabled = true; btn.textContent = 'Claiming...'; }
   try {
     const res = await WISDOMLAYERS_API.claimSpecificLead(WORKSPACE_KEY, id);
     if (!res.lead) {
-      toast(res.error || 'Could not claim that lead. It may already be taken.');
-      await loadBoard();
+      if (res.error && res.error.indexOf('claimed leads waiting') !== -1) {
+        await loadBoard();
+        showClaimCapModal();
+      } else {
+        toast(res.error || 'Could not claim that lead. It may already be taken.');
+        await loadBoard();
+      }
     } else {
       toast(`Claimed: ${res.lead.business}`);
       await loadBoard();
@@ -667,8 +799,9 @@ async function claimSpecificLead(id, btn) {
 function boardRowHtml(l, showCity) {
   const id = l.id;
   const isPending = l.status === 'Pending' || !l.status;
+  const atHardCap = _cachedUnsentCount >= MAX_UNSENT_CLAIMED_HARD;
   const claimBtn = isPending
-    ? `<button class="claim-row-btn" onclick="claimSpecificLead('${_escJs(id)}', this)"${WORKSPACE_KEY ? '' : ' disabled title="Pick who you are first"'}>Claim</button>`
+    ? `<button class="claim-row-btn" onclick="claimSpecificLead('${_escJs(id)}', this)"${!WORKSPACE_KEY ? ' disabled title="Pick who you are first"' : atHardCap ? ' disabled title="You have too many claimed leads waiting on an email"' : ''}>Claim</button>`
     : `<button class="claim-row-btn" disabled>Claimed</button>`;
   const resBtn = hasResources(l)
     ? `<button class="resource-toggle" onclick="toggleResource('${_escJs(id)}')">${openResourceIds.has(id) ? 'Hide' : 'Info'}</button>`
@@ -687,9 +820,16 @@ function boardRowHtml(l, showCity) {
   return html;
 }
 
+// Set once per renderBoard() call rather than recomputed inside
+// boardRowHtml() per row - the board can hold well over a hundred leads,
+// and this only needs to reflect "the count as of this render," not
+// literally every row's own moment in time.
+let _cachedUnsentCount = 0;
+
 function renderBoard() {
   const el = document.getElementById('boardList');
   const fil = filteredLeads();
+  _cachedUnsentCount = unsentClaimedCount();
   const countMetaEl = document.getElementById('boardCountMeta');
   countMetaEl.classList.remove('sk', 'sk-text', 'sk-row-meta');
   countMetaEl.textContent = `${fil.length} of ${allLeads.length} leads`;
