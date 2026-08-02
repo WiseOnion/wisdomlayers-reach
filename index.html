@@ -767,6 +767,26 @@
   </div>
 </div>
 
+<div class="preview-overlay" id="claimCapOverlay" style="display:none;">
+  <div class="preview-modal" style="max-width:460px;">
+    <div class="preview-modal-head">
+      <span>Claimed Leads Waiting</span>
+      <button class="preview-close" id="claimCapCloseBtn" aria-label="Close">&times;</button>
+    </div>
+    <div class="preview-modal-body">
+      <p id="claimCapHeadline" style="font-size:14px;color:var(--gray-700);line-height:1.6;margin:0 0 14px;"></p>
+      <ul style="margin:0;padding-left:20px;font-size:13px;color:var(--gray-600);line-height:1.7;">
+        <li>Every email needs the unsubscribe footer ("To stop receiving these emails, reply with 'unsubscribe'"), it's required by law, never skip it.</li>
+        <li>Personalize each one. A copy-pasted email reads as spam and gets worse results than one that mentions something real about that business.</li>
+        <li>Log the outreach as soon as you send it, don't batch that for later.</li>
+      </ul>
+    </div>
+    <div class="preview-modal-actions">
+      <button class="btn" id="claimCapOkBtn" style="flex:1;">Got it</button>
+    </div>
+  </div>
+</div>
+
 <div class="preview-overlay" id="previewOverlay" style="display:none;">
   <div class="preview-modal">
     <div class="preview-modal-head">
@@ -1279,6 +1299,40 @@ async function loadMyLeads(respectFreshness) {
 function myLeads() {
   return allLeads.filter(l => l.claimedByMe);
 }
+
+// Mirrors MAX_UNSENT_CLAIMED in sheets/Leads.gs - the server is the real
+// enforcement (see claimNextLead/addSelfLead there), this is just a
+// same-number check so "Get a Lead"/"Add a Lead" can stop someone before
+// they even open the picker instead of letting them pick a business and
+// only finding out it's blocked at the very last step.
+const MAX_UNSENT_CLAIMED = 5;
+
+function unsentClaimedCount() {
+  return myLeads().filter(l => l.status === 'Claimed').length;
+}
+
+// Shown via #claimCapOverlay (markup above) rather than a toast - this is
+// deliberately more than "you're capped." Since this is also the natural
+// moment someone's about to go write real outreach emails, it doubles as
+// a reminder of the rules that are easy to forget under a new
+// contractor's own steam: the CAN-SPAM footer (legally required per
+// playbook.html/onboarding.html) and personalizing each email rather than
+// reusing one already sent. A one-line toast can't hold that much without
+// getting cut off or dismissed before it's read.
+function showClaimCapModal() {
+  document.getElementById('claimCapHeadline').textContent =
+    `You have ${unsentClaimedCount()} claimed leads waiting on an email. Send or drop one before claiming another.`;
+  const overlay = document.getElementById('claimCapOverlay');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => overlay.classList.add('open'));
+}
+function hideClaimCapModal() {
+  const overlay = document.getElementById('claimCapOverlay');
+  overlay.classList.remove('open');
+  setTimeout(() => { overlay.style.display = 'none'; }, 220);
+}
+document.getElementById('claimCapCloseBtn').addEventListener('click', hideClaimCapModal);
+document.getElementById('claimCapOkBtn').addEventListener('click', hideClaimCapModal);
 
 // "My Leads" on the dashboard is the active work queue - leads still in
 // play. Replied and Warm Lead are mid-conversation, not endpoints, so they
@@ -1835,6 +1889,7 @@ async function _runReel(pickNext, finalLead) {
 }
 
 document.getElementById('claimBtn').addEventListener('click', () => {
+  if (unsentClaimedCount() >= MAX_UNSENT_CLAIMED) { showClaimCapModal(); return; }
   const leadPromise = (async () => {
     await loadMyLeads(); // real refresh, runs in parallel with the reel
     return pickRandomOpenLead();
@@ -1868,9 +1923,22 @@ document.getElementById('previewAcceptBtn').addEventListener('click', async (e) 
   try {
     const res = await WISDOMLAYERS_API.claimSpecificLead(WORKSPACE_KEY, leadId);
     if (!res.lead) {
-      toast(res.error === 'Already claimed' ? 'Someone else just claimed that one - here\'s another.' : (res.error || 'Could not claim that lead.'));
-      const next = pickRandomOpenLead();
-      if (next) { showPreview(next); } else { hidePreview(); }
+      // A cap-reached error here means picking "another" lead is pointless
+      // - every open lead would hit the exact same server-side check (see
+      // MAX_UNSENT_CLAIMED in sheets/Leads.gs). This is mainly a backstop
+      // for a stale local count (loadMyLeads hadn't caught up yet when the
+      // button-level check ran) rather than the primary path, since both
+      // "Get a Lead" and "Add a Lead" already check before opening a
+      // picker at all.
+      if (res.error && res.error.indexOf('claimed leads waiting') !== -1) {
+        hidePreview();
+        await loadMyLeads();
+        showClaimCapModal();
+      } else {
+        toast(res.error === 'Already claimed' ? 'Someone else just claimed that one - here\'s another.' : (res.error || 'Could not claim that lead.'));
+        const next = pickRandomOpenLead();
+        if (next) { showPreview(next); } else { hidePreview(); }
+      }
     } else {
       toast(`Claimed: ${res.lead.business}`);
       hidePreview();
@@ -1924,7 +1992,10 @@ function showAddLeadStep(step) {
   document.getElementById('addLeadModalTitle').textContent = isForm ? 'Add a Lead You Found' : 'Review Before Adding';
 }
 
-document.getElementById('addLeadToggleBtn').addEventListener('click', openAddLeadModal);
+document.getElementById('addLeadToggleBtn').addEventListener('click', () => {
+  if (unsentClaimedCount() >= MAX_UNSENT_CLAIMED) { showClaimCapModal(); return; }
+  openAddLeadModal();
+});
 document.getElementById('addLeadCloseBtn').addEventListener('click', closeAddLeadModal);
 document.getElementById('addLeadCancelBtn').addEventListener('click', closeAddLeadModal);
 document.getElementById('addLeadBackBtn').addEventListener('click', () => showAddLeadStep('form'));
@@ -1954,6 +2025,12 @@ document.getElementById('addLeadConfirmBtn').addEventListener('click', async (e)
       toast(`Added: ${lead.business}`);
       closeAddLeadModal();
       await loadMyLeads();
+    } else if (res.error && res.error.indexOf('claimed leads waiting') !== -1) {
+      // Backstop for a stale local count - see the matching comment on the
+      // "Claim This Lead" handler above.
+      closeAddLeadModal();
+      await loadMyLeads();
+      showClaimCapModal();
     } else {
       toast(res.error || 'Could not add lead.');
     }
