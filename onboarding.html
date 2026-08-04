@@ -179,6 +179,21 @@
   }
   .script-box + .script-box { margin-top: 12px; }
 
+  /* Dashed border + explicit label, distinct from .script-box's solid
+     border, so guidance to write your own sentences from can't be mistaken
+     for text meant to be pasted straight into an email. */
+  .outline-box {
+    background: var(--teal-50); border: 1.5px dashed var(--teal-500); border-radius: 10px;
+    padding: 18px 20px; font-size: 14px; line-height: 1.7; color: var(--gray-700);
+    white-space: pre-wrap; font-family: 'Inter', sans-serif;
+  }
+  .outline-flag {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--teal-700); background: #ffffff; border: 1px solid var(--teal-500);
+    border-radius: 6px; padding: 3px 9px; margin-bottom: 12px;
+  }
+
   ol.steps, ul.bullets { padding-left: 22px; margin-bottom: 12px; }
   ol.steps li, ul.bullets li { font-size: 14px; color: var(--gray-700); line-height: 1.7; margin-bottom: 5px; }
 
@@ -344,7 +359,7 @@ To stop receiving emails, reply with "unsubscribe"</div>
         <div class="panel-body">
           <p class="lead">Do not use copy-paste templates. Every email must reference something specific about that business. Full outlines with examples for each lead type live on the Email Scripts page, this is the short version.</p>
           <p><strong>The structure (Problem-Agitate-Solve):</strong></p>
-          <div class="script-box">Problem: one specific, real observation about their business, something you actually saw, not a guess.
+          <div class="outline-box"><span class="outline-flag">&#9998; Outline, write your own version</span>Problem: one specific, real observation about their business, something you actually saw, not a guess.
 
 Agitate: what that likely means for them, in your own words. Only state it as fact if you'd stand behind it, otherwise soften with "probably" or "likely," or skip this part.
 

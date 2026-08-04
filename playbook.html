@@ -189,6 +189,23 @@
   .copy-btn:hover { background: var(--gray-100); }
   .copy-btn.copied { background: var(--teal-600); color: white; border-color: var(--teal-600); }
 
+  /* Deliberately NOT .script-box: no copy button gets attached (JS only
+     targets .script-box[data-copy]), dashed border and an explicit label
+     instead of the solid-border look real copy-paste scripts use, so an
+     outline can't be mistaken for text meant to go straight into an email. */
+  .outline-box {
+    background: var(--teal-50); border: 1.5px dashed var(--teal-500); border-radius: 10px;
+    padding: 18px 20px; font-size: 14px; line-height: 1.7; color: var(--gray-700);
+    white-space: pre-wrap; font-family: 'Inter', sans-serif; position: relative;
+  }
+  .outline-box + .outline-box { margin-top: 12px; }
+  .outline-flag {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--teal-700); background: #ffffff; border: 1px solid var(--teal-500);
+    border-radius: 6px; padding: 3px 9px; margin-bottom: 12px;
+  }
+
   .subject-line { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--teal-700); margin-bottom: 8px; }
   .unsub-note { font-size: 12.5px; color: var(--gray-500); line-height: 1.6; margin-top: 8px; padding-left: 2px; }
   .unsub-note strong { color: var(--gray-700); }
@@ -366,15 +383,14 @@
 
           <div class="subject-line">Template A, No website at all</div>
           <p class="lead" style="margin-top:-4px;">Use when: nothing comes up when you search their name.</p>
-          <div class="script-box" data-copy="a">Subject: something short, mentions the business by name
+          <div class="outline-box"><span class="outline-flag">&#9998; Outline, write your own version</span>Subject: something short, mentions the business by name
 
 Problem: say where you found them and that you noticed no website. Name one real detail about them (review count, a service they list, how long they've been open).
 
 Agitate: what that likely means for them, e.g. people searching for what they do are probably finding a competitor's website first instead. Only say it if you'd stand behind it, soften with "probably" or "likely" rather than stating it as fact.
 
-Solve: one line on what WisdomLayers does, simple fast websites for local NC businesses. No price, that's a discovery call topic, not a first email topic. Then one soft question, would they be open to seeing what that could look like for their business.
-
-[Your name]
+Solve: one line on what WisdomLayers does, simple fast websites for local NC businesses. No price, that's a discovery call topic, not a first email topic. Then one soft question, would they be open to seeing what that could look like for their business.</div>
+          <div class="script-box" data-copy="a-sig">[Your name]
 WisdomLayers
 wisdomlayers.com
 
@@ -382,15 +398,14 @@ To stop receiving these emails, reply with "unsubscribe"</div>
 
           <div class="subject-line" style="margin-top:16px;">Template B, Outdated website</div>
           <p class="lead" style="margin-top:-4px;">Use when: they have a site, but you can point to one concrete thing wrong with it, something you actually saw, not a guess.</p>
-          <div class="script-box" data-copy="b">Subject: something short, references their website specifically
+          <div class="outline-box"><span class="outline-flag">&#9998; Outline, write your own version</span>Subject: something short, references their website specifically
 
 Problem: say you were looking at businesses like theirs and came across them. Name the one specific thing you saw wrong (not mobile-friendly, broken contact form, looks dated).
 
 Agitate: what that likely means for them, e.g. visitors landing on a broken or dated page probably leave before ever calling. Only say it if you'd stand behind it, soften with "probably" or "likely" rather than stating it as fact.
 
-Solve: one line on what WisdomLayers does, helping local NC businesses modernize their site. No price, that's a discovery call topic, not a first email topic. Then one soft question, open to seeing an example of a modernized version.
-
-[Your name]
+Solve: one line on what WisdomLayers does, helping local NC businesses modernize their site. No price, that's a discovery call topic, not a first email topic. Then one soft question, open to seeing an example of a modernized version.</div>
+          <div class="script-box" data-copy="b-sig">[Your name]
 WisdomLayers
 wisdomlayers.com
 
@@ -398,15 +413,14 @@ To stop receiving these emails, reply with "unsubscribe"</div>
 
           <div class="subject-line" style="margin-top:16px;">Template C, Facebook page only</div>
           <p class="lead" style="margin-top:-4px;">Use when: they're active on Facebook (real, recent posts) but have no website anywhere. Reference something specific from their page, not just "I found you on Facebook."</p>
-          <div class="script-box" data-copy="c">Subject: something short, mentions the business by name
+          <div class="outline-box"><span class="outline-flag">&#9998; Outline, write your own version</span>Subject: something short, mentions the business by name
 
 Problem: say you found them on Facebook and name one real detail from their page (a recent post, photos, a comment thread). No website anywhere else.
 
 Agitate: what that likely means for them, e.g. people who find them on Google or Yelp have nowhere to click through to, and a lot of customers look for a website before they call. Only say it if you'd stand behind it, soften with "probably" or "likely" rather than stating it as fact.
 
-Solve: one line on what WisdomLayers does, simple websites for NC service businesses. No price, that's a discovery call topic, not a first email topic. Then one soft question, worth a quick look at what that could look like for them.
-
-[Your name]
+Solve: one line on what WisdomLayers does, simple websites for NC service businesses. No price, that's a discovery call topic, not a first email topic. Then one soft question, worth a quick look at what that could look like for them.</div>
+          <div class="script-box" data-copy="c-sig">[Your name]
 WisdomLayers
 wisdomlayers.com
 
@@ -429,13 +443,13 @@ To stop receiving these emails, reply with "unsubscribe"</div>
 
           <div class="subject-line">Follow-up 1, Day 4, no reply</div>
           <p class="lead" style="margin-top:-4px;">Reply on the same thread as your first email (hit Reply, not Compose), don't just resend it or "bump" it, that gets ignored and it's a wasted touch. Add one new piece of value that wasn't in the first email, a second detail about their business you noticed, an example site, or a different angle on the problem. Close with the same kind of easy one-line ask.</p>
-          <div class="script-box" data-copy="f1">Reply on the same thread as email 1, subject line stays whatever it already is.
+          <div class="outline-box"><span class="outline-flag">&#9998; Outline, write your own version</span>Reply on the same thread as email 1, subject line stays whatever it already is.
 
 Short, casual, like following up with someone you already emailed. New detail or new angle, not a repeat of email 1. Same single soft question at the end.</div>
 
           <div class="subject-line" style="margin-top:16px;">Follow-up 2, Day 9, still no reply, final</div>
           <p class="lead" style="margin-top:-4px;">Lower the ask, this is the last touch, so make it easy to ignore with zero guilt while still leaving the door open. A concrete example (a link to a site you built) works better than another pitch.</p>
-          <div class="script-box" data-copy="f2">Reply on the same thread as email 1, subject line stays whatever it already is.
+          <div class="outline-box"><span class="outline-flag">&#9998; Outline, write your own version</span>Reply on the same thread as email 1, subject line stays whatever it already is.
 
 Say this is the last one from you. Point to something concrete, a portfolio link or example site, rather than asking again. Make clear there's no pressure and this is the end of the sequence.</div>
 
