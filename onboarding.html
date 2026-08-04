@@ -498,6 +498,7 @@ Notes (anything unusual, questions, blockers):</div>
 
 <script src="js/api.js"></script>
 <script src="js/leads-cache.js"></script>
+<script src="js/update-announce.js"></script>
 <script src="js/admin-switcher.js"></script>
 <script src="js/workspace-frame.js"></script>
 <script>
@@ -568,6 +569,7 @@ async function initSidebarIdentity() {
   onboardingLink.href = `onboarding.html?w=${key}`;
 }
 initSidebarIdentity();
+UpdateAnnounce.init();
 
 // Reference page only - the first-visit walkthrough lives on the Dashboard
 // now (welcome card + cross-page spotlight tour), so this page is always

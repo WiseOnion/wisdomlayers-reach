@@ -390,6 +390,7 @@
 <script src="js/api.js"></script>
 <script src="js/leads-cache.js"></script>
 <script src="js/spotlight-tour.js"></script>
+<script src="js/update-announce.js"></script>
 <script src="js/admin-switcher.js"></script>
 <script src="js/workspace-frame.js"></script>
 <script>
@@ -756,6 +757,7 @@ function _statusClass(status) {
   if (hasIdentity) {
     loadMeta().then(() => renderHistory());
     loadHistory(true);
+    UpdateAnnounce.init();
 
     // This page's slice of the cross-page tour: offset 5 (after Dashboard's
     // 5 steps, indices 0-4), total 8 steps overall. Resumes automatically if

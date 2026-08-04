@@ -535,31 +535,6 @@
   .demo-frame { display: block; width: 100%; height: 380px; border: none; }
   .welcome-actions { display: flex; align-items: center; justify-content: center; gap: 10px; }
 
-  .update-overlay {
-    position: fixed; inset: 0; z-index: 410;
-    display: flex; align-items: center; justify-content: center; padding: 24px;
-    background: rgba(15, 23, 42, 0.45);
-    opacity: 0; transition: opacity 0.25s ease-out;
-  }
-  .update-overlay.open { opacity: 1; }
-  .update-card {
-    background: #ffffff; border-radius: 16px; width: 100%; max-width: 420px;
-    padding: 28px 28px 24px; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.24);
-    opacity: 0; transform: scale(0.96) translateY(8px);
-    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .update-overlay.open .update-card { opacity: 1; transform: scale(1) translateY(0); }
-  .update-badge {
-    display: inline-flex; align-items: center; font-size: 10.5px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.06em; color: var(--teal-700);
-    background: var(--teal-50); border-radius: 20px; padding: 4px 11px; margin-bottom: 14px;
-  }
-  .update-title { font-family: 'Poppins', sans-serif; font-size: 1.2rem; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); margin-bottom: 10px; }
-  .update-body { font-size: 13.5px; color: var(--gray-600); line-height: 1.65; margin-bottom: 8px; }
-  .update-body ul { padding-left: 18px; margin: 8px 0 0; }
-  .update-body li { margin-bottom: 4px; }
-  .update-actions { margin-top: 20px; display: flex; justify-content: flex-end; }
-
   .preview-overlay {
     position: fixed; inset: 0; background: rgba(15, 23, 42, 0);
     display: flex; align-items: center; justify-content: center;
@@ -792,20 +767,6 @@
   </div>
 </div>
 
-<div class="update-overlay" id="updateOverlay" style="display:none;">
-  <div class="update-card">
-    <span class="update-badge">Update</span>
-    <h2 class="update-title">Email Scripts got an update</h2>
-    <div class="update-body">
-      <p>The email templates on the Email Scripts and Onboarding pages are now outlines instead of copy-paste scripts, write your own sentences from the structure given, based on what you actually found on each business.</p>
-      <p>Also fixed: someone flagged that the unsubscribe/reply workflow needed a closer look, so that's been reviewed and corrected across every page.</p>
-    </div>
-    <div class="update-actions">
-      <button class="btn sm" id="updateGotItBtn">Got it</button>
-    </div>
-  </div>
-</div>
-
 <div class="preview-overlay" id="claimCapOverlay" style="display:none;">
   <div class="preview-modal" style="max-width:460px;">
     <div class="preview-modal-head">
@@ -914,6 +875,7 @@
 <script src="js/api.js"></script>
 <script src="js/leads-cache.js"></script>
 <script src="js/spotlight-tour.js"></script>
+<script src="js/update-announce.js"></script>
 <script src="js/admin-switcher.js"></script>
 <script src="js/workspace-frame.js"></script>
 <script>
@@ -2189,32 +2151,12 @@ function _statusClass(status) {
     try { onboardingAlreadyDone = !!localStorage.getItem(ONBOARDING_DONE_KEY); } catch (e) {}
     if (!onboardingAlreadyDone) showWelcomeOverlay();
 
-    // One-time "what changed" announcement, separate flag from onboarding so
-    // it doesn't collide with or get skipped by that flow. UPDATE_ID bumps
-    // whenever there's a new announcement worth surfacing again - change the
-    // string, not the key name, so old dismissals from a prior announcement
-    // don't suppress a new one.
-    const UPDATE_ID = 'email-scripts-2026-08';
-    const UPDATE_SEEN_KEY = 'wl_update_seen_' + UPDATE_ID + '_' + WORKSPACE_KEY;
-    const showUpdateOverlay = () => {
-      const el = document.getElementById('updateOverlay');
-      el.style.display = 'flex';
-      requestAnimationFrame(() => el.classList.add('open'));
-    };
-    const dismissUpdateOverlay = () => {
-      const el = document.getElementById('updateOverlay');
-      el.classList.remove('open');
-      setTimeout(() => { el.style.display = 'none'; }, 250);
-      try { localStorage.setItem(UPDATE_SEEN_KEY, '1'); } catch (e) {}
-    };
-    document.getElementById('updateGotItBtn').addEventListener('click', dismissUpdateOverlay);
-
-    let updateAlreadySeen = false;
-    try { updateAlreadySeen = !!localStorage.getItem(UPDATE_SEEN_KEY); } catch (e) {}
-    // Never stack this on top of the welcome overlay for a brand-new
-    // contractor - they get the update as part of onboarding itself,
-    // showing this too would just be a second modal at the door.
-    if (!updateAlreadySeen && onboardingAlreadyDone) showUpdateOverlay();
+    // Never stack the update announcement on top of the welcome overlay for
+    // a brand-new contractor - they get the update as part of onboarding
+    // itself, showing this too would just be a second modal at the door.
+    // Every other page calls UpdateAnnounce.init() unconditionally since
+    // they have no welcome overlay of their own to collide with.
+    if (onboardingAlreadyDone) UpdateAnnounce.init();
 
     // Tour steps that live on this page. Total step count and this page's
     // offset (0 - the tour always starts here) must match the offsets used on

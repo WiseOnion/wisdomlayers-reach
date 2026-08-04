@@ -511,6 +511,7 @@
 <script src="js/api.js"></script>
 <script src="js/leads-cache.js"></script>
 <script src="js/spotlight-tour.js"></script>
+<script src="js/update-announce.js"></script>
 <script src="js/admin-switcher.js"></script>
 <script src="js/workspace-frame.js"></script>
 <script>
@@ -930,6 +931,7 @@ function _escJs(v) {
   const hasIdentity = await initSidebarIdentity();
   if (!hasIdentity) return;
   loadBoard(true);
+  UpdateAnnounce.init();
 
   // Final page of the cross-page tour: offset 7 of 8 total. Only wired up
   // once WORKSPACE_KEY is known (initSidebarIdentity ran above and found a

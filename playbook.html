@@ -675,6 +675,7 @@ To stop receiving these emails, reply with "unsubscribe"</div>
 
 <script src="js/api.js"></script>
 <script src="js/leads-cache.js"></script>
+<script src="js/update-announce.js"></script>
 <script src="js/admin-switcher.js"></script>
 <script src="js/workspace-frame.js"></script>
 <script>
@@ -745,6 +746,7 @@ async function initSidebarIdentity() {
   onboardingLink.href = `onboarding.html?w=${key}`;
 }
 initSidebarIdentity();
+UpdateAnnounce.init();
 
 // Tabs: one panel visible at a time, so this reference page can be jumped
 // back into mid-task ("what's the unsubscribe reply again?") without
