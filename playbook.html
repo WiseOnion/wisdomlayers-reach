@@ -157,6 +157,19 @@
   .tab-btn.active { color: var(--teal-700); border-bottom-color: var(--teal-600); }
   .tab-btn.active:hover { background: none; }
 
+  /* Second-tier pill tabs, visually distinct from .tabs' underline style so
+     the two navigation levels (which page-section vs. which template) read
+     as clearly different in scope, not one long flat row of tabs. */
+  .subtabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .subtab-btn {
+    font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 600; color: var(--gray-600);
+    background: var(--gray-100); border: 1px solid transparent; cursor: pointer;
+    padding: 7px 14px; border-radius: 20px; transition: background 0.12s, color 0.12s, border-color 0.12s;
+  }
+  .subtab-btn:hover { background: var(--gray-200); }
+  .subtab-btn.active { background: var(--teal-50); color: var(--teal-700); border-color: var(--teal-500); }
+  .subtab-btn.active:hover { background: var(--teal-100); }
+
   .panel { background: #ffffff; border: 1px solid var(--gray-200); border-radius: 14px; overflow: hidden; margin-bottom: 22px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03); }
   .panel-light { box-shadow: none; }
   .panel-light .panel-head h2 { font-size: 15px; }
@@ -189,21 +202,31 @@
   .copy-btn:hover { background: var(--gray-100); }
   .copy-btn.copied { background: var(--teal-600); color: white; border-color: var(--teal-600); }
 
-  /* Deliberately NOT .script-box: no copy button gets attached (JS only
-     targets .script-box[data-copy]), dashed border and an explicit label
-     instead of the solid-border look real copy-paste scripts use, so an
-     outline can't be mistaken for text meant to go straight into an email. */
-  .outline-box {
-    background: var(--teal-50); border: 1.5px dashed var(--teal-500); border-radius: 10px;
-    padding: 18px 20px; font-size: 14px; line-height: 1.7; color: var(--gray-700);
-    white-space: pre-wrap; font-family: 'Inter', sans-serif; position: relative;
+  /* Deliberately NOT .script-box: no Copy button attaches (JS only targets
+     .script-box[data-copy]), and each part is its own labeled row rather
+     than one dense paragraph, so an outline reads as fields to fill in
+     from research, never as text to paste straight into an email. */
+  .outline-group {
+    border: 1px solid var(--teal-100); border-radius: 12px; overflow: hidden;
+    background: #ffffff;
   }
-  .outline-box + .outline-box { margin-top: 12px; }
-  .outline-flag {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
-    color: var(--teal-700); background: #ffffff; border: 1px solid var(--teal-500);
-    border-radius: 6px; padding: 3px 9px; margin-bottom: 12px;
+  .outline-group-head {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--teal-700); background: var(--teal-50);
+    padding: 9px 16px; border-bottom: 1px solid var(--teal-100);
+  }
+  .outline-field { padding: 14px 16px; }
+  .outline-field + .outline-field { border-top: 1px dashed var(--gray-200); }
+  .outline-field-label {
+    display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--teal-700); background: var(--teal-50);
+    border-radius: 5px; padding: 2px 8px; margin-bottom: 6px;
+  }
+  .outline-field-instr { font-size: 13.5px; color: var(--gray-700); line-height: 1.55; margin-bottom: 6px; }
+  .outline-field-ex {
+    font-size: 12.5px; color: var(--gray-500); line-height: 1.5;
+    font-style: italic; padding-left: 10px; border-left: 2px solid var(--gray-200);
   }
 
   .subject-line { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--teal-700); margin-bottom: 8px; }
@@ -243,6 +266,10 @@
   .dos-donts .col li { font-size: 13.5px; color: var(--gray-700); padding: 6px 0 6px 22px; position: relative; line-height: 1.5; }
   .dos-donts .col.dos li::before { content: "\2713"; position: absolute; left: 0; color: var(--teal-600); font-weight: 700; }
   .dos-donts .col.donts li::before { content: "\2715"; position: absolute; left: 0; color: #dc2626; font-weight: 700; }
+
+  .rule-box { background: var(--teal-50); border: 1px solid var(--teal-500); border-radius: 12px; padding: 18px 22px; margin-top: 20px; }
+  .rule-box h3 { font-size: 13px; font-weight: 700; color: var(--teal-700); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .rule-box p { font-size: 13.5px; color: var(--gray-700); line-height: 1.6; }
 
   @media (max-width: 860px) {
     .sidebar { display: none; }
@@ -332,27 +359,33 @@
           </div>
           <div class="dos-donts">
             <div class="col dos">
-              <h3>Do</h3>
+              <h3>Required</h3>
               <ul>
                 <li>Reference something real and specific about that business</li>
-                <li>Keep every email under 100 words</li>
+                <li>Verify every fact before mentioning it, never guess or invent details</li>
+                <li>Keep every email under 150 words</li>
                 <li>End with exactly one question</li>
                 <li>Log every business you research, even ones you skip</li>
-                <li>Notify the owner the moment a lead goes warm</li>
+                <li>Notify the owner immediately when a lead becomes a Warm Lead</li>
+                <li>Reply to warm leads within one hour whenever possible</li>
               </ul>
             </div>
             <div class="col donts">
-              <h3>Don't</h3>
+              <h3>Never</h3>
               <ul>
                 <li>Use the same email word-for-word on multiple businesses</li>
                 <li>Send from your personal email address</li>
-                <li>Promise a specific price or timeline</li>
-                <li>Argue with anyone who says not interested</li>
+                <li>Promise pricing, turnaround times, or specific results</li>
+                <li>Pressure, argue with, or repeatedly contact someone who isn't interested</li>
                 <li>Contact anyone who unsubscribed, ever again</li>
                 <li>Send more than 40 emails per day per inbox</li>
                 <li>Skip the CAN-SPAM footer</li>
               </ul>
             </div>
+          </div>
+          <div class="rule-box">
+            <h3>Golden rule</h3>
+            <p>Every email should feel like it was written specifically for that business. If the business owner could replace their business name with another and the email would still make sense, it isn't personalized enough.</p>
           </div>
         </div>
       </div>
@@ -360,71 +393,166 @@
       <div class="panel tab-panel" id="research" data-tab-panel="research" hidden>
         <div class="panel-head"><h2>Research Every Business First</h2></div>
         <div class="panel-body">
-          <p class="lead">Take the time this actually requires. Answer the questions below with something specific to that business before you write the email, generic openers get ignored. If you can't find anything specific after looking, it's fine to skip the lead.</p>
+          <p class="lead">Do not write an email until you've researched the business. Your goal is to find one or more genuine observations that make the email feel like it was written specifically for them, generic outreach gets ignored. If you can't find anything meaningful after researching, skip the lead and move on.</p>
+
+          <h3 class="task-group" style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--gray-500); margin-bottom:10px; margin-top:4px;">Research checklist, answer before writing</h3>
           <ol class="steps">
-            <li>What exactly does this business do?</li>
-            <li>Do they have a website? If yes, is it actually outdated?</li>
-            <li>Are they on Google Maps? Do they have reviews?</li>
-            <li>Facebook page but no website?</li>
-            <li>Can you find the owner's name anywhere?</li>
-            <li>Anything specific worth mentioning: no hours listed, no contact form, not mobile-friendly, old photos?</li>
+            <li>What products or services does the business offer?</li>
+            <li>Does the business have a website?</li>
+            <li>If they have a website, is there one clear issue worth mentioning?</li>
+            <li>Are they listed on Google Maps? How many reviews, and what's their average rating?</li>
+            <li>Are they active on Facebook? Do they have a Facebook page but no website?</li>
+            <li>Can you find the owner's name?</li>
+            <li>Anything else worth mentioning: missing business hours, no contact form, poor mobile experience, outdated design, old project photos, broken links, missing online booking, no clear call to action?</li>
           </ol>
-          <div class="script-box" style="margin-top:12px;">"I noticed your shop has 47 Google reviews but no website linked"
-"Your Facebook page looks active but I couldn't find a website for your business"
-"I was looking for [service] in [city] and found you on Yelp with great reviews but no website to click through to"</div>
+
+          <h3 class="task-group" style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--gray-500); margin-bottom:10px; margin-top:20px;">What makes a good observation</h3>
+          <p class="lead" style="margin-top:-4px;">Factual, specific, and easy to verify.</p>
+          <div class="script-box" style="margin-top:0;">"I noticed your business has 47 Google reviews, but I couldn't find a website."
+"Your Facebook page is active, but I couldn't find a website linked anywhere."
+"I found your business while looking for plumbers in Fayetteville. Your Google reviews are excellent, but there isn't a website for customers to learn more."
+"Your website looks great on desktop, but the contact form doesn't appear to be working."
+"I noticed your gallery hasn't been updated in several years."</div>
+
+          <div class="alert" style="margin-top:20px; margin-bottom:0;">
+            <svg class="alert-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <p><strong>What to avoid.</strong> Don't make assumptions, exaggerate, or invent details. Don't mention an issue unless you've personally verified it. Never criticize the business, your observation should feel helpful, not judgmental.</p>
+          </div>
+
+          <h3 class="task-group" style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--gray-500); margin-bottom:10px; margin-top:20px;">Skip the lead if</h3>
+          <ul class="bullets">
+            <li>You cannot verify key information</li>
+            <li>You cannot find a meaningful way to personalize the email</li>
+            <li>The business has recently requested not to be contacted</li>
+            <li>The business is permanently closed</li>
+            <li>The business already has a modern, well-maintained website with no obvious opportunity to mention</li>
+          </ul>
+          <p class="lead" style="margin-top:14px; margin-bottom:0;">Quality beats quantity. A smaller list of well-researched businesses will consistently outperform a larger list of generic outreach.</p>
         </div>
       </div>
 
       <div class="panel tab-panel" id="templates" data-tab-panel="templates" hidden>
         <div class="panel-head"><h2>Email Templates</h2><span class="tag">Day 1, First Contact</span></div>
         <div class="panel-body">
-          <p class="lead">These are outlines, not scripts. Write your own sentences for each part, in your own words, based on what you actually found. They follow Problem-Agitate-Solve, the structure that gets the highest reply rates on a first cold touch because it earns relevance before it asks for anything: name something real and specific (Problem), point out what that likely means for them, only if you can back it up (Agitate), then offer the fix and one soft question (Solve). Use your own judgment on Agitate, only state something as fact if you actually looked into it, otherwise soften it to "might be" or skip it. Under 100 words total. Never two questions.</p>
+          <p class="lead">These are outlines, not scripts. Write your own sentences for each part, in your own words, based on what you actually found. They follow Problem-Impact-Solution-Question, the structure that gets the highest reply rates on a first cold touch because it earns relevance before it asks for anything. Business owners skim, so keep it under 150 words total. Never two questions.</p>
           <p class="unsub-note" style="margin-top:0; margin-bottom:16px;"><strong>Every email ends with the unsubscribe line</strong> ("To stop receiving these emails, reply with 'unsubscribe'"). That's this business's only way to opt out, required by CAN-SPAM on every commercial email. Never shorten it, reword it, or cut it to save space.</p>
 
-          <div class="subject-line">Template A, No website at all</div>
-          <p class="lead" style="margin-top:-4px;">Use when: nothing comes up when you search their name.</p>
-          <div class="outline-box"><span class="outline-flag">&#9998; Outline, write your own version</span>Subject: something short, mentions the business by name
+          <div class="subtabs" role="tablist" aria-label="Which template">
+            <button class="subtab-btn active" data-subtab="tplA" role="tab" aria-selected="true">A &middot; No website</button>
+            <button class="subtab-btn" data-subtab="tplB" role="tab" aria-selected="false">B &middot; Outdated site</button>
+            <button class="subtab-btn" data-subtab="tplC" role="tab" aria-selected="false">C &middot; Facebook only</button>
+          </div>
 
-Problem: say where you found them and that you noticed no website. Name one real detail about them (review count, a service they list, how long they've been open).
-
-Agitate: what that likely means for them, e.g. people searching for what they do are probably finding a competitor's website first instead. Only say it if you'd stand behind it, soften with "probably" or "likely" rather than stating it as fact.
-
-Solve: one line on what WisdomLayers does, simple fast websites for local NC businesses. No price, that's a discovery call topic, not a first email topic. Then one soft question, would they be open to seeing what that could look like for their business.</div>
-          <div class="script-box" data-copy="a-sig">[Your name]
+          <div class="subtab-panel" id="tplA" data-subtab-panel="tplA">
+            <p class="lead" style="margin-top:0;">Use when: nothing comes up when you search their name after checking Google, Facebook, Yelp, and other common listings.</p>
+            <div class="outline-group">
+              <div class="outline-group-head">&#9998; Outline, write your own version from this</div>
+              <div class="outline-field">
+                <span class="outline-field-label">Subject</span>
+                <div class="outline-field-instr">Something short, mentions the business by name.</div>
+              </div>
+              <div class="outline-field">
+                <span class="outline-field-label">Problem</span>
+                <div class="outline-field-instr">Open by saying you were looking at local businesses in their industry/city and came across them. Name one real detail about them, then mention you couldn't find a website.</div>
+                <div class="outline-field-ex">e.g. "I was looking at local businesses in Fayetteville and came across [Business Name]... I couldn't find a website." Detail: a review count, a service they list, how long they've been open</div>
+              </div>
+              <div class="outline-field">
+                <span class="outline-field-label">Impact</span>
+                <div class="outline-field-instr">Explain one likely business impact, without exaggerating. Only say it if you'd stand behind it, soften with "probably" or "likely," or skip this part.</div>
+                <div class="outline-field-ex">e.g. people searching for what they do are probably finding a competitor's website first instead</div>
+              </div>
+              <div class="outline-field">
+                <span class="outline-field-label">Solution</span>
+                <div class="outline-field-instr">One sentence introducing WisdomLayers. No price, that's a discovery call topic.</div>
+                <div class="outline-field-ex">e.g. we build modern websites for North Carolina businesses</div>
+              </div>
+              <div class="outline-field">
+                <span class="outline-field-label">Question</span>
+                <div class="outline-field-instr">One soft question, no pressure into a meeting.</div>
+                <div class="outline-field-ex">e.g. "Would you be open to seeing what a website for your business could look like?"</div>
+              </div>
+            </div>
+            <div class="script-box" data-copy="a-sig">[Your name]
 WisdomLayers
 wisdomlayers.com
 
 To stop receiving these emails, reply with "unsubscribe"</div>
+          </div>
 
-          <div class="subject-line" style="margin-top:16px;">Template B, Outdated website</div>
-          <p class="lead" style="margin-top:-4px;">Use when: they have a site, but you can point to one concrete thing wrong with it, something you actually saw, not a guess.</p>
-          <div class="outline-box"><span class="outline-flag">&#9998; Outline, write your own version</span>Subject: something short, references their website specifically
-
-Problem: say you were looking at businesses like theirs and came across them. Name the one specific thing you saw wrong (not mobile-friendly, broken contact form, looks dated).
-
-Agitate: what that likely means for them, e.g. visitors landing on a broken or dated page probably leave before ever calling. Only say it if you'd stand behind it, soften with "probably" or "likely" rather than stating it as fact.
-
-Solve: one line on what WisdomLayers does, helping local NC businesses modernize their site. No price, that's a discovery call topic, not a first email topic. Then one soft question, open to seeing an example of a modernized version.</div>
-          <div class="script-box" data-copy="b-sig">[Your name]
+          <div class="subtab-panel" id="tplB" data-subtab-panel="tplB" hidden>
+            <p class="lead" style="margin-top:0;">Use when: they have a site, but you can point to one concrete thing wrong with it, something you actually saw, not a guess.</p>
+            <div class="alert" style="margin-bottom:14px;">
+              <svg class="alert-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <p><strong>Pick exactly one issue, never stack them.</strong> Not mobile-friendly, looks outdated, broken contact form, missing information, or very slow, choose the one you're most sure of. Listing several at once reads as generic; naming one specific thing builds credibility.</p>
+            </div>
+            <div class="outline-group">
+              <div class="outline-group-head">&#9998; Outline, write your own version from this</div>
+              <div class="outline-field">
+                <span class="outline-field-label">Subject</span>
+                <div class="outline-field-instr">Something short, references their website specifically.</div>
+              </div>
+              <div class="outline-field">
+                <span class="outline-field-label">Problem</span>
+                <div class="outline-field-instr">Say you were looking at businesses like theirs and came across them. Name the one specific thing you saw wrong (just one, see above).</div>
+                <div class="outline-field-ex">e.g. not mobile-friendly, looks outdated, broken contact form, missing key information, very slow to load</div>
+              </div>
+              <div class="outline-field">
+                <span class="outline-field-label">Impact</span>
+                <div class="outline-field-instr">Explain one likely business impact, without exaggerating. Only say it if you'd stand behind it, soften with "probably" or "likely," or skip this part.</div>
+                <div class="outline-field-ex">e.g. visitors landing on that page probably leave before ever calling</div>
+              </div>
+              <div class="outline-field">
+                <span class="outline-field-label">Solution</span>
+                <div class="outline-field-instr">One sentence introducing WisdomLayers as a company that modernizes websites for North Carolina businesses. No price.</div>
+              </div>
+              <div class="outline-field">
+                <span class="outline-field-label">Question</span>
+                <div class="outline-field-instr">One soft question, no pressure into a meeting.</div>
+                <div class="outline-field-ex">e.g. "Would you be open to seeing what a modern version could look like?"</div>
+              </div>
+            </div>
+            <div class="script-box" data-copy="b-sig">[Your name]
 WisdomLayers
 wisdomlayers.com
 
 To stop receiving these emails, reply with "unsubscribe"</div>
+          </div>
 
-          <div class="subject-line" style="margin-top:16px;">Template C, Facebook page only</div>
-          <p class="lead" style="margin-top:-4px;">Use when: they're active on Facebook (real, recent posts) but have no website anywhere. Reference something specific from their page, not just "I found you on Facebook."</p>
-          <div class="outline-box"><span class="outline-flag">&#9998; Outline, write your own version</span>Subject: something short, mentions the business by name
-
-Problem: say you found them on Facebook and name one real detail from their page (a recent post, photos, a comment thread). No website anywhere else.
-
-Agitate: what that likely means for them, e.g. people who find them on Google or Yelp have nowhere to click through to, and a lot of customers look for a website before they call. Only say it if you'd stand behind it, soften with "probably" or "likely" rather than stating it as fact.
-
-Solve: one line on what WisdomLayers does, simple websites for NC service businesses. No price, that's a discovery call topic, not a first email topic. Then one soft question, worth a quick look at what that could look like for them.</div>
-          <div class="script-box" data-copy="c-sig">[Your name]
+          <div class="subtab-panel" id="tplC" data-subtab-panel="tplC" hidden>
+            <p class="lead" style="margin-top:0;">Use when: they're active on Facebook (real, recent posts) but have no website anywhere. This is the strongest template, quoting something small from their page instantly proves the email isn't automated.</p>
+            <div class="outline-group">
+              <div class="outline-group-head">&#9998; Outline, write your own version from this</div>
+              <div class="outline-field">
+                <span class="outline-field-label">Subject</span>
+                <div class="outline-field-instr">Something short, mentions the business by name.</div>
+              </div>
+              <div class="outline-field">
+                <span class="outline-field-label">Problem</span>
+                <div class="outline-field-instr">Say you found them on Facebook. Quote or closely reference one specific recent post, project, or announcement, not just "I found you on Facebook." Then mention no website anywhere else.</div>
+                <div class="outline-field-ex">e.g. "I saw your recent post about your summer landscaping schedule" or "I noticed the photos from your latest roofing project"</div>
+              </div>
+              <div class="outline-field">
+                <span class="outline-field-label">Impact</span>
+                <div class="outline-field-instr">Explain one likely business impact, without exaggerating. Only say it if you'd stand behind it, soften with "probably" or "likely," or skip this part.</div>
+                <div class="outline-field-ex">e.g. people who find them on Google or Yelp likely expect a website before they call</div>
+              </div>
+              <div class="outline-field">
+                <span class="outline-field-label">Solution</span>
+                <div class="outline-field-instr">One sentence introducing WisdomLayers. No price.</div>
+                <div class="outline-field-ex">e.g. simple websites for NC service businesses</div>
+              </div>
+              <div class="outline-field">
+                <span class="outline-field-label">Question</span>
+                <div class="outline-field-instr">One soft question, no pressure into a meeting.</div>
+                <div class="outline-field-ex">e.g. "Would you be interested in seeing what a simple website for your business could look like?"</div>
+              </div>
+            </div>
+            <div class="script-box" data-copy="c-sig">[Your name]
 WisdomLayers
 wisdomlayers.com
 
 To stop receiving these emails, reply with "unsubscribe"</div>
+          </div>
         </div>
       </div>
 
@@ -440,25 +568,53 @@ To stop receiving these emails, reply with "unsubscribe"</div>
             <span class="flow-arrow">&#8594;</span>
             <div class="flow-step">Not Interested</div>
           </div>
+          <p class="lead" style="margin-top:-8px;">A reply at any point moves them off this cadence, to <strong>Replied</strong> (polite but not ready) or straight to <strong>Warm Lead</strong> (real interest), whichever fits. See below.</p>
 
           <div class="subject-line">Follow-up 1, Day 4, no reply</div>
-          <p class="lead" style="margin-top:-4px;">Reply on the same thread as your first email (hit Reply, not Compose), don't just resend it or "bump" it, that gets ignored and it's a wasted touch. Add one new piece of value that wasn't in the first email, a second detail about their business you noticed, an example site, or a different angle on the problem. Close with the same kind of easy one-line ask.</p>
-          <div class="outline-box"><span class="outline-flag">&#9998; Outline, write your own version</span>Reply on the same thread as email 1, subject line stays whatever it already is.
-
-Short, casual, like following up with someone you already emailed. New detail or new angle, not a repeat of email 1. Same single soft question at the end.</div>
+          <p class="lead" style="margin-top:-4px;">Don't just resend the first email or "bump" it, that gets ignored and it's a wasted touch.</p>
+          <div class="outline-group">
+            <div class="outline-group-head">&#9998; Outline, write your own version from this</div>
+            <div class="outline-field">
+              <span class="outline-field-label">Thread</span>
+              <div class="outline-field-instr">Reply on the same thread as email 1 (hit Reply, not Compose), subject line stays whatever it already is.</div>
+            </div>
+            <div class="outline-field">
+              <span class="outline-field-label">Body</span>
+              <div class="outline-field-instr">Short and casual, like following up with someone you already emailed. Add one new detail or angle that wasn't in the first email, not a repeat of it. Close with the same single soft question.</div>
+              <div class="outline-field-ex">e.g. a second detail about their business you noticed, an example site, or a different angle on the problem</div>
+            </div>
+          </div>
 
           <div class="subject-line" style="margin-top:16px;">Follow-up 2, Day 9, still no reply, final</div>
-          <p class="lead" style="margin-top:-4px;">Lower the ask, this is the last touch, so make it easy to ignore with zero guilt while still leaving the door open. A concrete example (a link to a site you built) works better than another pitch.</p>
-          <div class="outline-box"><span class="outline-flag">&#9998; Outline, write your own version</span>Reply on the same thread as email 1, subject line stays whatever it already is.
-
-Say this is the last one from you. Point to something concrete, a portfolio link or example site, rather than asking again. Make clear there's no pressure and this is the end of the sequence.</div>
+          <p class="lead" style="margin-top:-4px;">Lower the ask, this is the last touch, so make it easy to ignore with zero guilt while still leaving the door open.</p>
+          <div class="outline-group">
+            <div class="outline-group-head">&#9998; Outline, write your own version from this</div>
+            <div class="outline-field">
+              <span class="outline-field-label">Thread</span>
+              <div class="outline-field-instr">Reply on the same thread as email 1, subject line stays whatever it already is.</div>
+            </div>
+            <div class="outline-field">
+              <span class="outline-field-label">Body</span>
+              <div class="outline-field-instr">Acknowledge they're busy, then say this will be your final follow-up. Point to something concrete rather than asking again, and make clear there's no pressure.</div>
+              <div class="outline-field-ex">e.g. "I know you're busy, so I'll make this my last email." Then a portfolio link or an example site you built.</div>
+            </div>
+          </div>
 
           <p class="lead" style="margin-top:14px; margin-bottom:0;">After this, move them to <strong>Not Interested</strong> in the tracker. Do not contact again.</p>
 
           <div class="panel-divider"></div>
 
+          <div class="subject-line">If they reply politely but aren't ready yet</div>
+          <p class="lead" style="margin-top:-4px;">A short, polite reply is a good sign, but it's not a warm lead yet. This is a <strong>Positive Response</strong> (tracked as <strong>Replied</strong> in the tool): interested enough not to ignore you, not ready for the owner.</p>
+          <div class="script-box" style="margin-top:0;">"Thanks."
+"We'll keep you in mind."
+"Maybe later."</div>
+          <p class="lead" style="margin-top:10px; margin-bottom:0;">Update tracker status to <strong>Replied</strong>. No handoff needed yet, just log it, a real question or expressed interest is what moves them to Warm Lead.</p>
+
+          <div class="panel-divider"></div>
+
           <div class="subject-line">If they're interested or asking questions, a lead just went warm</div>
-          <p class="lead" style="margin-top:-4px;">Speed matters more than wording here, reply within the hour if you can. A same-day reply to a warm lead converts far better than one that sits overnight, the window closes fast once someone's attention moves on.</p>
+          <p class="lead" style="margin-top:-4px;">Speed matters more than wording here. Reply within one hour whenever possible, fast responses consistently outperform delayed ones.</p>
           <ol class="steps" style="margin-bottom:10px;">
             <li>Update tracker status to <strong>Warm Lead</strong></li>
             <li>Notify the owner immediately, before you even finish replying</li>
@@ -480,16 +636,35 @@ Say this is the last one from you. Point to something concrete, a portfolio link
       <div class="panel panel-light tab-panel" id="schedule" data-tab-panel="schedule" hidden>
         <div class="panel-head"><h2>Sending Schedule</h2><span class="tag">Ramp up gradually</span></div>
         <div class="panel-body">
-          <p class="lead">New inboxes need to build reputation before sending at full volume. Follow this ramp regardless of how many leads you have ready.</p>
+          <p class="lead">A new email inbox needs time to build trust with email providers. Sending too many emails too soon increases the chance of messages landing in spam. Follow this schedule for every new inbox, even with hundreds of leads ready to contact.</p>
           <table class="rules">
-            <thead><tr><th>Week</th><th>Emails / Day / Person</th><th>Goal</th></tr></thead>
+            <thead><tr><th>Phase</th><th>Emails / Day / Inbox</th><th>Primary Goal</th></tr></thead>
             <tbody>
-              <tr><td>Week 1 (warming)</td><td>5-10</td><td>Build inbox reputation</td></tr>
-              <tr><td>Week 2 (warming)</td><td>10-15</td><td>Continue building reputation</td></tr>
-              <tr><td>Week 3 (live)</td><td>15-20</td><td>First real replies</td></tr>
-              <tr><td>Week 4+ (full speed)</td><td>25-30</td><td>Consistent pipeline</td></tr>
+              <tr><td>Week 1, warm up</td><td>5-10</td><td>Establish a positive sender reputation</td></tr>
+              <tr><td>Week 2, warm up</td><td>10-15</td><td>Continue building trust, monitor deliverability</td></tr>
+              <tr><td>Week 3, live outreach</td><td>15-20</td><td>Begin generating consistent replies while maintaining inbox health</td></tr>
+              <tr><td>Week 4 and beyond</td><td>25-30</td><td>Maintain a steady pipeline without sacrificing deliverability</td></tr>
             </tbody>
           </table>
+
+          <h3 class="task-group" style="font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--gray-500); margin-bottom:10px; margin-top:22px;">Daily best practices</h3>
+          <ul class="bullets">
+            <li>Spread emails throughout the day instead of sending them all at once</li>
+            <li>Personalize every email before sending</li>
+            <li>Reply to interested businesses as quickly as possible</li>
+            <li>Monitor bounce rates and spam complaints daily</li>
+            <li>Pause outreach immediately if deliverability drops significantly, then investigate before resuming</li>
+          </ul>
+
+          <div class="alert" style="margin-top:16px;">
+            <svg class="alert-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <p><strong>Hard limits.</strong> Never send more than 40 cold emails per inbox per day. Never sacrifice personalization to increase volume. Every email must meet the quality standards in this playbook before it's sent.</p>
+          </div>
+
+          <div class="rule-box">
+            <h3>Priority</h3>
+            <p>Quality always comes before quantity. A personalized email sent to the right business is worth more than dozens of generic emails that get ignored or marked as spam.</p>
+          </div>
         </div>
       </div>
 
@@ -587,6 +762,30 @@ function showTab(name) {
 }
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => showTab(btn.dataset.tab));
+});
+
+// Second-tier tabs (which template, A/B/C) scoped to whichever .subtabs
+// group the clicked button lives in - closest() instead of a global
+// querySelectorAll so multiple independent subtab groups on one page (just
+// Email Templates today) never fight over each other's active state.
+function showSubtab(btn) {
+  const group = btn.closest('.subtabs');
+  const name = btn.dataset.subtab;
+  group.querySelectorAll('.subtab-btn').forEach(b => {
+    const active = b === btn;
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+  let panelContainer = group.nextElementSibling;
+  while (panelContainer) {
+    if (panelContainer.dataset && panelContainer.dataset.subtabPanel) {
+      panelContainer.hidden = panelContainer.dataset.subtabPanel !== name;
+    }
+    panelContainer = panelContainer.nextElementSibling;
+  }
+}
+document.querySelectorAll('.subtab-btn').forEach(btn => {
+  btn.addEventListener('click', () => showSubtab(btn));
 });
 
 document.querySelectorAll('.script-box[data-copy]').forEach(box => {

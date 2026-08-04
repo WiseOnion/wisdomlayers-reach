@@ -179,19 +179,30 @@
   }
   .script-box + .script-box { margin-top: 12px; }
 
-  /* Dashed border + explicit label, distinct from .script-box's solid
-     border, so guidance to write your own sentences from can't be mistaken
+  /* Labeled field rows, distinct from .script-box's solid-border prose
+     block, so guidance to write your own sentences from can't be mistaken
      for text meant to be pasted straight into an email. */
-  .outline-box {
-    background: var(--teal-50); border: 1.5px dashed var(--teal-500); border-radius: 10px;
-    padding: 18px 20px; font-size: 14px; line-height: 1.7; color: var(--gray-700);
-    white-space: pre-wrap; font-family: 'Inter', sans-serif;
+  .outline-group {
+    border: 1px solid var(--teal-100); border-radius: 12px; overflow: hidden;
+    background: #ffffff; margin-bottom: 12px;
   }
-  .outline-flag {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
-    color: var(--teal-700); background: #ffffff; border: 1px solid var(--teal-500);
-    border-radius: 6px; padding: 3px 9px; margin-bottom: 12px;
+  .outline-group-head {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--teal-700); background: var(--teal-50);
+    padding: 9px 16px; border-bottom: 1px solid var(--teal-100);
+  }
+  .outline-field { padding: 14px 16px; }
+  .outline-field + .outline-field { border-top: 1px dashed var(--gray-200); }
+  .outline-field-label {
+    display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--teal-700); background: var(--teal-50);
+    border-radius: 5px; padding: 2px 8px; margin-bottom: 6px;
+  }
+  .outline-field-instr { font-size: 13.5px; color: var(--gray-700); line-height: 1.55; margin-bottom: 6px; }
+  .outline-field-ex {
+    font-size: 12.5px; color: var(--gray-500); line-height: 1.5;
+    font-style: italic; padding-left: 10px; border-left: 2px solid var(--gray-200);
   }
 
   ol.steps, ul.bullets { padding-left: 22px; margin-bottom: 12px; }
@@ -351,6 +362,8 @@ To stop receiving emails, reply with "unsubscribe"</div>
             <li>If the site looks like it was built in 2010, loads slowly, or isn't mobile-friendly on your phone, they're still a target</li>
           </ol>
           <p>Track every business you research in the Lead Tracker, even if you decide not to contact them. Label their website status so we never research the same business twice.</p>
+          <p style="margin-top:10px;"><strong>Once you've found one, research it before writing.</strong> Your goal is one or more genuine, verified observations that make the email feel written specifically for them, not a guess. Full checklist and examples on the Email Scripts page's Research tab. If you can't find anything meaningful, skip the lead.</p>
+          <p style="margin-top:10px;"><strong>Skip the lead if:</strong> you can't verify key information, can't find a meaningful way to personalize the email, the business recently asked not to be contacted, it's permanently closed, or it already has a modern, well-maintained website with nothing worth mentioning. Quality beats quantity.</p>
         </div>
       </div>
 
@@ -358,20 +371,35 @@ To stop receiving emails, reply with "unsubscribe"</div>
         <div class="panel-head"><h2>How to Write Outreach Emails</h2><span class="tag">Full scripts on the Email Scripts page</span></div>
         <div class="panel-body">
           <p class="lead">Do not use copy-paste templates. Every email must reference something specific about that business. Full outlines with examples for each lead type live on the Email Scripts page, this is the short version.</p>
-          <p><strong>The structure (Problem-Agitate-Solve):</strong></p>
-          <div class="outline-box"><span class="outline-flag">&#9998; Outline, write your own version</span>Problem: one specific, real observation about their business, something you actually saw, not a guess.
-
-Agitate: what that likely means for them, in your own words. Only state it as fact if you'd stand behind it, otherwise soften with "probably" or "likely," or skip this part.
-
-Solve: one line on what WisdomLayers does, then one soft question, no pressure.</div>
+          <p><strong>The structure (Problem-Impact-Solution-Question):</strong></p>
+          <div class="outline-group">
+            <div class="outline-group-head">&#9998; Outline, write your own version from this</div>
+            <div class="outline-field">
+              <span class="outline-field-label">Problem</span>
+              <div class="outline-field-instr">One specific, real observation about their business, something you actually saw, not a guess.</div>
+            </div>
+            <div class="outline-field">
+              <span class="outline-field-label">Impact</span>
+              <div class="outline-field-instr">Explain one likely business impact, without exaggerating. Only state it if you'd stand behind it, otherwise soften with "probably" or "likely," or skip this part.</div>
+            </div>
+            <div class="outline-field">
+              <span class="outline-field-label">Solution</span>
+              <div class="outline-field-instr">One sentence introducing WisdomLayers. No price.</div>
+            </div>
+            <div class="outline-field">
+              <span class="outline-field-label">Question</span>
+              <div class="outline-field-instr">One soft question, no pressure into a meeting.</div>
+            </div>
+          </div>
           <p style="margin-top:10px;"><strong>Rules:</strong></p>
           <ul class="bullets">
-            <li>Keep every email under 100 words</li>
+            <li>Keep every email under 150 words, business owners skim</li>
             <li>Never mention price in the first email, that's a discovery call topic</li>
             <li>Never say "I hope this email finds you well"</li>
             <li>Never use the word "synergy" or any corporate buzzword</li>
             <li>End with one question only, never two</li>
             <li>Always reference something real and specific about THAT business</li>
+            <li>Verify every fact before mentioning it, never guess or invent details</li>
           </ul>
         </div>
       </div>
@@ -396,7 +424,8 @@ Solve: one line on what WisdomLayers does, then one soft question, no pressure.<
       <div class="panel" id="replies" data-tab-panel="replies">
         <div class="panel-head"><h2>When Someone Replies</h2></div>
         <div class="panel-body">
-          <p><strong>If they're interested or curious:</strong> Immediately update their status in the tracker to "Warm Lead" (see the Warm Leads tab). Reply within the hour if you can, speed matters more than wording here. Write your own reply, short and conversational, actually answer whatever they asked, don't pitch hard or discuss price. Notify the owner right away and tell the lead the owner will follow up.</p>
+          <p><strong>If they reply politely but aren't ready yet:</strong> "Thanks." "We'll keep you in mind." "Maybe later." That's a <strong>Positive Response</strong> (tracked as "Replied" in the tool), interested enough not to ignore you, not ready for the owner. Update the tracker to Replied and log it, no handoff needed yet.</p>
+          <p style="margin-top:10px;"><strong>If they're interested or asking questions:</strong> Immediately update their status in the tracker to "Warm Lead" (see the Warm Leads tab). Reply within one hour whenever possible, fast responses consistently outperform delayed ones. Write your own reply, short and conversational, actually answer whatever they asked, don't pitch hard or discuss price. Notify the owner right away and tell the lead the owner will follow up.</p>
           <p style="margin-top:10px;"><strong>If they say not interested:</strong> Reply "No worries at all, appreciate you taking the time to respond." Update the tracker to Not Interested. Move on.</p>
           <p><strong>If they say unsubscribe:</strong> Reply "Of course, removing you now." Update the tracker to Unsubscribed. Never contact them again from any WisdomLayers email address. This is a legal requirement.</p>
         </div>
@@ -405,11 +434,12 @@ Solve: one line on what WisdomLayers does, then one soft question, no pressure.<
       <div class="panel" id="warm" data-tab-panel="warm">
         <div class="panel-head"><h2>What a Warm Lead Means</h2></div>
         <div class="panel-body">
-          <p>A warm lead is a business owner who has replied and shown genuine interest, not just someone who opened the email. A real reply expressing curiosity or asking a question.</p>
+          <p>A warm lead is a business owner who replies with genuine interest. They ask a question, want more information, or are open to a conversation. Email opens and link clicks are useful signals, but they are not warm leads. Only a real reply counts.</p>
           <p><strong>You hand off a warm lead by:</strong></p>
           <ol class="steps">
-            <li>Updating their status in the tracker to "Warm Lead"</li>
-            <li>Messaging the owner directly with the business name, owner name, what they said, and the best way to reach them</li>
+            <li>Updating their status in the tracker to "Warm Lead", this automatically alerts the owner</li>
+            <li>Messaging the owner directly with the business name, a summary of what they said, and their preferred contact method</li>
+            <li>Replying within one hour whenever possible, fast responses matter more than polished ones</li>
           </ol>
           <p>Do not try to close the deal yourself. Your job ends at the handoff.</p>
         </div>
